@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import HomeHeader from "@/components/homepage/Header";
 import HomeFooter from "@/components/homepage/Footer";
 import FloatingCards from "@/components/FloatingCards";
@@ -79,14 +78,14 @@ export default function Home() {
               className="bg-[#745296] text-white hover:bg-[#624080]"
               asChild
             >
-              <Link href="/login">I'm a Student / Faculty</Link>
+              <Link href="/login">I&apos;m a Student / Faculty</Link>
             </Button>
             <Button
               variant="outline"
               className=" text-[#745296] hover:text-white hover:bg-[#745296]"
               asChild
             >
-              <Link href="/onboarding">I'm an Institution Admin</Link>
+              <Link href="/onboarding">I&apos;m an Institution Admin</Link>
             </Button>
           </div>
         </section>
@@ -97,7 +96,7 @@ export default function Home() {
               Trusted by Institutions Who Believe in Student Leadership
             </h2>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8">
-              <img
+              <Image
                 src="/images/college-of-idaho-logo.png"
                 alt="College of Idaho Logo"
                 className="h-16 w-auto grayscale hover:grayscale-0 transition duration-300"
@@ -112,7 +111,7 @@ export default function Home() {
         <section id="features" className="w-full bg-white py-20">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#745296] mb-10">
-              Who's it for?
+              Who&apos;s it for?
             </h2>
             <div className="flex justify-center gap-4 mb-6">
               {Object.entries(roles).map(([key, role]) => (

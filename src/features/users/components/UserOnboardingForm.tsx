@@ -7,6 +7,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@/components/Toast";
+import Image from "next/image";
 
 export default function UserOnboardingForm() {
   const { user, loading } = useCurrentUser();
@@ -47,6 +48,7 @@ export default function UserOnboardingForm() {
         }
       } catch (err) {
         setToast({ type: "error", msg: "Institution domain check failed" });
+        console.log(err)
       }
     };
 
@@ -126,7 +128,7 @@ export default function UserOnboardingForm() {
           </div>
           {avatarPreview && (
             <div className="mb-4">
-              <img
+              <Image
                 src={avatarPreview}
                 alt="Avatar Preview"
                 className="w-24 h-24 object-cover rounded-full border"

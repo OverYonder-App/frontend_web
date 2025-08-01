@@ -21,12 +21,13 @@ export default function Unauthorized() {
           You Shall Not Pass
         </h1>
         <p className="text-sm text-gray-600 mb-6">
-          Looks like you don't have permission to view this page. If you think
-          this is a mistake, try logging in again.
+          Looks like you don&apos;t have permission to view this page. If you
+          think this is a mistake, try logging in again.
         </p>
         <Link href="/login">
           <Button className="w-full bg-[#745296] hover:bg-[#684287]">
-            <LogIn onClick={handleLogout} size={16} className="mr-2" /> Return to Login
+            <LogIn onClick={handleLogout} size={16} className="mr-2" /> Return
+            to Login
           </Button>
         </Link>
       </div>

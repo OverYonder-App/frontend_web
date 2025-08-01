@@ -82,7 +82,7 @@ export default function TabsSwitcher() {
             Basketball Game Today
           </h3>
           <p className="text-sm text-gray-600">
-            Don't miss the campus game at 6pm in the gym!
+            Don&apos;t miss the campus game at 6pm in the gym!
           </p>
         </Card>
       </TabsContent>

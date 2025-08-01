@@ -3,6 +3,7 @@ import { CalendarClock, MapPin, Users, Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Event } from "../types";
+import Image from "next/image";
 
 export interface EventCardProps {
   event: Event;
@@ -11,7 +12,7 @@ export interface EventCardProps {
 export default function EventCard({ event }: EventCardProps) {
   return (
     <Card className="overflow-hidden rounded-xl border border-gray-200 shadow hover:shadow-md transition">
-      <img src={event.image} alt={event.title} className="w-full h-40 object-cover" />
+      <Image src={event.image} alt={event.title} className="w-full h-40 object-cover" />
       <div className="p-4 space-y-2">
         <h3 className="text-lg font-semibold text-[#745296]">{event.title}</h3>
         <p className="text-sm text-gray-600 flex items-center gap-1">

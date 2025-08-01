@@ -11,7 +11,7 @@ import UserOnboardingForm from "@/features/users/components/UserOnboardingForm";
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, loading } = useCurrentUser();
-  const [userEmail, setUserEmail] = useState("gerald.akorli@gmail.com"); // Replace with actual user email from auth
+  const [userEmail, setUserEmail] = useState<string>("gerald.akorli@gmail.com"); // Replace with actual user email from auth
   const [institutionStatus, setInstitutionStatus] = useState<
     "checking" | "found" | "not_found"
   >("not_found");
@@ -24,8 +24,10 @@ export default function OnboardingPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    setUserEmail(user?.email || "")
     const checkInstitution = async () => {
       const domain = user?.email.split("@")[1];
+
       console.log(domain);
       try {
         if (!loading) {
@@ -40,10 +42,11 @@ export default function OnboardingPage() {
         }
       } catch (e) {
         setError("Failed to verify your institution");
+        console.log(e)
       }
     };
     checkInstitution();
-  }, [user, router]);
+  }, [user, router,loading]);
 
   const handleAdminSubmit = async () => {
     try {
@@ -75,6 +78,7 @@ export default function OnboardingPage() {
       router.push("/thank-you");
     } catch (err) {
       setError("Error submitting request");
+      console.log(err)
     }
   };
 
@@ -90,14 +94,14 @@ export default function OnboardingPage() {
       {institutionStatus === "not_found" && isAdminChoice === null && (
         <>
           <p className="mb-4">
-            We couldn't find your institution. Are you an administrator?
+            We couldn&apos;t find your institution. Are you an administrator?
           </p>
           <div className="flex justify-center gap-4">
             <Button onClick={() => setIsAdminChoice(true)}>
-              Yes, I'm an Admin
+              Yes, I&apos;m an Admin
             </Button>
             <Button variant="outline" onClick={() => setIsAdminChoice(false)}>
-              No, I'm a Student/Faculty
+              No, I&apos;m a Student/Faculty
             </Button>
           </div>
         </>

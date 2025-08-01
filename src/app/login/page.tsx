@@ -7,8 +7,6 @@ import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
 import { TiVendorMicrosoft } from "react-icons/ti";
 import Link from "next/link";
-import { getSupabaseServerClient } from "@/lib/auth";
-import { supabase } from "@/lib/supabase";
 import { loginWithPassword } from "./actions";
 import { useUser } from "@/context/UserContext";
 
@@ -110,7 +108,7 @@ export default function LoginPage() {
             {loading ? "Sending..." : "Send Magic Link"}
           </Button>
           <p className="text-sm text-gray-600">
-            Don't have an account? Register{" "}
+            Don&apos;t have an account? Register{" "}
             <Link className="text-[#745296] underline" href={"/register"}>
               here
             </Link>

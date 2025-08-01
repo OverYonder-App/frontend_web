@@ -1,7 +1,6 @@
 // src/components/FABMenu.tsx
 import { useState, useRef, useEffect } from "react";
 import { Plus, Users, Flag, CalendarPlus } from "lucide-react";
-import { Button } from "./ui/button";
 
 export default function FABMenu() {
   const [fabOpen, setFabOpen] = useState(false);

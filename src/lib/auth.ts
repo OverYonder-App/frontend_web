@@ -4,7 +4,7 @@
 // Middleware
 // Server Actions
 import { createServerClient } from "@supabase/ssr";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { Database } from "./database.types";
 
 export const getSupabaseServerClient = async (p0: unknown) => {

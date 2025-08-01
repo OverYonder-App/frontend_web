@@ -1,5 +1,6 @@
 "use client";
 import { motion, useMotionValue, useTransform } from "framer-motion";
+import Image from "next/image";
 import { useEffect, useRef } from "react";
 
 const cards = Array.from({ length: 12 });
@@ -44,7 +45,7 @@ export default function FloatingCards() {
             className="mb-6 break-inside-avoid bg-white/70 backdrop-blur-md border border-white/40 shadow-xl rounded-xl overflow-hidden w-full flex flex-col  content-center transform transition-all hover:scale-105 hover:shadow-2xl"
           >
             <div className="h-40 w-full overflow-hidden">
-              <img
+              <Image
                 src={`/images/sample-event-${(i % 3) + 1}.jpg`}
                 alt="Event Banner"
                 className="w-full h-full object-cover"

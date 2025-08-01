@@ -8,7 +8,7 @@ import {
   Autocomplete,
   useLoadScript,
 } from "@react-google-maps/api";
-import { rrulestr, RRule, Weekday } from "rrule";
+import {  RRule, Weekday } from "rrule";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
@@ -19,6 +19,7 @@ import {
   EMPTY_EVENT_FORM,
   type EventFormValues,
 } from "@/constants/defaults";
+import Image from "next/image";
 
 const LS_KEY = "createEventDraft";
 
@@ -207,7 +208,7 @@ export default function CreateEventForm() {
                 <>
                   {field.value?.[0] ? (
                     <div className="relative inline-block">
-                      <img
+                      <Image
                         src={URL.createObjectURL(field.value[0])}
                         alt="Preview"
                         className="h-32 w-48 object-cover rounded"
@@ -580,7 +581,7 @@ export default function CreateEventForm() {
               </ul>
             </div>
           )}
-          <img
+          <Image
             src={staticMapUrl}
             alt="Location preview"
             className="w-full rounded"

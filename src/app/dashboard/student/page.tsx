@@ -1,6 +1,5 @@
 "use client"
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import EventCard from "@/features/events/components/EventCard";
 import StudentLayout from "../StudentLayout";
