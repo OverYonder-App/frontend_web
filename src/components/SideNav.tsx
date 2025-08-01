@@ -9,7 +9,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { supabase } from "@/lib/supabase";
+import { useUser } from "@/context/UserContext";
 
 const navItems = [
   { label: "Home", icon: <Home size={18} />, href: "/dashboard/student" },
@@ -20,10 +20,10 @@ const navItems = [
 ];
 
 export default function SidebarNav() {
+  const { signOut } = useUser();
   const handleLogout = async () => {
-    let { error } = await supabase.auth.signOut();
-    console.error(error);
-     window.location.href = "/login";
+    await signOut();
+    window.location.href = "/login";
   };
   return (
     <aside className="hidden md:flex flex-col justify-between w-64 bg-[#745296] text-white h-screen p-4">

@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { LockKeyhole, LogIn } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { useUser } from "@/context/UserContext";
 
 export default function Unauthorized() {
-   const handleLogout = async () => {
-     await supabase.auth.signOut();
-     window.location.href = "/login";
-   };
+  const { signOut } = useUser();
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = "/login";
+  };
   return (
     <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 bg-[#f9f9ff]">
       <div className="bg-white shadow-lg rounded-2xl p-10 max-w-md w-full">
