@@ -48,7 +48,7 @@ interface FormValues {
   monthInterval: number;
 }
 
-export default function ImprovedCreateEventPage() {
+export default function CreateEventForm() {
   // Load Google Maps scripts
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY!,
