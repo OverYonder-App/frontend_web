@@ -31,6 +31,7 @@ const LS_KEY = "createEventDraft";
 // required when the corresponding visibility is chosen.
 type FormValues = EventFormValues;
 
+
 export default function CreateEventForm() {
   // Load Google Maps scripts
   const { isLoaded, loadError } = useLoadScript({
