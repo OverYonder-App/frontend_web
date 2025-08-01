@@ -14,7 +14,7 @@ export interface DayViewProps {
   onSelectEvent?: (id: string) => void;
 }
 
-const CELL_HEIGHT = 32; // px per hour to reduce overall height
+const CELL_HEIGHT = 48; // px per hour
 const CATEGORY_COLORS: Record<string, string> = {
   Social: '#38bdf8',
   Academic: '#818cf8',
@@ -41,8 +41,7 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
         {Array.from({ length: 24 }).map((_, i) => (
           <div
             key={i}
-            className="flex items-start justify-end pr-1 text-xs text-gray-500"
-            style={{ height: CELL_HEIGHT }}
+            className="h-48 flex items-start justify-end pr-1 text-xs text-gray-500"
           >
             {i}:00
           </div>

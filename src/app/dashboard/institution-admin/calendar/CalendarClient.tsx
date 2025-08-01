@@ -208,8 +208,8 @@ export default function CalendarClient({ events }: { events: EventRecord[] }) {
         </div>
         {/* Main calendar view */}
         <div
-          className={`flex-1 overflow-auto p-2 ${
-            view !== 'month' ? 'max-w-screen-md mx-auto' : ''
+          className={`flex-1 p-2 ${
+            view !== 'month' ? 'max-h-[80vh] overflow-y-auto' : 'overflow-auto'
           }`}
         >
           <CalendarView
