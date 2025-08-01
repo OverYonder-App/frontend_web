@@ -97,6 +97,8 @@ export default function Home() {
             </h2>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8">
               <Image
+                width={100}
+                height={100}
                 src="/images/college-of-idaho-logo.png"
                 alt="College of Idaho Logo"
                 className="h-16 w-auto grayscale hover:grayscale-0 transition duration-300"

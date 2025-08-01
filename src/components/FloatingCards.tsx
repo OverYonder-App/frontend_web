@@ -48,6 +48,8 @@ export default function FloatingCards() {
               <Image
                 src={`/images/sample-event-${(i % 3) + 1}.jpg`}
                 alt="Event Banner"
+                width={800}
+                height={500}
                 className="w-full h-full object-cover"
               />
             </div>
