@@ -12,7 +12,13 @@ export interface EventCardProps {
 export default function EventCard({ event }: EventCardProps) {
   return (
     <Card className="overflow-hidden rounded-xl border border-gray-200 shadow hover:shadow-md transition">
-      <Image src={event.image} alt={event.title} className="w-full h-40 object-cover" />
+      <Image
+        width={"800"}
+        height={"500"}
+        src={event.image}
+        alt={event.title}
+        className="w-full h-40 object-cover"
+      />
       <div className="p-4 space-y-2">
         <h3 className="text-lg font-semibold text-[#745296]">{event.title}</h3>
         <p className="text-sm text-gray-600 flex items-center gap-1">

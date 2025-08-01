@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import EventCard from "@/features/events/components/EventCard";
@@ -11,7 +11,7 @@ const mockEvents = [
     date: "Thu, Jul 25 • 6:00 PM",
     location: "Main Lawn",
     category: "Social",
-    image: "https://source.unsplash.com/random/800x500?concert",
+    image: "https://picsum.photos/seed/picsum/800/500",
     host: "Campus Life",
     attendees: ["A", "B", "C"],
   },
@@ -21,7 +21,7 @@ const mockEvents = [
     date: "Fri, Jul 26 • 4:00 PM",
     location: "Library Auditorium",
     category: "Academic",
-    image: "https://source.unsplash.com/random/800x500?ai",
+    image: "https://picsum.photos/seed/picsum/800/500",
     host: "Philosophy Dept",
     attendees: ["D", "E"],
   },
