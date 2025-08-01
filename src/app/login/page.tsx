@@ -10,9 +10,11 @@ import Link from "next/link";
 import { getSupabaseServerClient } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { loginWithPassword } from "./actions";
+import { useUser } from "@/context/UserContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { refreshUser } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,7 @@ export default function LoginPage() {
       if (!email.includes("@")) throw new Error("Invalid email");
       console.log("Logging in with password:", email);
       const { user } = await loginWithPassword(email, password);
-
+      await refreshUser();    
       if (error) throw error;
       console.log(error)
       console.log(user);
