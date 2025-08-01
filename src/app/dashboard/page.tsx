@@ -22,7 +22,7 @@ export default function DashboardRouter() {
     } else if (role === UserRole.INSTITUTION_ADMIN) {
       router.replace("/dashboard/institution-admin");
     } else if (role === UserRole.OY_ADMIN) {
-      router.replace("/dashboard/oy-admin");
+      router.replace("/dashboard/oy");
     } else {
       router.replace("/unauthorized");
     }

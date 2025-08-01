@@ -47,7 +47,7 @@ export async function middleware(req: NextRequest) {
       "/dashboard/student": ["Student", "Student Leader"],
       "/dashboard/faculty": ["Faculty"],
       "/dashboard/institution-admin": ["Institution Admin"],
-      "/dashboard/oy-admin": ["OY Admin"],
+      "/dashboard/oy": ["OY Admin"],
     };
 
     const matched = Object.entries(roleRoutes).find(([route]) =>
