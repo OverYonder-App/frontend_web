@@ -11,6 +11,7 @@ export default function DashboardRouter() {
 
   useEffect(() => {
     if (loading) return;
+    console.log(user)
 
     const role = user?.role_type as UserRole | undefined;
 

@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useRef, useState } from "react";
 import MobileDrawerNav from "@/components/MobileNav";
 import SidebarNav from "@/components/SideNav";
