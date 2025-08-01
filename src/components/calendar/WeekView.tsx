@@ -21,7 +21,7 @@ export interface WeekViewProps {
   onSelectEvent?: (id: string) => void;
 }
 
-const CELL_HEIGHT = 48; // pixels per hour
+const CELL_HEIGHT = 32; // pixels per hour to reduce overall height
 
 export default function WeekView({ events, date, timeZone, onSelectEvent }: WeekViewProps) {
   const now = new Date();
@@ -44,7 +44,8 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
         {Array.from({ length: 24 }).map((_, i) => (
           <div
             key={i}
-            className="h-48 flex items-start justify-end pr-1 text-xs text-gray-500"
+            className="flex items-start justify-end pr-1 text-xs text-gray-500"
+            style={{ height: CELL_HEIGHT }}
           >
             {i}:00
           </div>
