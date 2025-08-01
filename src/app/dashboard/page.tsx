@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { UserRole } from "@/constants/roles";
 
 export default function DashboardRouter() {
   const { user, loading } = useCurrentUser();
@@ -11,15 +12,15 @@ export default function DashboardRouter() {
   useEffect(() => {
     if (loading) return;
 
-    const role = user?.role_type;
+    const role = user?.role_type as UserRole | undefined;
 
-    if (role === "Student" || role === "Student Leader") {
+    if (role === UserRole.STUDENT || role === UserRole.STUDENT_LEADER) {
       router.replace("/dashboard/student");
-    } else if (role === "Faculty") {
+    } else if (role === UserRole.FACULTY) {
       router.replace("/dashboard/faculty");
-    } else if (role === "Institution Admin") {
+    } else if (role === UserRole.INSTITUTION_ADMIN) {
       router.replace("/dashboard/institution-admin");
-    } else if (role === "OY Admin") {
+    } else if (role === UserRole.OY_ADMIN) {
       router.replace("/dashboard/oy-admin");
     } else {
       router.replace("/unauthorized");
