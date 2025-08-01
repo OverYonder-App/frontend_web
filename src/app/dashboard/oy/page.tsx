@@ -1,14 +1,15 @@
 // src/app/dashboard/admin/institution/InstitutionAdminDashboard.tsx
 import BaseLayout from "@/components/layouts/BaseLayout";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
+import { useUser } from "@/context/UserContext";
 import { LogOut } from "lucide-react";
 
 export default function OYAdminDashboard() {
-   const handleLogout = async () => {
-     await supabase.auth.signOut();
-     window.location.href = "/login";
-   };
+  const { signOut } = useUser();
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = "/login";
+  };
   return (
     <BaseLayout>
       <div className="space-y-6">
