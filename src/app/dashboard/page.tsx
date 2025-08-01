@@ -14,13 +14,14 @@ export default function DashboardRouter() {
     console.log(user)
 
     const role = user?.role_type as UserRole | undefined;
-
     if (role === UserRole.STUDENT || role === UserRole.STUDENT_LEADER) {
       router.replace("/dashboard/student");
     } else if (role === UserRole.FACULTY) {
       router.replace("/dashboard/faculty");
     } else if (role === UserRole.INSTITUTION_ADMIN) {
+      console.log("dashboard", role);
       router.replace("/dashboard/institution-admin");
+
     } else if (role === UserRole.OY_ADMIN) {
       router.replace("/dashboard/oy");
     } else {

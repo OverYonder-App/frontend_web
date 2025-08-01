@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { Database } from "@/lib/database.types";
+import jwt from "jsonwebtoken";
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
@@ -27,37 +28,55 @@ export async function middleware(req: NextRequest) {
   );
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
   const pathname = req.nextUrl.pathname;
 
-  const protectedRoutes = ["/dashboard", "/onboarding"];
-  const isProtected = protectedRoutes.some((path) => pathname.startsWith(path));
+  const protectedPrefixes = ["/dashboard", "/onboarding"];
+  const isProtected = protectedPrefixes.some((path) =>
+    pathname.startsWith(path)
+  );
 
-  if (!user && isProtected) {
+  // Redirect unauthenticated user to login
+  if (!session && isProtected) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // Role-based route protection under /dashboard/*
-  if (user && pathname.startsWith("/dashboard")) {
-    const role = user.app_metadata?.role_type;
+  // If user is logged in, check role and route
+  if (session && pathname.startsWith("/dashboard")) {
+    const token = session.access_token;
+    const decoded = jwt.decode(token) as any;
 
-    const roleRoutes = {
+    const role = decoded?.app_metadata?.role_type;
+
+    // Define role → route mapping
+    const roleRoutes: Record<string, string[]> = {
       "/dashboard/student": ["Student", "Student Leader"],
       "/dashboard/faculty": ["Faculty"],
       "/dashboard/institution-admin": ["Institution Admin"],
       "/dashboard/oy": ["OY Admin"],
     };
 
-    const matched = Object.entries(roleRoutes).find(([route]) =>
+    // Find the route segment being accessed
+    const matchedEntry = Object.entries(roleRoutes).find(([route]) =>
       pathname.startsWith(route)
     );
 
-    if (matched) {
-      const [route, allowedRoles] = matched;
+    if (matchedEntry) {
+      const [currentRoute, allowedRoles] = matchedEntry;
 
       if (!allowedRoles.includes(role)) {
+        // Redirect user to their correct dashboard instead of unauthorized
+        const targetRoute = Object.entries(roleRoutes).find(([, roles]) =>
+          roles.includes(role)
+        )?.[0];
+
+        if (targetRoute) {
+          return NextResponse.redirect(new URL(targetRoute, req.url));
+        }
+
+        // If role isn't matched at all, fallback to unauthorized
         return NextResponse.redirect(new URL("/unauthorized", req.url));
       }
     }
