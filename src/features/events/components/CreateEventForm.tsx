@@ -10,19 +10,16 @@ import {
 } from "@react-google-maps/api";
 import { rrulestr, RRule, Weekday } from "rrule";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import {useCurrentUser} from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import {
+  DEFAULT_CATEGORIES,
+  DEFAULT_CLUBS,
+  DEFAULT_GROUPS,
+  DEFAULT_WEEK_DAYS,
+  EMPTY_EVENT_FORM,
+  type EventFormValues,
+} from "@/constants/defaults";
 
-// Domain constants. In a production system these would come from the server.
-const CATEGORIES = [
-  "Social",
-  "Academic",
-  "Sports",
-  "Cultural",
-  "Other",
-] as const;
-const CLUBS = ["Chess Club", "Math Club", "Coding Club"] as const;
-const GROUPS = ["Group A", "Group B", "Group C"] as const;
-const WEEK_DAYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"] as const;
 const LS_KEY = "createEventDraft";
 
 // Extend the form values interface to include recurrence options and visibility
@@ -31,22 +28,7 @@ const LS_KEY = "createEventDraft";
 // users to choose the interval for monthly recurrences (e.g., every 2 months).
 // selectedClub and selectedGroup are now always present; they will only be
 // required when the corresponding visibility is chosen.
-interface FormValues {
-  imageFile: FileList;
-  category: string;
-  title: string;
-  description: string;
-  tags: string[];
-  location: { lat: number; lng: number };
-  visibility: "Everyone" | "Club" | "Group";
-  selectedClub: string;
-  selectedGroup: string;
-  start: string;
-  end: string;
-  recurrence: "none" | "daily" | "weekly" | "monthly";
-  weekDays: string[];
-  monthInterval: number;
-}
+type FormValues = EventFormValues;
 
 export default function CreateEventForm() {
   // Load Google Maps scripts
@@ -72,21 +54,7 @@ export default function CreateEventForm() {
     formState: { errors, isValid },
   } = useForm<FormValues>({
     mode: "onChange",
-    defaultValues: {
-      category: "",
-      title: "",
-      description: "",
-      tags: [],
-      location: { lat: 43.65362, lng: -116.67693 },
-      visibility: "Everyone",
-      selectedClub: "",
-      selectedGroup: "",
-      start: "",
-      end: "",
-      recurrence: "none",
-      weekDays: [],
-      monthInterval: 1,
-    },
+    defaultValues: EMPTY_EVENT_FORM as FormValues,
   });
 
   // Persist intermediate form state to local storage
@@ -287,7 +255,7 @@ export default function CreateEventForm() {
               className="w-full border rounded p-2"
             >
               <option value="">Select one…</option>
-              {CATEGORIES.map((c) => (
+              {DEFAULT_CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {c}
                 </option>
@@ -402,7 +370,7 @@ export default function CreateEventForm() {
                   className="w-full border rounded p-2"
                 >
                   <option value="">Choose a club…</option>
-                  {CLUBS.map((c) => (
+                  {DEFAULT_CLUBS.map((c) => (
                     <option key={c} value={c}>
                       {c}
                     </option>
@@ -424,7 +392,7 @@ export default function CreateEventForm() {
                   className="w-full border rounded p-2"
                 >
                   <option value="">Choose a group…</option>
-                  {GROUPS.map((g) => (
+                  {DEFAULT_GROUPS.map((g) => (
                     <option key={g} value={g}>
                       {g}
                     </option>
@@ -539,7 +507,7 @@ export default function CreateEventForm() {
             <div>
               <label className="block text-sm mb-1">Repeat on</label>
               <div className="flex flex-wrap gap-2">
-                {WEEK_DAYS.map((code) => {
+                {DEFAULT_WEEK_DAYS.map((code) => {
                   const checked = (watched.weekDays ?? []).includes(code);
                   return (
                     <label key={code} className="flex items-center gap-1">
