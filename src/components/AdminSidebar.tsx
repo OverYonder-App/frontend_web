@@ -19,7 +19,10 @@ import {
   BarChart2,
   Settings,
   Sheet,
+  LogOut,
 } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useUser } from "@/context/UserContext";
 
 interface NavItem {
   label: string;
@@ -105,6 +108,12 @@ export default function AdminSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const pathname = usePathname();
+  const { signOut, user } = useUser();
+
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = "/login";
+  };
 
   const toggleSection = (label: string) =>
     setOpen((o) => ({ ...o, [label]: !o[label] }));
@@ -215,7 +224,32 @@ export default function AdminSidebar() {
             </div>
           );
         })}
+        <hr className="my-4" />
+        <button
+          onClick={handleLogout}
+          className={`flex items-center w-full px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors`}
+        >
+          <LogOut className="w-5 h-5" />
+          {!collapsed && <span className="ml-3">Log out</span>}
+        </button>
       </nav>
+      <div className="border-t border-gray-200 p-4 flex items-center gap-3">
+        <Avatar>
+          <AvatarImage src="https://source.unsplash.com/random/40x40?profile" />
+          <AvatarFallback>UN</AvatarFallback>
+        </Avatar>
+        {!collapsed && (
+          <div className="text-sm">
+            <p className="font-medium">{user?.email}</p>
+            <p className="text-gray-500 text-xs">Account</p>
+          </div>
+        )}
+        {collapsed && (
+          <button onClick={handleLogout} className="ml-auto" aria-label="Logout">
+            <LogOut className="w-5 h-5 text-gray-600" />
+          </button>
+        )}
+      </div>
     </aside>
   );
 }
