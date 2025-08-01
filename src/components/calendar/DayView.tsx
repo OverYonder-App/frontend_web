@@ -14,7 +14,7 @@ export interface DayViewProps {
   onSelectEvent?: (id: string) => void;
 }
 
-const CELL_HEIGHT = 32; // px per hour to reduce overall height
+const CELL_HEIGHT = 48; // px per hour to reduce overall height
 const CATEGORY_COLORS: Record<string, string> = {
   Social: '#38bdf8',
   Academic: '#818cf8',
@@ -33,65 +33,76 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
   return (
     <div className="flex h-full overflow-hidden flex-col">
       <div className="px-2 py-1 text-center font-semibold border-b">
-        {formatInTimeZone(date, timeZone, 'EEEE, MMMM d, yyyy')}
+        {formatInTimeZone(date, timeZone, "EEEE, MMMM d, yyyy")}
       </div>
       <div className="flex-1 flex overflow-hidden">
-      {/* Hour labels */}
-      <div className="w-12 flex flex-col border-r border-gray-200">
-        {Array.from({ length: 24 }).map((_, i) => (
-          <div
-            key={i}
-            className="flex items-start justify-end pr-1 text-xs text-gray-500"
-            style={{ height: CELL_HEIGHT }}
-          >
-            {i}:00
-          </div>
-        ))}
-      </div>
-
-      {/* Events container */}
-      <div className="relative flex-1 overflow-auto">
-        {/* Half-hour grid lines */}
-        <div className="absolute inset-0 grid grid-rows-[repeat(48,minmax(0,1fr))] w-full">
-          {Array.from({ length: 48 }).map((_, idx) => (
+        {/* Hour labels */}
+        <div className="w-12 flex flex-col border-r border-gray-200">
+          {Array.from({ length: 24 }).map((_, i) => (
             <div
-              key={idx}
-              className={idx % 2 === 0 ? 'border-t border-gray-200' : 'border-t border-gray-100'}
-            />
+              key={i}
+              className="h-48 flex items-start justify-end pr-1 text-xs text-gray-500"
+            >
+              {i}:00
+            </div>
           ))}
         </div>
 
-        {/* Event blocks */}
-        {positioned.map(({ event, col, cols }) => {
-          const startDate = new Date(event.start);
-          const endDate = new Date(event.end);
-          const minutesFromMid = startDate.getHours() * 60 + startDate.getMinutes();
-          const durationMin = differenceInMinutes(endDate, startDate);
-          const widthPct = 100 / cols;
-          const leftPct = col * widthPct;
-          const bg = CATEGORY_COLORS[event.category || 'Default'];
-          const pending = event.status !== 'approved';
+        {/* Events container */}
+        <div className="relative flex-1 overflow-auto">
+          {/* Half-hour grid lines */}
+          <div className="absolute inset-0 grid grid-rows-[repeat(48,minmax(0,1fr))] w-full">
+            {Array.from({ length: 48 }).map((_, idx) => (
+              <div
+                key={idx}
+                className={
+                  idx % 2 === 0
+                    ? "border-t border-gray-200"
+                    : "border-t border-gray-100"
+                }
+              />
+            ))}
+          </div>
 
-          return (
-            <div
-              key={event.id}
-              className={`absolute rounded text-white text-xs p-1 overflow-hidden cursor-pointer ${pending ? 'opacity-60 border border-dashed border-gray-700' : ''}`}
+          {/* Event blocks */}
+          {positioned.map(({ event, col, cols }) => {
+            const startDate = new Date(event.start);
+            const endDate = new Date(event.end);
+            const minutesFromMid =
+              startDate.getHours() * 60 + startDate.getMinutes();
+            const durationMin = differenceInMinutes(endDate, startDate);
+            const widthPct = 100 / cols;
+            const leftPct = col * widthPct;
+            const bg = CATEGORY_COLORS[event.category || "Default"];
+            const pending = event.status !== "approved";
 
-              style={{
-                top: (minutesFromMid / 60) * CELL_HEIGHT,
-                height: (durationMin / 60) * CELL_HEIGHT,
-                left: `${leftPct}%`,
-                width: `calc(${widthPct}% - 4px)`,
-                backgroundColor: bg,
-              }}
-              onClick={() => onSelectEvent?.(event.id)}
-              title={`${event.title} (${startDate.getHours()}:${String(startDate.getMinutes()).padStart(2, '0')} - ${endDate.getHours()}:${String(endDate.getMinutes()).padStart(2, '0')})`}
-            >
-              {event.title}
-            </div>
-          );
-        })}
-      </div>
+            return (
+              <div
+                key={event.id}
+                className={`absolute rounded text-white text-xs p-1 overflow-hidden cursor-pointer ${
+                  pending
+                    ? "opacity-60 border border-dashed border-gray-700"
+                    : ""
+                }`}
+                style={{
+                  top: (minutesFromMid / 60) * CELL_HEIGHT,
+                  height: (durationMin / 60) * CELL_HEIGHT,
+                  left: `${leftPct}%`,
+                  width: `calc(${widthPct}% - 4px)`,
+                  backgroundColor: bg,
+                }}
+                onClick={() => onSelectEvent?.(event.id)}
+                title={`${event.title} (${startDate.getHours()}:${String(
+                  startDate.getMinutes()
+                ).padStart(2, "0")} - ${endDate.getHours()}:${String(
+                  endDate.getMinutes()
+                ).padStart(2, "0")})`}
+              >
+                {event.title}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
