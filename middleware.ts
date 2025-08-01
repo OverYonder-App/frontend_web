@@ -18,8 +18,7 @@ export async function middleware(req: NextRequest) {
             .map(({ name, value }) => ({ name, value }));
         },
         setAll(cookies) {
-          cookies.forEach((cookie) => {
-            const { name, value, options } = cookie;
+          cookies.forEach(({ name, value, options }) => {
             res.cookies.set(name, value, options);
           });
         },
@@ -30,16 +29,38 @@ export async function middleware(req: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-if (!user) {
-  return NextResponse.redirect(new URL("/login", req.url));
-}
-  const protectedRoutes = ["/dashboard", "/onboarding"];
-  const isProtected = protectedRoutes.some((path) =>
-    req.nextUrl.pathname.startsWith(path)
-  );
 
-  if (isProtected && !user) {
+  const pathname = req.nextUrl.pathname;
+
+  const protectedRoutes = ["/dashboard", "/onboarding"];
+  const isProtected = protectedRoutes.some((path) => pathname.startsWith(path));
+
+  if (!user && isProtected) {
     return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  // Role-based route protection under /dashboard/*
+  if (user && pathname.startsWith("/dashboard")) {
+    const role = user.app_metadata?.role_type;
+
+    const roleRoutes = {
+      "/dashboard/student": ["Student", "Student Leader"],
+      "/dashboard/faculty": ["Faculty"],
+      "/dashboard/institution-admin": ["Institution Admin"],
+      "/dashboard/oy-admin": ["OY Admin"],
+    };
+
+    const matched = Object.entries(roleRoutes).find(([route]) =>
+      pathname.startsWith(route)
+    );
+
+    if (matched) {
+      const [route, allowedRoles] = matched;
+
+      if (!allowedRoles.includes(role)) {
+        return NextResponse.redirect(new URL("/unauthorized", req.url));
+      }
+    }
   }
 
   return res;
