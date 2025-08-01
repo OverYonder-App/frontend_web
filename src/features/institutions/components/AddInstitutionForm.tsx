@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button"; // adjust if different path
-import { Toast } from "./Toast";
+import { Toast } from "@/components/Toast";
 
 export default function AddInstitutionForm() {
   const [step, setStep] = useState(1);

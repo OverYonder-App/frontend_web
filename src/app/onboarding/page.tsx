@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { UIErrorMessage } from "@/components/UIErrorComponent";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import AddInstitutionForm from "@/components/AddInstitutionForm";
-import UserOnboardingForm from "@/components/UserOnboardingForm";
+import AddInstitutionForm from "@/features/institutions/components/AddInstitutionForm";
+import UserOnboardingForm from "@/features/users/components/UserOnboardingForm";
 
 export default function OnboardingPage() {
   const router = useRouter();
