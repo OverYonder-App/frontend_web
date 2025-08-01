@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   addDays,
   addMonths,
@@ -14,13 +14,7 @@ import type { EventRecord } from "@/lib/types";
 import CalendarView from "@/components/calendar/CalendarView";
 import MiniMonthView from "@/components/calendar/MiniMonthView";
 import CategoryList from "@/components/calendar/CategoryList";
-import {
-  Calendar as CalendarIcon,
-  List as ListIcon,
-  Users as UsersIcon,
-  Settings as SettingsIcon,
-  Plus as PlusIcon,
-} from "lucide-react";
+import { Plus as PlusIcon } from "lucide-react";
 
 /**
  * CalendarClient is the top-level client component for the calendar page.
@@ -213,7 +207,11 @@ export default function CalendarClient({ events }: { events: EventRecord[] }) {
           </div>
         </div>
         {/* Main calendar view */}
-        <div className="flex-1 overflow-auto p-2">
+        <div
+          className={`flex-1 overflow-auto p-2 ${
+            view !== 'month' ? 'max-w-screen-md mx-auto' : ''
+          }`}
+        >
           <CalendarView
             view={view}
             events={filtered}
