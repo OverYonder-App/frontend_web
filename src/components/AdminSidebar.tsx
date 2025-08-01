@@ -244,11 +244,6 @@ export default function AdminSidebar() {
             <p className="text-gray-500 text-xs">Account</p>
           </div>
         )}
-        {collapsed && (
-          <button onClick={handleLogout} className="ml-auto" aria-label="Logout">
-            <LogOut className="w-5 h-5 text-gray-600" />
-          </button>
-        )}
       </div>
     </aside>
   );
