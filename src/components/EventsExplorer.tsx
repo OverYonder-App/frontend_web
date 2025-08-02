@@ -106,7 +106,7 @@ export default function EventsExplorer({ events }: { events: EventRecord[] }) {
 
             {/* Plus Button */}
             <Link
-              href="/admin/events/create"
+              href="/dashboard/institution-admin/events/create"
               className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow"
               aria-label="Create new event"
             >

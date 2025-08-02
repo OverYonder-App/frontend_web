@@ -1,13 +1,30 @@
-import { Metadata } from "next"
-import type { EventRecord } from "@/lib/types"
-import EventApprovalButtons from '@/components/EventApprovalButtons'
+import { Metadata } from "next";
+import { getSupabaseServerClient } from "@/lib/auth";
+import type { EventRecord } from "@/lib/types";
+import type { Database } from "@/lib/database.types";
+import EventApprovalButtons from "@/components/EventApprovalButtons";
 
 export const metadata: Metadata = {
   title: "Pending Events – Institution Admin",
-}
+};
+
+type EventRow = Database["public"]["Tables"]["events"]["Row"] & {
+  organizations: { name: string } | null;
+};
 
 export default async function PendingEventsPage() {
-  const events: EventRecord[] = []
+  const supabase = await getSupabaseServerClient();
+  const { data } = await supabase
+    .from("events")
+    .select("*, organizations(name)")
+    .eq("status", "pending");
+
+  const events: EventRecord[] = ((data as EventRow[]) || []).map((ev) => ({
+    id: ev.event_id,
+    title: ev.title,
+    date: ev.start_date,
+    organizer: ev.organizations?.name || "",
+  }));
 
   return (
     <section className="space-y-4">
@@ -44,5 +61,5 @@ export default async function PendingEventsPage() {
         </table>
       </div>
     </section>
-  )
+  );
 }
