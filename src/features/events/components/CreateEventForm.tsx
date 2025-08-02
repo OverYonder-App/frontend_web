@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { GoogleMap, useLoadScript } from "@react-google-maps/api";
+import type { Library } from "@googlemaps/js-api-loader";
 import { Combobox } from "@headlessui/react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from "next/image";
@@ -11,28 +12,15 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { fetchClubs, type Organization } from "@/features/organizations/api";
 import { EMPTY_EVENT_FORM, type EventFormValues } from "@/constants/defaults";
 
-/* eslint-disable @typescript-eslint/no-namespace */
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "gmpx-place-autocomplete": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement>,
-        HTMLElement
-      >;
-    }
-  }
-}
-/* eslint-enable @typescript-eslint/no-namespace */
 
-const libraries = ["places", "marker"] as const;
+const libraries: Library[] = ["places", "marker"];
 
 export default function CreateEventForm() {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY!,
     libraries,
   });
-  const placeRef =
-    useRef<google.maps.places.PlaceAutocompleteElement | null>(null);
+const placeRef = useRef<PlaceAutocompleteElement>(null!);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
@@ -45,6 +33,13 @@ export default function CreateEventForm() {
   const [clubs, setClubs] = useState<Organization[]>([]);
   const [clubQuery, setClubQuery] = useState("");
   const { user } = useCurrentUser();
+  const updateLocation = async (loc: { lat: number; lng: number }) => {
+    setMapCenter(loc);
+    setValue("location", loc);
+    if (geocoderRef.current) {
+      await geocode(loc);
+    }
+  };
 
   const {
     register,
@@ -67,7 +62,7 @@ export default function CreateEventForm() {
         .then(({ results }) => {
           const addr = results[0]?.formatted_address || "";
           setValue("address", addr);
-          if (placeRef.current) placeRef.current.value = addr;
+          if (placeRef.current) placeRef.current.nodeValue = addr;
         });
     }
     }, [isLoaded, location, setValue]);
@@ -138,20 +133,14 @@ export default function CreateEventForm() {
 
   const stepTitles = ["Details", "Location", "Schedule", "Review"];
 
-  const geocode = async (loc: { lat: number; lng: number }) => {
+async function geocode(loc: { lat: number; lng: number }){
     const { results } = await geocoderRef.current!.geocode({ location: loc });
     const addr = results[0]?.formatted_address || "";
     setValue("address", addr);
-    if (placeRef.current) placeRef.current.value = addr;
+    if (placeRef.current) placeRef.current.nodeValue = addr;
   };
 
-  const updateLocation = async (loc: { lat: number; lng: number }) => {
-    setMapCenter(loc);
-    setValue("location", loc);
-    if (geocoderRef.current) {
-      await geocode(loc);
-    }
-  };
+  
 
   useEffect(() => {
     if (!location || !mapRef.current || !isLoaded) return;
@@ -174,10 +163,10 @@ export default function CreateEventForm() {
 
   useEffect(() => {
     if (!placeRef.current) return;
-    const el = placeRef.current as google.maps.places.PlaceAutocompleteElement;
+    const el = placeRef.current;
     const handler = () => {
-      const place = el.getPlace() as google.maps.places.PlaceResult;
-      const loc = place.location as google.maps.LatLng | undefined;
+      const place = el as google.maps.places.PlaceResult;
+      const loc = place.geometry?.location as google.maps.LatLng | undefined;
       if (loc) {
         updateLocation({ lat: loc.lat(), lng: loc.lng() });
       }
@@ -371,7 +360,7 @@ export default function CreateEventForm() {
             mapContainerStyle={{ width: "100%", height: "240px" }}
             center={mapCenter}
             zoom={17}
-            onLoad={(map) => (mapRef.current = map)}
+            onLoad={(map) => {mapRef.current = map}}
             onClick={(e: google.maps.MapMouseEvent) =>
               updateLocation({
                 lat: e.latLng!.lat(),
