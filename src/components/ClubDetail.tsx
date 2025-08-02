@@ -71,10 +71,7 @@ export default function ClubDetail({ clubId }: { clubId: string }) {
           Delete
         </button>
       </div>
-      <div>
-        <h2 className="text-lg font-medium">Status History</h2>
-        
-      </div>
+    
     </div>
   );
 }
