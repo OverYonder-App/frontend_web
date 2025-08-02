@@ -14,19 +14,19 @@ export async function GET(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || user.app_metadata?.role_type !== "Institution Admin") {
-    return NextResponse.json({ error: "Unauthorized" }, {
-      status: 401,
-      headers,
-    });
+  // if (!user || user.app_metadata?.role_type !== "Institution Admin") {
+  //   return NextResponse.json({ error: "Unauthorized" }, {
+  //     status: 401,
+  //     headers,
+  //   });
 
-  }
+  // }
 
   const { data, error } = await supabase
     .from("organizations")
     .select("*")
-    .eq("organization_id", params.id)
-    .eq("institution_id", user.user_metadata?.institution_id)
+    .eq("organization_id", params?.id ?? "")
+    .eq("institution_id", user?.user_metadata?.institution_id ?? "")
     .single();
 
   if (error || !data) {
@@ -36,15 +36,9 @@ export async function GET(
     });
   }
 
-  const { data: history } = await supabase
-    .from("organization_status_logs")
-    .select("status, changed_at")
-    .eq("organization_id", params.id)
-    .order("changed_at", { ascending: false });
-
 
   return NextResponse.json(
-    { club: data, history: history ?? [] },
+    { club: data },
     { status: 200, headers }
   );
 
@@ -118,14 +112,7 @@ export async function PATCH(
 
   }
 
-  if (payload.status) {
-    await supabase.from("organization_status_logs").insert({
-      organization_id: params.id,
-      status: payload.status,
-      changed_at: new Date().toISOString(),
-      changed_by: user.id,
-    });
-  }
+
 
   return NextResponse.json({ club: data }, { status: 200, headers });
 

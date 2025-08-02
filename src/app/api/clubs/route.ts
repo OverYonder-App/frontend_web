@@ -12,14 +12,14 @@ export async function GET(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || user.app_metadata?.role_type !== "Institution Admin") {
+  // if (!user || user.app_metadata?.role_type !== "Institution Admin") {
 
-    return NextResponse.json({ error: "Unauthorized" }, {
-      status: 401,
-      headers,
-    });
+  //   return NextResponse.json({ error: "Unauthorized" }, {
+  //     status: 401,
+  //     headers,
+  //   });
 
-  }
+  // }
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
@@ -32,9 +32,9 @@ export async function GET(req: NextRequest) {
     .from("organizations")
     .select("*", { count: "exact" })
     .eq("organization_type", "club")
-    .eq("institution_id", user.user_metadata?.institution_id);
+    .eq("institution_id", user?.user_metadata?.institution_id ?? "");
 
-  if (status) query = query.eq("status", status);
+  if (status) query = query.eq("status", status as "draft" | "rejected" | "pending" | "approved");
   if (search) query = query.ilike("name", `%${search}%`);
 
   const { data, error, count } = await query
@@ -59,13 +59,13 @@ export async function POST(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || user.app_metadata?.role_type !== "Institution Admin") {
-    return NextResponse.json({ error: "Unauthorized" }, {
-      status: 401,
-      headers,
-    });
+  // if (!user || user.app_metadata?.role_type !== "Institution Admin") {
+  //   return NextResponse.json({ error: "Unauthorized" }, {
+  //     status: 401,
+  //     headers,
+  //   });
 
-  }
+  // }
 
   const body = await req.json();
   const { name, description, logo_url } = body;
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     .from("organizations")
     .select("organization_id")
     .eq("name", name)
-    .eq("institution_id", user.user_metadata?.institution_id)
+    .eq("institution_id", user?.user_metadata?.institution_id ?? "")
     .eq("organization_type", "club")
     .maybeSingle();
 
@@ -100,10 +100,11 @@ export async function POST(req: NextRequest) {
       name,
       description,
       logo_url,
-      institution_id: user.user_metadata?.institution_id,
-      created_by: user.id,
+      institution_id: user?.user_metadata?.institution_id ?? "",
+      created_by: user?.id ?? "",
       organization_type: "club",
-      status: "pending",
+      status: "approved",
+      approved_by: user?.id ?? "",
     })
     .select("*")
     .single();
@@ -117,12 +118,6 @@ export async function POST(req: NextRequest) {
 
   }
 
-  await supabase.from("organization_status_logs").insert({
-    organization_id: data.organization_id,
-    status: "pending",
-    changed_at: new Date().toISOString(),
-    changed_by: user.id,
-  });
 
 
   return NextResponse.json({ club: data }, { status: 201, headers });

@@ -10,21 +10,14 @@ import {
   deleteClub,
 } from "@/features/organizations/api";
 
-interface Props {
-  clubId: string;
-}
-
-export default function ClubDetail({ clubId }: Props) {
+export default function ClubDetail({ clubId }: { clubId: string }) {
   const [club, setClub] = useState<Organization | null>(null);
-  const [history, setHistory] = useState<
-    { status: string; changed_at: string }[]
-  >([]);
+
   const router = useRouter();
 
   useEffect(() => {
     fetchClub(clubId).then((data) => {
       setClub(data.club);
-      setHistory(data.history);
     });
   }, [clubId]);
 
@@ -37,7 +30,6 @@ export default function ClubDetail({ clubId }: Props) {
     router.refresh();
     const data = await fetchClub(clubId);
     setClub(data.club);
-    setHistory(data.history);
   };
 
   const handleReject = async () => {
@@ -45,7 +37,6 @@ export default function ClubDetail({ clubId }: Props) {
     router.refresh();
     const data = await fetchClub(clubId);
     setClub(data.club);
-    setHistory(data.history);
   };
 
   const handleDelete = async () => {
@@ -82,13 +73,7 @@ export default function ClubDetail({ clubId }: Props) {
       </div>
       <div>
         <h2 className="text-lg font-medium">Status History</h2>
-        <ul className="mt-2 space-y-1">
-          {history.map((h) => (
-            <li key={h.changed_at} className="text-sm">
-              {h.status} – {new Date(h.changed_at).toLocaleString()}
-            </li>
-          ))}
-        </ul>
+        
       </div>
     </div>
   );
