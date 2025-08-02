@@ -28,14 +28,18 @@ export async function fetchClubs(
   if (opts.search) params.append("q", opts.search);
   if (opts.page) params.append("page", String(opts.page));
 
-  const res = await fetch(`${BASE_URL}?${params.toString()}`);
+
+  const res = await fetch(`${BASE_URL}?${params.toString()}`, {
+    credentials: "include",
+  });
   const data = await handleResponse(res);
   return { clubs: data.clubs as Organization[], count: data.count as number };
 }
 
 export async function fetchClub(id: string) {
-  const res = await fetch(`${BASE_URL}/${id}`);
+  const res = await fetch(`${BASE_URL}/${id}`, { credentials: "include" });
   const data = await handleResponse(res);
+
   return data as { club: Organization; history: { status: string; changed_at: string }[] };
 }
 
@@ -46,6 +50,7 @@ export async function createClub(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+    credentials: "include",
   });
   const data = await handleResponse(res);
   return data.club as Organization;
@@ -59,6 +64,7 @@ export async function updateClub(
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
+    credentials: "include",
   });
   const data = await handleResponse(res);
   return data.club as Organization;
@@ -75,6 +81,7 @@ export async function rejectClub(id: string): Promise<Organization> {
 export async function deleteClub(id: string): Promise<void> {
   const res = await fetch(`${BASE_URL}/${id}`, {
     method: "DELETE",
+    credentials: "include",
   });
   await handleResponse(res);
 }

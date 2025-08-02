@@ -13,6 +13,7 @@ export type User = {
 interface UserContextValue {
   user: User | null
   loading: boolean
+  accessToken: string | null
   signInWithPassword: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
   refreshUser: () => Promise<void>
@@ -23,15 +24,21 @@ const UserContext = createContext<UserContextValue | undefined>(undefined)
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [accessToken, setAccessToken] = useState<string | null>(null)
 
   const loadUser = async () => {
-    const { data, error } = await supabase.auth.getUser()
-    if (error || !data?.user) {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
+
+    if (!session?.user) {
       setUser(null)
+      setAccessToken(null)
     } else {
-      const jwt = data.user
+      const jwt = session.user
       const role_type = jwt?.user_metadata?.role_type ?? 'Pending'
       setUser({ id: jwt.id, email: jwt.email!, role_type, ...jwt.user_metadata })
+      setAccessToken(session.access_token)
     }
     setLoading(false)
   }
@@ -48,11 +55,13 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     await supabase.auth.signOut()
     setUser(null)
+    setAccessToken(null)
   }
 
   const value: UserContextValue = {
     user,
     loading,
+    accessToken,
     signInWithPassword,
     signOut,
     refreshUser: loadUser,

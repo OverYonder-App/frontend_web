@@ -7,7 +7,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { supabase } = await getSupabaseRouteHandlerClient();
+  const { supabase, headers } = getSupabaseRouteHandlerClient(req);
   const updates = await req.json();
 
   const { data, error } = await supabase
@@ -18,17 +18,20 @@ export async function PATCH(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers }
+    );
   }
 
-  return NextResponse.json({ organization: data }, { status: 200 });
+  return NextResponse.json({ organization: data }, { status: 200, headers });
 }
 
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { supabase } = await getSupabaseRouteHandlerClient();
+  const { supabase, headers } = getSupabaseRouteHandlerClient(req);
 
   const { error } = await supabase
     .from("organizations")
@@ -36,9 +39,12 @@ export async function DELETE(
     .eq("organization_id", params.id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers }
+    );
   }
 
-  return NextResponse.json({ success: true }, { status: 200 });
+  return NextResponse.json({ success: true }, { status: 200, headers });
 }
 

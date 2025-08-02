@@ -7,13 +7,19 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { supabase } = await getSupabaseRouteHandlerClient();
+
+  const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user || user.app_metadata?.role_type !== "Institution Admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, {
+      status: 401,
+      headers,
+    });
+
   }
 
   const { data, error } = await supabase
@@ -24,7 +30,11 @@ export async function GET(
     .single();
 
   if (error || !data) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json({ error: "Not found" }, {
+      status: 404,
+      headers,
+    });
+
   }
 
   const { data: history } = await supabase
@@ -33,20 +43,30 @@ export async function GET(
     .eq("organization_id", params.id)
     .order("changed_at", { ascending: false });
 
-  return NextResponse.json({ club: data, history: history ?? [] }, { status: 200 });
+
+  return NextResponse.json(
+    { club: data, history: history ?? [] },
+    { status: 200, headers }
+  );
+
 }
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { supabase } = await getSupabaseRouteHandlerClient();
+  const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user || user.app_metadata?.role_type !== "Institution Admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, {
+      status: 401,
+      headers,
+    });
+
   }
 
   type Payload = {
@@ -79,7 +99,8 @@ export async function PATCH(
     if (existing) {
       return NextResponse.json(
         { error: "Club name already exists" },
-        { status: 400 }
+        { status: 400, headers }
+
       );
     }
   }
@@ -93,7 +114,11 @@ export async function PATCH(
     .single();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers }
+    );
+
   }
 
   if (payload.status) {
@@ -105,20 +130,26 @@ export async function PATCH(
     });
   }
 
-  return NextResponse.json({ club: data }, { status: 200 });
+  return NextResponse.json({ club: data }, { status: 200, headers });
+
 }
 
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { supabase } = await getSupabaseRouteHandlerClient();
+  const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user || user.app_metadata?.role_type !== "Institution Admin") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, {
+      status: 401,
+      headers,
+    });
+
   }
 
   const { error } = await supabase
@@ -128,8 +159,12 @@ export async function DELETE(
     .eq("institution_id", user.user_metadata?.institution_id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers }
+    );
   }
 
-  return NextResponse.json({ success: true }, { status: 200 });
+  return NextResponse.json({ success: true }, { status: 200, headers });
+
 }
