@@ -1,21 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import type { Event } from "../types";
+import { fetchEvents, type EventRecord } from "../api";
 
 export function useEvents() {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchEvents() {
-      const { data, error } = await supabase.from("events").select("*");
-      if (!error && data) {
-        setEvents(data as Event[]);
-      }
-      setLoading(false);
-    }
-    fetchEvents();
+    fetchEvents()
+      .then(({ events }) => setEvents(events))
+      .finally(() => setLoading(false));
   }, []);
 
   return { events, loading };
