@@ -8,7 +8,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string; org_type: string } }
 ) {
-  const { supabase } = await getSupabaseRouteHandlerClient();
+  const { supabase, headers } = getSupabaseRouteHandlerClient(req);
 
   const { data, error } = await supabase
     .from("organizations")
@@ -18,8 +18,11 @@ export async function GET(
     .maybeSingle();
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers }
+    );
   }
 
-  return NextResponse.json({ organizations: data });
+  return NextResponse.json({ organizations: data }, { headers });
 }
