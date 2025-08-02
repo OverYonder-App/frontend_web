@@ -7,7 +7,9 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -17,6 +19,7 @@ export async function GET(
       status: 401,
       headers,
     });
+
   }
 
   const { data, error } = await supabase
@@ -31,6 +34,7 @@ export async function GET(
       status: 404,
       headers,
     });
+
   }
 
   const { data: history } = await supabase
@@ -39,10 +43,12 @@ export async function GET(
     .eq("organization_id", params.id)
     .order("changed_at", { ascending: false });
 
+
   return NextResponse.json(
     { club: data, history: history ?? [] },
     { status: 200, headers }
   );
+
 }
 
 export async function PATCH(
@@ -50,6 +56,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -59,6 +66,7 @@ export async function PATCH(
       status: 401,
       headers,
     });
+
   }
 
   type Payload = {
@@ -92,6 +100,7 @@ export async function PATCH(
       return NextResponse.json(
         { error: "Club name already exists" },
         { status: 400, headers }
+
       );
     }
   }
@@ -109,6 +118,7 @@ export async function PATCH(
       { error: error.message },
       { status: 500, headers }
     );
+
   }
 
   if (payload.status) {
@@ -121,6 +131,7 @@ export async function PATCH(
   }
 
   return NextResponse.json({ club: data }, { status: 200, headers });
+
 }
 
 export async function DELETE(
@@ -128,6 +139,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -137,6 +149,7 @@ export async function DELETE(
       status: 401,
       headers,
     });
+
   }
 
   const { error } = await supabase
@@ -153,4 +166,5 @@ export async function DELETE(
   }
 
   return NextResponse.json({ success: true }, { status: 200, headers });
+
 }

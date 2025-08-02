@@ -7,15 +7,18 @@ const PAGE_SIZE = 10;
 
 export async function GET(req: NextRequest) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user || user.app_metadata?.role_type !== "Institution Admin") {
+
     return NextResponse.json({ error: "Unauthorized" }, {
       status: 401,
       headers,
     });
+
   }
 
   const { searchParams } = new URL(req.url);
@@ -39,6 +42,7 @@ export async function GET(req: NextRequest) {
     .range(from, to);
 
   if (error) {
+
     return NextResponse.json(
       { error: error.message },
       { status: 500, headers }
@@ -50,6 +54,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -59,6 +64,7 @@ export async function POST(req: NextRequest) {
       status: 401,
       headers,
     });
+
   }
 
   const body = await req.json();
@@ -66,8 +72,9 @@ export async function POST(req: NextRequest) {
   if (!name || !description) {
     return NextResponse.json(
       { error: "Missing required fields" },
+
       { status: 400, headers }
-    );
+
   }
 
   const { data: existing } = await supabase
@@ -81,7 +88,9 @@ export async function POST(req: NextRequest) {
   if (existing) {
     return NextResponse.json(
       { error: "Club name already exists" },
+
       { status: 400, headers }
+
     );
   }
 
@@ -100,10 +109,12 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) {
+
     return NextResponse.json(
       { error: error.message },
       { status: 500, headers }
     );
+
   }
 
   await supabase.from("organization_status_logs").insert({
@@ -113,5 +124,7 @@ export async function POST(req: NextRequest) {
     changed_by: user.id,
   });
 
+
   return NextResponse.json({ club: data }, { status: 201, headers });
+
 }

@@ -28,6 +28,7 @@ export async function fetchClubs(
   if (opts.search) params.append("q", opts.search);
   if (opts.page) params.append("page", String(opts.page));
 
+
   const res = await fetch(`${BASE_URL}?${params.toString()}`, {
     credentials: "include",
   });
@@ -38,6 +39,7 @@ export async function fetchClubs(
 export async function fetchClub(id: string) {
   const res = await fetch(`${BASE_URL}/${id}`, { credentials: "include" });
   const data = await handleResponse(res);
+
   return data as { club: Organization; history: { status: string; changed_at: string }[] };
 }
 
