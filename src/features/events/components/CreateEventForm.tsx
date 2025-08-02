@@ -57,6 +57,7 @@ export default function CreateEventForm() {
         const loc = { lat: data.latitude, lng: data.longitude };
         setMapCenter(loc);
         setValue("location", loc);
+        console.log(loc);
       }
     }
     loadInstitution();
@@ -147,7 +148,7 @@ export default function CreateEventForm() {
                   if (!file) return "Required";
                   if (file.size > 2 * 1024 * 1024) return "Max size 2MB";
                   const valid = await new Promise<boolean>((resolve) => {
-                    const img = new Image();
+                    const img = new window.Image();
                     img.onload = () =>
                       resolve(img.width >= 800 && img.height >= 400);
                     img.onerror = () => resolve(false);
@@ -211,9 +212,7 @@ export default function CreateEventForm() {
               {...register("title", { required: true })}
               className="w-full border rounded p-2"
             />
-            {errors.title && (
-              <p className="text-red-500 text-xs">Required</p>
-            )}
+            {errors.title && <p className="text-red-500 text-xs">Required</p>}
           </div>
 
           <div>
@@ -285,7 +284,7 @@ export default function CreateEventForm() {
                 </Autocomplete>
                 <GoogleMap
                   mapContainerStyle={{ width: "100%", height: "240px" }}
-                  center={field.value.lat ? field.value : mapCenter}
+                  center={field.value.lat ? mapCenter : field.value}
                   zoom={17}
                   onClick={(e: google.maps.MapMouseEvent) =>
                     field.onChange({
@@ -330,7 +329,7 @@ export default function CreateEventForm() {
               type="datetime-local"
               {...register("end_date", {
                 required: true,
-                validate: (v) => v > watched.start_date,
+                validate: (v) => v > (watched?.start_date ?? ""),
               })}
               className="w-full border rounded p-2"
             />
@@ -345,7 +344,7 @@ export default function CreateEventForm() {
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Review</h2>
           <Image
-            src={`https://maps.googleapis.com/maps/api/staticmap?center=${watched.location.lat},${watched.location.lng}&zoom=17&size=600x300&markers=color:red%7C${watched.location.lat},${watched.location.lng}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
+            src={URL.createObjectURL(watched.imageFile?.[0] ?? new Blob())}
             alt="Location preview"
             className="w-full rounded"
             width={600}
@@ -360,7 +359,8 @@ export default function CreateEventForm() {
             </p>
             <p>
               <strong>Club:</strong>{" "}
-              {clubs.find((c) => c.organization_id === watched.organization_id)?.name || watched.organization_id}
+              {clubs.find((c) => c.organization_id === watched.organization_id)
+                ?.name || watched.organization_id}
             </p>
             <p>
               <strong>When:</strong> {watched.start_date} – {watched.end_date}
