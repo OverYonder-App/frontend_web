@@ -2,28 +2,40 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
-import {
-  GoogleMap,
-  Marker,
-  Autocomplete,
-  useLoadScript,
-} from "@react-google-maps/api";
+import { GoogleMap, useLoadScript } from "@react-google-maps/api";
+import { Combobox } from "@headlessui/react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { fetchClubs, type Organization } from "@/features/organizations/api";
-import {
-  EMPTY_EVENT_FORM,
-  type EventFormValues,
-} from "@/constants/defaults";
+import { EMPTY_EVENT_FORM, type EventFormValues } from "@/constants/defaults";
+
+/* eslint-disable @typescript-eslint/no-namespace */
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "gmpx-place-autocomplete": React.DetailedHTMLProps<
+        React.HTMLAttributes<HTMLElement>,
+        HTMLElement
+      >;
+    }
+  }
+}
+/* eslint-enable @typescript-eslint/no-namespace */
+
+const libraries = ["places", "marker"] as const;
 
 export default function CreateEventForm() {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY!,
-    libraries: ["places"],
+    libraries,
   });
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const placeRef =
+    useRef<google.maps.places.PlaceAutocompleteElement | null>(null);
+  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({
@@ -45,6 +57,21 @@ export default function CreateEventForm() {
     defaultValues: EMPTY_EVENT_FORM,
   });
 
+  const location = useWatch({ control, name: "location" });
+
+  useEffect(() => {
+    geocoderRef.current = isLoaded ? new google.maps.Geocoder() : null;
+    if (isLoaded && location) {
+      geocoderRef.current
+        ?.geocode({ location })
+        .then(({ results }) => {
+          const addr = results[0]?.formatted_address || "";
+          setValue("address", addr);
+          if (placeRef.current) placeRef.current.value = addr;
+        });
+    }
+    }, [isLoaded, location, setValue]);
+
   useEffect(() => {
     async function loadInstitution() {
       if (!user?.institution_id) return;
@@ -55,13 +82,11 @@ export default function CreateEventForm() {
         .single();
       if (data) {
         const loc = { lat: data.latitude, lng: data.longitude };
-        setMapCenter(loc);
-        setValue("location", loc);
-        console.log(loc);
+        await updateLocation(loc);
       }
     }
     loadInstitution();
-  }, [user, setValue]);
+    }, [user, updateLocation]);
 
   useEffect(() => {
     fetchClubs({ search: clubQuery }).then(({ clubs }) => setClubs(clubs));
@@ -111,6 +136,66 @@ export default function CreateEventForm() {
     }
   };
 
+  const stepTitles = ["Details", "Location", "Schedule", "Review"];
+
+  const geocode = async (loc: { lat: number; lng: number }) => {
+    const { results } = await geocoderRef.current!.geocode({ location: loc });
+    const addr = results[0]?.formatted_address || "";
+    setValue("address", addr);
+    if (placeRef.current) placeRef.current.value = addr;
+  };
+
+  const updateLocation = async (loc: { lat: number; lng: number }) => {
+    setMapCenter(loc);
+    setValue("location", loc);
+    if (geocoderRef.current) {
+      await geocode(loc);
+    }
+  };
+
+  useEffect(() => {
+    if (!location || !mapRef.current || !isLoaded) return;
+    const pin = new google.maps.marker.PinElement({ background: "#745296" });
+    if (!markerRef.current) {
+      markerRef.current = new google.maps.marker.AdvancedMarkerElement({
+        position: location,
+        map: mapRef.current,
+        gmpDraggable: true,
+        content: pin.element,
+      });
+      markerRef.current.addListener("dragend", () => {
+        const pos = markerRef.current!.position as google.maps.LatLng;
+        updateLocation({ lat: pos.lat(), lng: pos.lng() });
+      });
+    } else {
+      markerRef.current.position = location;
+    }
+  }, [location, isLoaded]);
+
+  useEffect(() => {
+    if (!placeRef.current) return;
+    const el = placeRef.current as google.maps.places.PlaceAutocompleteElement;
+    const handler = () => {
+      const place = el.getPlace() as google.maps.places.PlaceResult;
+      const loc = place.location as google.maps.LatLng | undefined;
+      if (loc) {
+        updateLocation({ lat: loc.lat(), lng: loc.lng() });
+      }
+      const addr =
+        (place as unknown as { formattedAddress?: string }).formattedAddress ??
+        place.formatted_address ??
+        "";
+      setValue("address", addr);
+    };
+    el.addEventListener("placechange", handler);
+    return () => el.removeEventListener("placechange", handler);
+  }, [updateLocation, setValue]);
+
+  useEffect(() => {
+    register("location", { required: true });
+    register("address");
+  }, [register]);
+
   if (loadError) return <div>Error loading maps</div>;
   if (!isLoaded) return <div>Loading map...</div>;
 
@@ -120,23 +205,28 @@ export default function CreateEventForm() {
       className="p-4 bg-gray-100 rounded-xl shadow"
     >
       <h1 className="text-xl font-semibold mb-2">Create New Event</h1>
-      <p className="text-sm text-gray-600 mb-4">Step {step} of 4</p>
+      <p className="text-sm text-gray-600 mb-4">
+        Step {step} of 4: {stepTitles[step - 1]}
+      </p>
       <div className="flex gap-2 mb-4">
-        {[1, 2, 3, 4].map((i) => (
+        {stepTitles.map((title, i) => (
           <button
-            key={i}
+            key={title}
             type="button"
-            onClick={() => setStep(i)}
-            className={`w-4 h-4 rounded-full ${
-              step === i ? "bg-blue-600" : "bg-gray-300"
+            onClick={() => setStep(i + 1)}
+            className={`px-3 py-1 rounded-full text-xs ${
+              step === i + 1 ? "bg-blue-600 text-white" : "bg-gray-300"
             }`}
-            aria-label={`Go to step ${i}`}
-          />
+            aria-label={`Go to ${title}`}
+          >
+            {title}
+          </button>
         ))}
       </div>
 
       {step === 1 && (
         <div className="space-y-6">
+          <h2 className="text-lg font-semibold">Details</h2>
           <div>
             <label className="block text-sm">Event Image</label>
             <Controller
@@ -228,24 +318,40 @@ export default function CreateEventForm() {
 
           <div>
             <label className="block text-sm">Club</label>
-            <input
-              type="text"
-              value={clubQuery}
-              onChange={(e) => setClubQuery(e.target.value)}
-              placeholder="Search clubs..."
-              className="w-full border rounded p-2 mb-2"
+            <Controller
+              name="organization_id"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <Combobox
+                  value={clubs.find(
+                    (c) => c.organization_id === field.value
+                  ) || null}
+                  onChange={(c: Organization) =>
+                    field.onChange(c.organization_id)
+                  }
+                  nullable
+                >
+                  <Combobox.Input
+                    className="w-full border rounded p-2"
+                    displayValue={(c: Organization) => c?.name || ""}
+                    onChange={(e) => setClubQuery(e.target.value)}
+                    placeholder="Search clubs..."
+                  />
+                  <Combobox.Options className="mt-2 max-h-40 overflow-auto rounded border bg-white">
+                    {clubs.map((c) => (
+                      <Combobox.Option
+                        key={c.organization_id}
+                        value={c}
+                        className="p-2 cursor-pointer hover:bg-gray-100"
+                      >
+                        {c.name}
+                      </Combobox.Option>
+                    ))}
+                  </Combobox.Options>
+                </Combobox>
+              )}
             />
-            <select
-              {...register("organization_id", { required: true })}
-              className="w-full border rounded p-2"
-            >
-              <option value="">Select a club</option>
-              {clubs.map((c) => (
-                <option key={c.organization_id} value={c.organization_id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
             {errors.organization_id && (
               <p className="text-red-500 text-xs">Required</p>
             )}
@@ -255,63 +361,30 @@ export default function CreateEventForm() {
 
       {step === 2 && (
         <div className="space-y-4">
-          <Controller
-            name="location"
-            control={control}
-            render={({ field }) => (
-              <>
-                <Autocomplete
-                  onLoad={(ref) => (autocompleteRef.current = ref)}
-                  onPlaceChanged={() => {
-                    const place = autocompleteRef.current!.getPlace();
-                    if (place.geometry?.location) {
-                      const loc = {
-                        lat: place.geometry.location.lat(),
-                        lng: place.geometry.location.lng(),
-                      };
-                      field.onChange(loc);
-                      setMapCenter(loc);
-                    }
-                    const addr = place.formatted_address || "";
-                    setValue("address", addr);
-                  }}
-                >
-                  <input
-                    type="text"
-                    className="w-full border rounded p-2 mb-2"
-                    placeholder="Search address"
-                  />
-                </Autocomplete>
-                <GoogleMap
-                  mapContainerStyle={{ width: "100%", height: "240px" }}
-                  center={field.value.lat ? mapCenter : field.value}
-                  zoom={17}
-                  onClick={(e: google.maps.MapMouseEvent) =>
-                    field.onChange({
-                      lat: e.latLng!.lat(),
-                      lng: e.latLng!.lng(),
-                    })
-                  }
-                >
-                  <Marker
-                    position={field.value.lat ? field.value : mapCenter}
-                    draggable
-                    onDragEnd={(e: google.maps.MapMouseEvent) =>
-                      field.onChange({
-                        lat: e.latLng!.lat(),
-                        lng: e.latLng!.lng(),
-                      })
-                    }
-                  />
-                </GoogleMap>
-              </>
-            )}
+          <h2 className="text-lg font-semibold">Location</h2>
+          <gmpx-place-autocomplete
+            ref={placeRef}
+            className="w-full border rounded p-2 mb-2"
+            placeholder="Search address"
           />
+          <GoogleMap
+            mapContainerStyle={{ width: "100%", height: "240px" }}
+            center={mapCenter}
+            zoom={17}
+            onLoad={(map) => (mapRef.current = map)}
+            onClick={(e: google.maps.MapMouseEvent) =>
+              updateLocation({
+                lat: e.latLng!.lat(),
+                lng: e.latLng!.lng(),
+              })
+            }
+          ></GoogleMap>
         </div>
       )}
 
       {step === 3 && (
         <div className="space-y-4">
+          <h2 className="text-lg font-semibold">Schedule</h2>
           <div>
             <label className="block text-sm">Start</label>
             <input
