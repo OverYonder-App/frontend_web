@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
       { error: "Missing required fields" },
 
       { status: 400, headers }
+    );
 
   }
 
@@ -88,7 +89,6 @@ export async function POST(req: NextRequest) {
   if (existing) {
     return NextResponse.json(
       { error: "Club name already exists" },
-
       { status: 400, headers }
 
     );

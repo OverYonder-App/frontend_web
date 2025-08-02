@@ -3,7 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/lib/database.types";
 
 export const getSupabaseRouteHandlerClient = (req: NextRequest) => {
-  const res = NextResponse.next();
+
+  const res = new NextResponse();
+
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

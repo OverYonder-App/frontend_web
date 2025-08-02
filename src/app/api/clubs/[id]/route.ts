@@ -34,7 +34,6 @@ export async function GET(
       status: 404,
       headers,
     });
-
   }
 
   const { data: history } = await supabase
@@ -56,7 +55,6 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -100,7 +98,6 @@ export async function PATCH(
       return NextResponse.json(
         { error: "Club name already exists" },
         { status: 400, headers }
-
       );
     }
   }
@@ -166,5 +163,4 @@ export async function DELETE(
   }
 
   return NextResponse.json({ success: true }, { status: 200, headers });
-
 }
