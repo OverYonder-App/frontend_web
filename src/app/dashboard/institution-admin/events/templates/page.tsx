@@ -1,13 +1,30 @@
-import { Metadata } from "next"
-import Link from "next/link"
-import type { EventRecord } from "@/lib/types"
+import { Metadata } from "next";
+import Link from "next/link";
+import { getSupabaseServerClient } from "@/lib/auth";
+import type { EventRecord } from "@/lib/types";
+import type { Database } from "@/lib/database.types";
 
 export const metadata: Metadata = {
   title: "Event Templates – Institution Admin",
-}
+};
+
+type EventRow = Database["public"]["Tables"]["events"]["Row"] & {
+  organizations: { name: string } | null;
+};
 
 export default async function EventTemplatesPage() {
-  const templates: EventRecord[] = []
+  const supabase = await getSupabaseServerClient();
+  const { data } = await supabase
+    .from("events")
+    .select("*, organizations(name)")
+    .eq("status", "template");
+
+  const templates: EventRecord[] = ((data as EventRow[]) || []).map((ev) => ({
+    id: ev.event_id,
+    title: ev.title,
+    organizer: ev.organizations?.name || "",
+  }));
+
   return (
     <section className="space-y-4">
       <h1 className="text-2xl font-bold">Event Templates</h1>
@@ -26,7 +43,7 @@ export default async function EventTemplatesPage() {
                 <td className="px-4 py-2 text-sm">{t.title}</td>
                 <td className="px-4 py-2 text-sm">{t.organizer}</td>
                 <td className="px-4 py-2 text-sm">
-                  <Link href={`/admin/events/new?template=${t.id}`} className="text-blue-600 hover:underline">
+                  <Link href={`/dashboard/institution-admin/events/create?template=${t.id}`} className="text-blue-600 hover:underline">
                     Use Template
                   </Link>
                 </td>
@@ -43,5 +60,5 @@ export default async function EventTemplatesPage() {
         </table>
       </div>
     </section>
-  )
+  );
 }
