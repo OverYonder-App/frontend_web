@@ -1,4 +1,5 @@
 import type { Database } from "@/lib/database.types";
+import { getBaseUrl } from "@/lib/utils";
 
 export type EventRecord = Database["public"]["Tables"]["events"]["Row"];
 export type EventInsert = Database["public"]["Tables"]["events"]["Insert"];
@@ -12,7 +13,7 @@ async function handleResponse(res: Response) {
   return data;
 }
 
-const BASE_URL = "/api/events";
+const BASE_URL = `${getBaseUrl()}/api/events`;
 
 export interface FetchEventsOptions {
   status?: string;
