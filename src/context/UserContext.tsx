@@ -7,7 +7,7 @@ export type User = {
   id: string
   email: string
   role_type: string
-  [key: string]: any
+  [key: string]: unknown
 }
 
 interface UserContextValue {

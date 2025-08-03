@@ -45,7 +45,7 @@ type CardConfig = {
   summary: string;
   href: string;
   sparkData?: { value: number }[];
-  Icon: React.FC<any>;
+  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
 };
 
 const DEFAULT_CARDS: CardConfig[] = [
@@ -170,7 +170,7 @@ export default function AdminDashboard() {
   const [pinned, setPinned] = useState<string[]>([]);
   const [visible, setVisible] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [notifCount, setNotifCount] = useState(3);
+  const [notifCount] = useState(3);
   const [query, setQuery] = useState("");
   const [showCmd, setShowCmd] = useState(false);
   const [events, setEvents] = useState<EventRecord[]>([]);
@@ -287,7 +287,7 @@ export default function AdminDashboard() {
       {showCmd && (
         <Combobox
           as="div"
-          onChange={(item: any) => {
+          onChange={(item: CardConfig) => {
             setShowCmd(false);
             window.location.href = item.href;
           }}

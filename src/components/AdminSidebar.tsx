@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUser } from "@/context/UserContext";
+import type { LucideIcon } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -89,7 +90,7 @@ const NAV: NavItem[] = [
 ];
 
 // Map labels to lucide icons for consistent visual language.
-const ICON_MAP: Record<string, any> = {
+const ICON_MAP: Record<string, LucideIcon> = {
   Dashboard: LayoutDashboard,
   Calendar: CalendarDays,
   Events: Sheet,

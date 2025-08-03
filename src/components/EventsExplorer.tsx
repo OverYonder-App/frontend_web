@@ -14,7 +14,10 @@ type SortKey = "date" | "title";
 const TABS = ["All Events", "Pending", "Templates"] as const;
 type TabKey = (typeof TABS)[number];
 
-const MODE_CONFIG: Record<ViewMode, { label: string; Icon: React.FC<any> }> = {
+const MODE_CONFIG: Record<
+  ViewMode,
+  { label: string; Icon: React.FC<React.SVGProps<SVGSVGElement>> }
+> = {
   cards: { label: "Card View", Icon: Grid },
   list: { label: "List View", Icon: List },
   compact: { label: "Compact View", Icon: Menu },

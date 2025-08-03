@@ -16,10 +16,6 @@ export default function OnboardingPage() {
     "checking" | "found" | "not_found"
   >("not_found");
   const [isAdminChoice, setIsAdminChoice] = useState<null | boolean>(null);
-  const [adminForm, setAdminForm] = useState({
-    schoolName: "",
-    schoolDomain: "",
-  });
   const [studentDirectorEmail, setStudentDirectorEmail] = useState("");
   const [error, setError] = useState("");
 
@@ -47,23 +43,6 @@ export default function OnboardingPage() {
     };
     checkInstitution();
   }, [user, router,loading]);
-
-  const handleAdminSubmit = async () => {
-    try {
-      const res = await fetch("/api/institutions/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...adminForm,
-          adminEmail: userEmail,
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to onboard institution");
-      router.push("/dashboard"); // proceed to admin dashboard
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
 
   const handleStudentSubmit = async () => {
     try {

@@ -2,11 +2,10 @@
 "use server"
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/auth";
-import { cookies } from "next/headers";
 
 
 export async function POST(req: NextRequest) {
-  const supabase = await getSupabaseServerClient({ cookies });
+  const supabase = await getSupabaseServerClient();
   const body = await req.json();
 
   const { institution_name, abbreviated_name, address } = body;

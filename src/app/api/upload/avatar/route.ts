@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/auth";
 import { v4 as uuidv4 } from "uuid";
-import { cookies } from "next/headers";
 
 
 export async function POST(req: NextRequest) {
-  const supabase = await getSupabaseServerClient({ cookies });
+  const supabase = await getSupabaseServerClient();
 
   const {
     data: { user },
