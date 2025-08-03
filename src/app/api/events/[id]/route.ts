@@ -14,12 +14,19 @@ export async function GET(
     .from("events")
     .select("*")
     .eq("event_id", id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json(
       { error: error.message },
       { status: 500, headers }
+    );
+  }
+
+  if (!data) {
+    return NextResponse.json(
+      { error: "Event not found" },
+      { status: 404, headers }
     );
   }
 
@@ -39,12 +46,19 @@ export async function PATCH(
     .update(updates)
     .eq("event_id", id)
     .select("*")
-    .single();
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json(
       { error: error.message },
       { status: 500, headers }
+    );
+  }
+
+  if (!data) {
+    return NextResponse.json(
+      { error: "Event not found" },
+      { status: 404, headers }
     );
   }
 
