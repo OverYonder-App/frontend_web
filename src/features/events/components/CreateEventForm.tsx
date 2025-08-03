@@ -5,6 +5,7 @@ import { useForm, Controller, useWatch } from "react-hook-form";
 import { Autocomplete, GoogleMap, useLoadScript } from "@react-google-maps/api";
 import type { Library } from "@googlemaps/js-api-loader";
 import { Combobox } from "@headlessui/react";
+import { format } from "date-fns";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
@@ -14,6 +15,15 @@ import { EMPTY_EVENT_FORM, type EventFormValues } from "@/constants/defaults";
 
 
 const libraries: Library[] = ["places", "marker"];
+
+function formatEventDateRange(start: string, end: string) {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  return `${format(startDate, "EEEE, MMMM d, yyyy")}, from ${format(
+    startDate,
+    "h:mm a",
+  )} to ${format(endDate, "h:mm a")}`;
+}
 
 export default function CreateEventForm() {
   const { isLoaded, loadError } = useLoadScript({
@@ -433,7 +443,10 @@ export default function CreateEventForm() {
                 ?.name || watched.organization_id}
             </p>
             <p>
-              <strong>When:</strong> {watched.start_date} – {watched.end_date}
+              <strong>When:</strong>{" "}
+              {watched.start_date && watched.end_date
+                ? formatEventDateRange(watched.start_date, watched.end_date)
+                : ""}
             </p>
             <p>
               <strong>Address:</strong> {watched.address}
