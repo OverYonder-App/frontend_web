@@ -31,7 +31,6 @@ export default function CreateEventForm() {
     defaultValues: EMPTY_EVENT_FORM,
   });
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -55,6 +54,7 @@ export default function CreateEventForm() {
   
 
   const location = useWatch({ control, name: "location" });
+  const address = useWatch({ control, name: "address" });
 
   useEffect(() => {
     geocoderRef.current = isLoaded ? new google.maps.Geocoder() : null;
@@ -68,7 +68,6 @@ export default function CreateEventForm() {
         .then(({ results }) => {
           const addr = results[0]?.formatted_address || "";
           setValue("address", addr);
-          if (searchInputRef.current) searchInputRef.current.value = addr;
         })
         .catch(() => {
           setValue("address", "");
@@ -353,11 +352,11 @@ export default function CreateEventForm() {
               }
               const addr = place.formatted_address || "";
               setValue("address", addr);
-              if (searchInputRef.current) searchInputRef.current.value = addr;
             }}
           >
             <input
-              ref={searchInputRef}
+              value={address ?? ""}
+              onChange={(e) => setValue("address", e.target.value)}
               type="text"
               className="w-full border rounded p-2 mb-2"
               placeholder="Search address"
