@@ -69,14 +69,15 @@ export default function CreateClubForm({ onCreated }: Props) {
         .from("oy-media")
         .upload(filePath, logoFile, { upsert: true });
       if (uploadError) throw uploadError;
-      const { data: urlData } = supabase.storage
+      const { data: urlData, error: signedUrlError } = await supabase.storage
         .from("oy-media")
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 60 * 60 * 24 * 365 * 100);
+      if (signedUrlError) throw signedUrlError;
       const payload: OrganizationInsert = {
         organization_id: clubId,
         name,
         description,
-        logo_url: urlData.publicUrl,
+        logo_url: urlData.signedUrl,
         organization_type: type,
         created_by: createdBy.user_id,
         approved_by: user.id,

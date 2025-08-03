@@ -86,10 +86,11 @@ export default function EditClubForm({ club, onUpdated }: Props) {
           .from("oy-media")
           .upload(filePath, logoFile, { upsert: true });
         if (uploadError) throw uploadError;
-        const { data: urlData } = supabase.storage
+        const { data: urlData, error: signedUrlError } = await supabase.storage
           .from("oy-media")
-          .getPublicUrl(filePath);
-        logo_url = urlData.publicUrl;
+          .createSignedUrl(filePath, 60 * 60 * 24 * 365 * 100);
+        if (signedUrlError) throw signedUrlError;
+        logo_url = urlData.signedUrl;
       }
       const payload: OrganizationUpdate = {
         name,
