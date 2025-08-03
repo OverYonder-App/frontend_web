@@ -144,7 +144,11 @@ async function geocode(loc: { lat: number; lng: number }){
 
   useEffect(() => {
     if (!location || !mapRef.current || !isLoaded) return;
-    const pin = new google.maps.marker.PinElement({ background: "#745296" });
+    const pin = new google.maps.marker.PinElement({
+      background: "#745296",
+      borderColor: "#745296",
+      glyphColor: "#A38BC3",
+    });
     if (!markerRef.current) {
       markerRef.current = new google.maps.marker.AdvancedMarkerElement({
         position: location,
@@ -313,9 +317,9 @@ async function geocode(loc: { lat: number; lng: number }){
               rules={{ required: true }}
               render={({ field }) => (
                 <Combobox
-                  value={clubs.find(
-                    (c) => c.organization_id === field.value
-                  ) || null}
+                  value={
+                    clubs.find((c) => c.organization_id === field.value) || null
+                  }
                   onChange={(c: Organization) =>
                     field.onChange(c.organization_id)
                   }
@@ -357,10 +361,13 @@ async function geocode(loc: { lat: number; lng: number }){
             placeholder="Search address"
           />
           <GoogleMap
+            options={{ mapId: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID }}
             mapContainerStyle={{ width: "100%", height: "240px" }}
             center={mapCenter}
             zoom={17}
-            onLoad={(map) => {mapRef.current = map}}
+            onLoad={(map) => {
+              mapRef.current = map;
+            }}
             onClick={(e: google.maps.MapMouseEvent) =>
               updateLocation({
                 lat: e.latLng!.lat(),
