@@ -46,7 +46,10 @@ export async function middleware(req: NextRequest) {
   // If user is logged in, check role and route
   if (session && pathname.startsWith("/dashboard")) {
     const token = session.access_token;
-    const decoded = jwt.decode(token) as any;
+    interface DecodedToken {
+      app_metadata?: { role_type?: string };
+    }
+    const decoded = jwt.decode(token) as DecodedToken | null;
 
     const role = decoded?.app_metadata?.role_type;
 
@@ -64,7 +67,7 @@ export async function middleware(req: NextRequest) {
     );
 
     if (matchedEntry) {
-      const [currentRoute, allowedRoles] = matchedEntry;
+      const [, allowedRoles] = matchedEntry;
 
       if (!allowedRoles.includes(role)) {
         // Redirect user to their correct dashboard instead of unauthorized

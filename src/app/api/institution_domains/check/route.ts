@@ -1,11 +1,10 @@
 // /app/api/institution_domains/check/route.ts
 "use server"
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/auth";
 
 export async function GET(req: Request) {
-  const supabase = await getSupabaseServerClient({ cookies });
+  const supabase = await getSupabaseServerClient();
 
   const { searchParams } = new URL(req.url);
   const domain = searchParams.get("domain");

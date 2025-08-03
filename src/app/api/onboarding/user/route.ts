@@ -1,10 +1,9 @@
 "use server";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/auth"; // adjust this import if needed
-import { cookies } from "next/headers";
 
 export async function POST(req: NextRequest) {
-  const supabase = await getSupabaseServerClient({ cookies });
+  const supabase = await getSupabaseServerClient();
   const { firstName, lastName, about, avatarUrl, selectedRole } =
     await req.json();
 

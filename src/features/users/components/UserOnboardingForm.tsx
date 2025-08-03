@@ -156,7 +156,10 @@ export default function UserOnboardingForm() {
             <select
               value={form.selectedRole}
               onChange={(e) =>
-                setForm({ ...form, selectedRole: e.target.value as any })
+                setForm({
+                  ...form,
+                  selectedRole: e.target.value as "Student" | "Student Leader",
+                })
               }
               className="w-full px-4 py-2 border rounded-md mb-4"
             >

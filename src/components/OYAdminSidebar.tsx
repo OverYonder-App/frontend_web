@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUser } from "@/context/UserContext";
+import type { LucideIcon } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -28,7 +29,7 @@ const NAV: NavItem[] = [
   { label: "Media", href: "/dashboard/oy/media" },
 ];
 
-const ICON_MAP: Record<string, any> = {
+const ICON_MAP: Record<string, LucideIcon> = {
   Dashboard: LayoutDashboard,
   Institutions: School,
   Users: UsersIcon,
