@@ -53,12 +53,15 @@ export default async function EventPage({
       </div>
       <AttendeeList attendees={attendees || []} />
       <EventActions creatorId={event.created_by} />
+
       <CommentsSection eventId={event.event_id} />
     </div>
   );
 }
 
+
 function AttendeeList({ attendees }: { attendees: (Attendee | string)[] }) {
+
   return (
     <div className="mb-8">
       <h2 className="text-xl font-semibold mb-2">Attendees</h2>
@@ -71,6 +74,7 @@ function AttendeeList({ attendees }: { attendees: (Attendee | string)[] }) {
             const name = typeof a === "string" ? a : a.name || "";
             return <li key={key}>{name}</li>;
           })}
+
         </ul>
       )}
     </div>
