@@ -54,7 +54,7 @@ export async function PATCH(
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user || user.app_metadata?.role_type !== "Institution Admin") {
+  if (!user || user.user_metadata?.role_type !== "Institution Admin") {
     return NextResponse.json({ error: "Unauthorized" }, {
       status: 401,
       headers,
