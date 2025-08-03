@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { fetchClub, type Organization } from "@/features/organizations/api";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const EditClubForm = dynamic(
   () => import("@/features/organizations/components/EditClubForm"),
@@ -26,6 +27,15 @@ export default function Page() {
     return <p>Loading...</p>;
   }
 
-  return <EditClubForm club={club} />;
+  return (
+    <Card className="mx-auto max-w-xl">
+      <CardHeader>
+        <CardTitle>Edit Club</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <EditClubForm club={club} />
+      </CardContent>
+    </Card>
+  );
 }
 

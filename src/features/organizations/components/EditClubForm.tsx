@@ -6,6 +6,9 @@ import { updateClub, type Organization, type OrganizationUpdate } from "../api";
 import { supabase } from "@/lib/supabase";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Toast } from "@/components/Toast";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 interface SimpleUser {
   user_id: string;
@@ -52,15 +55,17 @@ export default function EditClubForm({ club, onUpdated }: Props) {
       return;
     }
     const fetchUsers = async () => {
+      if (!user?.institution_id) return;
       const { data } = await supabase
         .from("users")
         .select("user_id, first_name, last_name, username")
+        .eq("institution_id", user.institution_id)
         .ilike("username", `%${userQuery}%`)
         .limit(10);
       if (data) setUsers(data as SimpleUser[]);
     };
     fetchUsers();
-  }, [userQuery]);
+  }, [userQuery, user?.institution_id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,18 +112,18 @@ export default function EditClubForm({ club, onUpdated }: Props) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium">Name</label>
-        <input
+        <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 w-full rounded border px-2 py-1"
+          className="mt-1"
         />
       </div>
       <div>
         <label className="block text-sm font-medium">Description</label>
-        <textarea
+        <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="mt-1 w-full rounded border px-2 py-1"
+          className="mt-1"
         />
       </div>
       <div>
@@ -126,7 +131,7 @@ export default function EditClubForm({ club, onUpdated }: Props) {
         <select
           value={type}
           onChange={(e) => setType(e.target.value as "club" | "group")}
-          className="mt-1 w-full rounded border px-2 py-1"
+          className="mt-1 h-9 w-full rounded-md border px-3"
         >
           <option value="club">Club</option>
           <option value="group">Group</option>
@@ -136,20 +141,25 @@ export default function EditClubForm({ club, onUpdated }: Props) {
         <label className="block text-sm font-medium">Created By</label>
         <Combobox value={createdBy} onChange={setCreatedBy}>
           <Combobox.Input
-            className="w-full border rounded px-2 py-1"
+            as={Input}
+            className="mt-1"
             displayValue={(u: SimpleUser) =>
-              u ? u.username : ""
+              u
+                ? u.first_name
+                  ? `${u.first_name} ${u.last_name}`
+                  : u.username
+                : ""
             }
             onChange={(e) => setUserQuery(e.target.value)}
             placeholder="Search users..."
           />
           {users.length > 0 && (
-            <Combobox.Options className="mt-1 max-h-40 overflow-auto rounded border bg-white">
+            <Combobox.Options className="mt-1 max-h-40 overflow-auto rounded-md border bg-background shadow">
               {users.map((u) => (
                 <Combobox.Option
                   key={u.user_id}
                   value={u}
-                  className="p-2 cursor-pointer hover:bg-gray-100"
+                  className="cursor-pointer p-2 hover:bg-muted"
                 >
                   {u.first_name ? `${u.first_name} ${u.last_name}` : u.username}
                 </Combobox.Option>
@@ -160,7 +170,7 @@ export default function EditClubForm({ club, onUpdated }: Props) {
       </div>
       <div>
         <label className="block text-sm font-medium">Logo</label>
-        <input
+        <Input
           type="file"
           accept="image/*"
           onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
@@ -168,13 +178,9 @@ export default function EditClubForm({ club, onUpdated }: Props) {
         />
       </div>
       <div className="pt-2">
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
-        >
+        <Button type="submit" disabled={submitting} className="w-full">
           Update
-        </button>
+        </Button>
       </div>
       {toast && (
         <Toast message={toast.msg} type={toast.type} onClose={() => setToast(null)} />
