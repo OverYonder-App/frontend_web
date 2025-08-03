@@ -5,15 +5,16 @@ import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+  const { id } = await params;
   const updates = await req.json();
 
   const { data, error } = await supabase
     .from("organizations")
     .update(updates)
-    .eq("organization_id", params.id)
+    .eq("organization_id", id)
     .select("*")
     .single();
 
@@ -29,14 +30,15 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+  const { id } = await params;
 
   const { error } = await supabase
     .from("organizations")
     .delete()
-    .eq("organization_id", params.id);
+    .eq("organization_id", id);
 
   if (error) {
     return NextResponse.json(

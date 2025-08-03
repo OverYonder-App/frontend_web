@@ -5,10 +5,10 @@ import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+  const { id } = await params;
 
   const {
     data: { user },
@@ -25,7 +25,7 @@ export async function GET(
   const { data, error } = await supabase
     .from("organizations")
     .select("*")
-    .eq("organization_id", params?.id ?? "")
+    .eq("organization_id", id)
     .eq("institution_id", user?.user_metadata?.institution_id ?? "")
     .single();
 
@@ -46,9 +46,10 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+  const { id } = await params;
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -86,7 +87,7 @@ export async function PATCH(
       .eq("name", payload.name)
       .eq("institution_id", user.user_metadata?.institution_id)
       .eq("organization_type", "club")
-      .neq("organization_id", params.id)
+      .neq("organization_id", id)
       .maybeSingle();
     if (existing) {
       return NextResponse.json(
@@ -99,7 +100,7 @@ export async function PATCH(
   const { data, error } = await supabase
     .from("organizations")
     .update(updates)
-    .eq("organization_id", params.id)
+    .eq("organization_id", id)
     .eq("institution_id", user.user_metadata?.institution_id)
     .select("*")
     .single();
@@ -120,9 +121,10 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+  const { id } = await params;
 
   const {
     data: { user },
@@ -139,7 +141,7 @@ export async function DELETE(
   const { error } = await supabase
     .from("organizations")
     .delete()
-    .eq("organization_id", params.id)
+    .eq("organization_id", id)
     .eq("institution_id", user.user_metadata?.institution_id);
 
   if (error) {
