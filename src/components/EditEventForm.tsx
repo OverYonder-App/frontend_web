@@ -19,7 +19,7 @@ interface EditEventFormProps {
  * A simple editing form for event records. Only a subset of fields are
  * editable by default (title, date and description), but you can extend
  * this component to include more. When submitted the form issues a
- * PUT request to `/api/events/:id` and invokes callbacks on success.
+ * PATCH request to `/api/events/:id` and invokes callbacks on success.
  */
 export default function EditEventForm({ event, onClose, onSaved }: EditEventFormProps) {
   const router = useRouter()
@@ -41,7 +41,7 @@ export default function EditEventForm({ event, onClose, onSaved }: EditEventForm
     setSubmitting(true)
     try {
       const res = await fetch(`/api/events/${event.id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...event, ...form }),
       })
