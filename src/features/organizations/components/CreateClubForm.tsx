@@ -44,7 +44,9 @@ export default function CreateClubForm({ onCreated }: Props) {
         .from("users")
         .select("user_id, first_name, last_name, username")
         .eq("institution_id", user.institution_id)
-        .ilike("username", `%${userQuery}%`)
+        .or(
+          `username.ilike.%${userQuery}%,first_name.ilike.%${userQuery}%,last_name.ilike.%${userQuery}%`
+        )
         .limit(10);
       if (data) setUsers(data as SimpleUser[]);
     };
@@ -98,10 +100,18 @@ export default function CreateClubForm({ onCreated }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="p-4 bg-gray-100 rounded-xl shadow space-y-4"
+    >
+      <h1 className="text-xl font-semibold">Create Club</h1>
       <div>
         <label className="block text-sm font-medium">Name</label>
-        <Input value={name} onChange={(e) => setName(e.target.value)} className="mt-1" />
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="mt-1"
+        />
       </div>
       <div>
         <label className="block text-sm font-medium">Description</label>
@@ -131,7 +141,7 @@ export default function CreateClubForm({ onCreated }: Props) {
             displayValue={(u: SimpleUser) =>
               u
                 ? u.first_name
-                  ? `${u.first_name} ${u.last_name}`
+                  ? `${u.first_name} ${u.last_name} (@${u.username})`
                   : u.username
                 : ""
             }
@@ -146,7 +156,9 @@ export default function CreateClubForm({ onCreated }: Props) {
                   value={u}
                   className="cursor-pointer p-2 hover:bg-muted"
                 >
-                  {u.first_name ? `${u.first_name} ${u.last_name}` : u.username}
+                  {u.first_name
+                    ? `${u.first_name} ${u.last_name} (@${u.username})`
+                    : u.username}
                 </Combobox.Option>
               ))}
             </Combobox.Options>
