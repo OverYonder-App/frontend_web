@@ -21,10 +21,9 @@ export default function CreateEventForm() {
     libraries,
   });
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({
@@ -54,6 +53,7 @@ export default function CreateEventForm() {
   });
 
   const location = useWatch({ control, name: "location" });
+  const address = useWatch({ control, name: "address" });
 
   useEffect(() => {
     geocoderRef.current = isLoaded ? new google.maps.Geocoder() : null;
@@ -67,7 +67,6 @@ export default function CreateEventForm() {
         .then(({ results }) => {
           const addr = results[0]?.formatted_address || "";
           setValue("address", addr);
-          if (searchInputRef.current) searchInputRef.current.value = addr;
         })
         .catch(() => {
           setValue("address", "");
@@ -142,31 +141,32 @@ export default function CreateEventForm() {
   const stepTitles = ["Details", "Location", "Schedule", "Review"];
 
   useEffect(() => {
-      if (!location || !mapRef.current || !isLoaded) return;
-      const pin = new google.maps.marker.PinElement({
-        background: "#745296",
-        borderColor: "#745296",
-        glyphColor: "#A38BC3",
-      });
+    if (!location || !map || !isLoaded) return;
+    const pin = new google.maps.marker.PinElement({
+      background: "#745296",
+      borderColor: "#745296",
+      glyphColor: "#A38BC3",
+    });
     if (!markerRef.current) {
       markerRef.current = new google.maps.marker.AdvancedMarkerElement({
         position: location,
-        map: mapRef.current,
+        map,
         gmpDraggable: true,
         content: pin.element,
       });
       markerRef.current.addListener("dragend", () => {
-       const pos = markerRef.current!.position as
-         | google.maps.LatLng
-         | google.maps.LatLngLiteral;
-       const lat = pos instanceof google.maps.LatLng ? pos.lat() : pos.lat;
-       const lng = pos instanceof google.maps.LatLng ? pos.lng() : pos.lng;
-       updateLocation({ lat, lng });
+        const pos = markerRef.current!.position as
+          | google.maps.LatLng
+          | google.maps.LatLngLiteral;
+        const lat = pos instanceof google.maps.LatLng ? pos.lat() : pos.lat;
+        const lng = pos instanceof google.maps.LatLng ? pos.lng() : pos.lng;
+        updateLocation({ lat, lng });
       });
     } else {
       markerRef.current.position = location;
+      markerRef.current.map = map;
     }
-    }, [location, isLoaded, updateLocation]);
+  }, [location, map, isLoaded, updateLocation]);
 
   // Autocomplete input handles place selection via onPlaceChanged
 
@@ -351,11 +351,11 @@ export default function CreateEventForm() {
               }
               const addr = place.formatted_address || "";
               setValue("address", addr);
-              if (searchInputRef.current) searchInputRef.current.value = addr;
             }}
           >
             <input
-              ref={searchInputRef}
+              value={address ?? ""}
+              onChange={(e) => setValue("address", e.target.value)}
               type="text"
               className="w-full border rounded p-2 mb-2"
               placeholder="Search address"
@@ -366,9 +366,8 @@ export default function CreateEventForm() {
             mapContainerStyle={{ width: "100%", height: "240px" }}
             center={mapCenter}
             zoom={17}
-            onLoad={(map) => {
-              mapRef.current = map;
-            }}
+            onLoad={(m) => setMap(m)}
+            onUnmount={() => setMap(null)}
             onClick={(e: google.maps.MapMouseEvent) =>
               updateLocation({
                 lat: e.latLng!.lat(),
