@@ -157,8 +157,12 @@ async function geocode(loc: { lat: number; lng: number }){
         content: pin.element,
       });
       markerRef.current.addListener("dragend", () => {
-        const pos = markerRef.current!.position as google.maps.LatLng;
-        updateLocation({ lat: pos.lat(), lng: pos.lng() });
+       const pos = markerRef.current!.position as
+         | google.maps.LatLng
+         | google.maps.LatLngLiteral;
+       const lat = pos instanceof google.maps.LatLng ? pos.lat() : pos.lat;
+       const lng = pos instanceof google.maps.LatLng ? pos.lng() : pos.lng;
+       updateLocation({ lat, lng });
       });
     } else {
       markerRef.current.position = location;
