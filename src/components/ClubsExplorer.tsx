@@ -9,15 +9,12 @@ import {
   rejectClub,
   deleteClub,
 } from "@/features/organizations/api";
-import ClubForm from "@/features/organizations/components/ClubForm";
 
 export default function ClubsExplorer() {
   const [clubs, setClubs] = useState<Organization[]>([]);
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<Organization | undefined>();
 
   const load = useCallback(async () => {
     const { clubs } = await fetchClubs({ status, search, page });
@@ -28,24 +25,16 @@ export default function ClubsExplorer() {
     load();
   }, [load]);
 
-  const handleSaved = () => {
-    setShowForm(false);
-    load();
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Clubs</h1>
-        <button
-          onClick={() => {
-            setEditing(undefined);
-            setShowForm(true);
-          }}
+        <Link
+          href="/dashboard/institution-admin/clubs/create"
           className="rounded bg-blue-600 px-4 py-2 text-white"
         >
           Add Club
-        </button>
+        </Link>
       </div>
       <div className="flex gap-2">
         <input
@@ -97,15 +86,12 @@ export default function ClubsExplorer() {
                 >
                   View
                 </Link>
-                <button
-                  onClick={() => {
-                    setEditing(club);
-                    setShowForm(true);
-                  }}
+                <Link
+                  href={`/dashboard/institution-admin/clubs/${club.organization_id}/edit`}
                   className="text-green-600"
                 >
                   Edit
-                </button>
+                </Link>
                 <button
                   onClick={async () => {
                     await approveClub(club.organization_id);
@@ -155,17 +141,6 @@ export default function ClubsExplorer() {
           Next
         </button>
       </div>
-      {showForm && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-          <div className="w-96 rounded bg-white p-4">
-            <ClubForm
-              club={editing}
-              onSaved={handleSaved}
-              onCancel={() => setShowForm(false)}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
