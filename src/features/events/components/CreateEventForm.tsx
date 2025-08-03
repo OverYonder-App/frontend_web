@@ -12,6 +12,7 @@ import { supabase } from "@/lib/supabase";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { fetchClubs, type Organization } from "@/features/organizations/api";
 import { EMPTY_EVENT_FORM, type EventFormValues } from "@/constants/defaults";
+import { Toast } from "@/components/Toast";
 
 
 const libraries: Library[] = ["places", "marker"];
@@ -53,6 +54,10 @@ export default function CreateEventForm() {
   const [clubs, setClubs] = useState<Organization[]>([]);
   const [clubQuery, setClubQuery] = useState("");
   const { user } = useCurrentUser();
+  const [toast, setToast] = useState<{
+    msg: string;
+    type: "success" | "error";
+  } | null>(null);
   const updateLocation = useCallback(
     (loc: { lat: number; lng: number }) => {
       setMapCenter(loc);
@@ -141,9 +146,9 @@ export default function CreateEventForm() {
         image_url: publicUrl.publicUrl,
       });
       if (error) throw error;
-      alert("Event created");
+      setToast({ msg: "Event created", type: "success" });
     } catch (e) {
-      alert(String(e));
+      setToast({ msg: String(e), type: "error" });
     } finally {
       setSubmitting(false);
     }
@@ -191,7 +196,7 @@ export default function CreateEventForm() {
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={(e) => e.preventDefault()}
       className="p-4 bg-gray-100 rounded-xl shadow"
     >
       <h1 className="text-xl font-semibold mb-2">Create New Event</h1>
@@ -466,9 +471,11 @@ export default function CreateEventForm() {
         </button>
         <div className="flex-1 text-center" />
         <button
-          type={step < 4 ? "button" : "submit"}
+          type="button"
           onClick={
-            step < 4 ? () => setStep((s) => Math.min(s + 1, 4)) : undefined
+            step < 4
+              ? () => setStep((s) => Math.min(s + 1, 4))
+              : handleSubmit(onSubmit)
           }
           disabled={(step < 4 && !isValid) || submitting}
           className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
@@ -482,6 +489,13 @@ export default function CreateEventForm() {
           )}
         </button>
       </div>
+      {toast && (
+        <Toast
+          message={toast.msg}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </form>
   );
 }
