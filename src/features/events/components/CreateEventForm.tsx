@@ -125,9 +125,13 @@ export default function CreateEventForm() {
         .from("oy-media")
         .upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
-      const { data: publicUrl } = supabase.storage
+      const {
+        data: signedUrlData,
+        error: signedUrlError,
+      } = await supabase.storage
         .from("oy-media")
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 60 * 60 * 24 * 365 * 100);
+      if (signedUrlError) throw signedUrlError;
 
       const { error } = await supabase.from("events").insert({
         event_id: eventId,
@@ -143,7 +147,7 @@ export default function CreateEventForm() {
         address: data.address || null,
         status: "approved",
         visibility_level: "public",
-        image_url: publicUrl.publicUrl,
+        image_url: signedUrlData.signedUrl,
       });
       if (error) throw error;
       setToast({ msg: "Event created", type: "success" });

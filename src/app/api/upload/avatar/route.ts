@@ -51,9 +51,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: uploadError.message }, { status: 500 });
   }
 
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from("oy-media").getPublicUrl(path);
+  const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+    .from("oy-media")
+    .createSignedUrl(path, 60 * 60 * 24 * 365 * 100);
+  if (signedUrlError) {
+    return NextResponse.json(
+      { message: signedUrlError.message },
+      { status: 500 }
+    );
+  }
 
-  return NextResponse.json({ url: publicUrl });
+  return NextResponse.json({ url: signedUrlData.signedUrl });
 }
