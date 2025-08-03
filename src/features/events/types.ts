@@ -3,7 +3,7 @@ export interface Event {
   title: string;
   date: string;
   location: string;
-  image: string;
+  image?: string;
   host: string;
   attendees: string[];
 }
