@@ -4,17 +4,24 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
 import { UserRole } from "@/constants/roles";
 
-export default function EventActions() {
+
+interface EventActionsProps {
+  creatorId: string;
+}
+
+export default function EventActions({ creatorId }: EventActionsProps) {
   const { user } = useUser();
   const role = user?.role_type as UserRole | undefined;
+
+
   const canRSVP =
     role === UserRole.STUDENT ||
     role === UserRole.FACULTY ||
     role === UserRole.STUDENT_LEADER;
-  const canEdit =
-    role === UserRole.FACULTY ||
-    role === UserRole.INSTITUTION_ADMIN ||
-    role === UserRole.OY_ADMIN;
+
+
+  const canEdit = user?.id === creatorId || role === UserRole.INSTITUTION_ADMIN;
+
 
   return (
     <div className="flex gap-2 mb-8">

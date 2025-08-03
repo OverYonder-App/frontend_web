@@ -52,13 +52,16 @@ export default async function EventPage({
         </div>
       </div>
       <AttendeeList attendees={attendees || []} />
-      <EventActions />
+      <EventActions creatorId={event.created_by} />
+
       <CommentsSection eventId={event.event_id} />
     </div>
   );
 }
 
-function AttendeeList({ attendees }: { attendees: Attendee[] }) {
+
+function AttendeeList({ attendees }: { attendees: (Attendee | string)[] }) {
+
   return (
     <div className="mb-8">
       <h2 className="text-xl font-semibold mb-2">Attendees</h2>
@@ -66,9 +69,12 @@ function AttendeeList({ attendees }: { attendees: Attendee[] }) {
         <p className="text-sm text-gray-500">No attendees yet.</p>
       ) : (
         <ul className="list-disc list-inside space-y-1">
-          {attendees.map((a, idx) => (
-            <li key={a.id || idx}>{a.name || a}</li>
-          ))}
+          {attendees.map((a, idx) => {
+            const key = typeof a === "string" ? idx : a.id || idx;
+            const name = typeof a === "string" ? a : a.name || "";
+            return <li key={key}>{name}</li>;
+          })}
+
         </ul>
       )}
     </div>
