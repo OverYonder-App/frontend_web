@@ -3,31 +3,56 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import EventCard from "@/features/events/components/EventCard";
 import StudentLayout from "../StudentLayout";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import type { Event } from "@/features/events/types";
+import type { Database } from "@/lib/database.types";
 
-const mockEvents = [
-  {
-    id: "1",
-    title: "Music in the Quad",
-    date: "Thu, Jul 25 • 6:00 PM",
-    location: "Main Lawn",
-    category: "Social",
-    image: "https://picsum.photos/seed/picsum/800/500",
-    host: "Campus Life",
-    attendees: ["A", "B", "C"],
-  },
-  {
-    id: "2",
-    title: "AI Ethics Panel",
-    date: "Fri, Jul 26 • 4:00 PM",
-    location: "Library Auditorium",
-    category: "Academic",
-    image: "https://picsum.photos/seed/picsum/800/500",
-    host: "Philosophy Dept",
-    attendees: ["D", "E"],
-  },
-];
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
 export default function StudentHomeYonderView() {
+  const { user } = useCurrentUser();
+  const [events, setEvents] = useState<Event[]>([]);
+
+  useEffect(() => {
+    if (!user?.institution_id) return;
+    async function loadEvents() {
+      type EventRow = Database["public"]["Tables"]["events"]["Row"] & {
+        organization?: { name: string | null } | null;
+      };
+
+      const { data } = await supabase
+        .from("events")
+        .select(
+          "event_id, title, start_date, address, image_url, organization:organizations(name)"
+        )
+        .eq("institution_id", user.institution_id)
+        .eq("status", "approved")
+        .order("start_date", { ascending: true });
+      if (data) {
+        const mapped = (data as EventRow[]).map((e) => ({
+          id: e.event_id,
+          title: e.title,
+          date: formatDate(e.start_date),
+          location: e.address ?? "",
+          image: e.image_url ?? undefined,
+          host: e.organization?.name || "",
+          attendees: [],
+        }));
+        setEvents(mapped);
+      }
+    }
+    loadEvents();
+  }, [user]);
+
   return (
     <StudentLayout>
       <main className="min-h-screen bg-[#f9f9ff] p-4 md:p-8">
@@ -61,7 +86,7 @@ export default function StudentHomeYonderView() {
 
           <TabsContent value="events">
             <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockEvents.map((event) => (
+              {events.map((event) => (
                 <EventCard key={event.id} event={event} />
               ))}
             </section>

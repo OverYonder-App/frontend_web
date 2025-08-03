@@ -11,13 +11,14 @@ export interface EventCardProps {
 }
 
 export default function EventCard({ event }: EventCardProps) {
+  const placeholder = "https://picsum.photos/seed/picsum/800/500";
   return (
     <Link href={`/event/${event.id}`} className="block">
       <Card className="overflow-hidden rounded-xl border border-gray-200 shadow hover:shadow-md transition">
         <Image
           width={"800"}
           height={"500"}
-          src={event.image}
+          src={event.image || placeholder}
           alt={event.title}
           className="w-full h-40 object-cover"
         />
