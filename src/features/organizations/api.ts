@@ -1,4 +1,5 @@
 import type { Database } from "@/lib/database.types";
+import { getBaseUrl } from "@/lib/utils";
 
 export type Organization = Database["public"]["Tables"]["organizations"]["Row"];
 export type OrganizationInsert = Database["public"]["Tables"]["organizations"]["Insert"];
@@ -12,7 +13,7 @@ async function handleResponse(res: Response) {
   return data;
 }
 
-const BASE_URL = "/api/clubs";
+const BASE_URL = `${getBaseUrl()}/api/clubs`;
 
 export interface FetchClubsOptions {
   status?: string;

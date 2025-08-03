@@ -1,0 +1,74 @@
+"use server";
+
+import { NextRequest, NextResponse } from "next/server";
+import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
+import type { Database } from "@/lib/database.types";
+
+const PAGE_SIZE = 10;
+
+export async function GET(req: NextRequest) {
+  const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+  const { searchParams } = new URL(req.url);
+  const status = searchParams.get("status");
+  const search = searchParams.get("q");
+  const page = Number(searchParams.get("page") ?? "1");
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
+
+  let query = supabase
+    .from("events")
+    .select("*", { count: "exact" });
+
+  if (status) {
+    query = query.eq(
+      "status",
+      status as Database["public"]["Enums"]["event_status"]
+    );
+  }
+  if (search) {
+    query = query.ilike("title", `%${search}%`);
+  }
+
+  const { data, error, count } = await query
+    .order("start_date", { ascending: true })
+    .range(from, to);
+
+  if (error) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers }
+    );
+  }
+
+  return NextResponse.json({ events: data, count }, { status: 200, headers });
+}
+
+export async function POST(req: NextRequest) {
+  const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+  const body = await req.json();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const payload = {
+    ...body,
+    created_by: body.created_by ?? user?.id,
+    institution_id: body.institution_id ?? user?.user_metadata?.institution_id,
+  };
+
+  const { data, error } = await supabase
+    .from("events")
+    .insert(payload)
+    .select("*")
+    .single();
+
+  if (error) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers }
+    );
+  }
+
+  return NextResponse.json({ event: data }, { status: 201, headers });
+}
+
