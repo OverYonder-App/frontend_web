@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { Organization } from "@/features/organizations/api";
 import {
   fetchClub,
@@ -52,6 +53,12 @@ export default function ClubDetail({ clubId }: { clubId: string }) {
       <p>{club.description}</p>
       <p className="font-medium">Status: {club.status}</p>
       <div className="space-x-2">
+        <Link
+          href={`/dashboard/institution-admin/clubs/${club.organization_id}/edit`}
+          className="rounded bg-green-600 px-4 py-2 text-white"
+        >
+          Edit
+        </Link>
         <button
           onClick={handleApprove}
           className="rounded bg-blue-600 px-4 py-2 text-white"
