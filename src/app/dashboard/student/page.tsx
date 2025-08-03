@@ -34,16 +34,16 @@ export default function StudentHomeYonderView() {
         .select(
           "event_id, title, start_date, address, image_url, organization:organizations(name)"
         )
-        .eq("institution_id", user.institution_id)
+        .eq("institution_id", user?.institution_id)
         .eq("status", "approved")
         .order("start_date", { ascending: true });
       if (data) {
-        const mapped = (data as EventRow[]).map((e) => ({
+        const mapped = (data as unknown as EventRow[]).map((e) => ({
           id: e.event_id,
           title: e.title,
           date: formatDate(e.start_date),
           location: e.address ?? "",
-          image: e.image_url ?? undefined,
+          image: e.image_url ?? "https://picsum.photos/seed/picsum/800/500",
           host: e.organization?.name || "",
           attendees: [],
         }));
