@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
-import { GoogleMap, useLoadScript } from "@react-google-maps/api";
+import { Autocomplete, GoogleMap, useLoadScript } from "@react-google-maps/api";
 import type { Library } from "@googlemaps/js-api-loader";
 import { Combobox } from "@headlessui/react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -20,7 +20,8 @@ export default function CreateEventForm() {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY!,
     libraries,
   });
-const placeRef = useRef<PlaceAutocompleteElement>(null!);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
@@ -62,7 +63,7 @@ const placeRef = useRef<PlaceAutocompleteElement>(null!);
         .then(({ results }) => {
           const addr = results[0]?.formatted_address || "";
           setValue("address", addr);
-          if (placeRef.current) placeRef.current.nodeValue = addr;
+          if (searchInputRef.current) searchInputRef.current.value = addr;
         });
     }
     }, [isLoaded, location, setValue]);
@@ -137,7 +138,7 @@ async function geocode(loc: { lat: number; lng: number }){
     const { results } = await geocoderRef.current!.geocode({ location: loc });
     const addr = results[0]?.formatted_address || "";
     setValue("address", addr);
-    if (placeRef.current) placeRef.current.nodeValue = addr;
+    if (searchInputRef.current) searchInputRef.current.value = addr;
   };
 
   
@@ -169,24 +170,7 @@ async function geocode(loc: { lat: number; lng: number }){
     }
   }, [location, isLoaded]);
 
-  useEffect(() => {
-    if (!placeRef.current) return;
-    const el = placeRef.current;
-    const handler = () => {
-      const place = el as google.maps.places.PlaceResult;
-      const loc = place.geometry?.location as google.maps.LatLng | undefined;
-      if (loc) {
-        updateLocation({ lat: loc.lat(), lng: loc.lng() });
-      }
-      const addr =
-        (place as unknown as { formattedAddress?: string }).formattedAddress ??
-        place.formatted_address ??
-        "";
-      setValue("address", addr);
-    };
-    el.addEventListener("placechange", handler);
-    return () => el.removeEventListener("placechange", handler);
-  }, [updateLocation, setValue]);
+  // Autocomplete input handles place selection via onPlaceChanged
 
   useEffect(() => {
     register("location", { required: true });
@@ -359,11 +343,26 @@ async function geocode(loc: { lat: number; lng: number }){
       {step === 2 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Location</h2>
-          <gmpx-place-autocomplete
-            ref={placeRef}
-            className="w-full border rounded p-2 mb-2"
-            placeholder="Search address"
-          />
+          <Autocomplete
+            onLoad={(ref) => (autocompleteRef.current = ref)}
+            onPlaceChanged={() => {
+              const place = autocompleteRef.current!.getPlace();
+              const loc = place.geometry?.location;
+              if (loc) {
+                updateLocation({ lat: loc.lat(), lng: loc.lng() });
+              }
+              const addr = place.formatted_address || "";
+              setValue("address", addr);
+              if (searchInputRef.current) searchInputRef.current.value = addr;
+            }}
+          >
+            <input
+              ref={searchInputRef}
+              type="text"
+              className="w-full border rounded p-2 mb-2"
+              placeholder="Search address"
+            />
+          </Autocomplete>
           <GoogleMap
             options={{ mapId: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID }}
             mapContainerStyle={{ width: "100%", height: "240px" }}
