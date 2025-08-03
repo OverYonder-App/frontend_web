@@ -1925,6 +1925,55 @@ CREATE POLICY "Delete files by role or ownership"
     )
   );
 
+  -- Add UPDATE policy to allow replacing files
+CREATE POLICY "Update files by role or ownership"
+  ON storage.objects
+  FOR UPDATE TO authenticated
+  USING (
+    bucket_id = 'oy_media'
+    AND (
+      -- Update personal uploads
+      name LIKE (auth.jwt()->>'institution_id') || '/users/' || auth.uid() || '/%'
+
+      -- Institution Admin within their institution
+      OR (
+        (auth.jwt()->>'role_type') = 'Institution Admin'
+        AND name LIKE (auth.jwt()->>'institution_id') || '/%'
+      )
+
+      -- Student Leader for org files
+      OR (
+        (auth.jwt()->>'role_type') = 'Student Leader'
+        AND name LIKE (auth.jwt()->>'institution_id') || '/organizations/%'
+      )
+
+      -- OY Admin can update all
+      OR (auth.jwt()->>'role_type') = 'OY Admin'
+    )
+  )
+  WITH CHECK (
+    bucket_id = 'oy_media'
+    AND (
+      -- Update personal uploads
+      name LIKE (auth.jwt()->>'institution_id') || '/users/' || auth.uid() || '/%'
+
+      -- Institution Admin within their institution
+      OR (
+        (auth.jwt()->>'role_type') = 'Institution Admin'
+        AND name LIKE (auth.jwt()->>'institution_id') || '/%'
+      )
+
+      -- Student Leader for org files
+      OR (
+        (auth.jwt()->>'role_type') = 'Student Leader'
+        AND name LIKE (auth.jwt()->>'institution_id') || '/organizations/%'
+      )
+
+      -- OY Admin can update all
+      OR (auth.jwt()->>'role_type') = 'OY Admin'
+    )
+  );
+
 ```
 </details>
 

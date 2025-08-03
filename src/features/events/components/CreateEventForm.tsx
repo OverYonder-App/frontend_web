@@ -122,11 +122,11 @@ export default function CreateEventForm() {
       const filePath = `${user.institution_id}/events/${eventId}/banner.${ext}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("oy_media")
+        .from("oy-media")
         .upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
       const { data: publicUrl } = supabase.storage
-        .from("oy_media")
+        .from("oy-media")
         .getPublicUrl(filePath);
 
       const { error } = await supabase.from("events").insert({
