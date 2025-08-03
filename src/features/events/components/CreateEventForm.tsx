@@ -20,6 +20,16 @@ export default function CreateEventForm() {
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY!,
     libraries,
   });
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors, isValid },
+  } = useForm<EventFormValues>({
+    mode: "onChange",
+    defaultValues: EMPTY_EVENT_FORM,
+  });
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
@@ -42,16 +52,7 @@ export default function CreateEventForm() {
     [setValue]
   );
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    formState: { errors, isValid },
-  } = useForm<EventFormValues>({
-    mode: "onChange",
-    defaultValues: EMPTY_EVENT_FORM,
-  });
+  
 
   const location = useWatch({ control, name: "location" });
 
