@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { Autocomplete, GoogleMap, useLoadScript } from "@react-google-maps/api";
 import type { Library } from "@googlemaps/js-api-loader";
@@ -34,13 +34,13 @@ export default function CreateEventForm() {
   const [clubs, setClubs] = useState<Organization[]>([]);
   const [clubQuery, setClubQuery] = useState("");
   const { user } = useCurrentUser();
-  const updateLocation = async (loc: { lat: number; lng: number }) => {
-    setMapCenter(loc);
-    setValue("location", loc);
-    if (geocoderRef.current) {
-      await geocode(loc);
-    }
-  };
+  const updateLocation = useCallback(
+    (loc: { lat: number; lng: number }) => {
+      setMapCenter(loc);
+      setValue("location", loc);
+    },
+    [setValue]
+  );
 
   const {
     register,
@@ -57,16 +57,23 @@ export default function CreateEventForm() {
 
   useEffect(() => {
     geocoderRef.current = isLoaded ? new google.maps.Geocoder() : null;
-    if (isLoaded && location) {
+    if (
+      isLoaded &&
+      location &&
+      (location.lat !== 0 || location.lng !== 0)
+    ) {
       geocoderRef.current
         ?.geocode({ location })
         .then(({ results }) => {
           const addr = results[0]?.formatted_address || "";
           setValue("address", addr);
           if (searchInputRef.current) searchInputRef.current.value = addr;
+        })
+        .catch(() => {
+          setValue("address", "");
         });
     }
-    }, [isLoaded, location, setValue]);
+  }, [isLoaded, location, setValue]);
 
   useEffect(() => {
     async function loadInstitution() {
@@ -78,7 +85,7 @@ export default function CreateEventForm() {
         .single();
       if (data) {
         const loc = { lat: data.latitude, lng: data.longitude };
-        await updateLocation(loc);
+        updateLocation(loc);
       }
     }
     loadInstitution();
@@ -134,22 +141,13 @@ export default function CreateEventForm() {
 
   const stepTitles = ["Details", "Location", "Schedule", "Review"];
 
-async function geocode(loc: { lat: number; lng: number }){
-    const { results } = await geocoderRef.current!.geocode({ location: loc });
-    const addr = results[0]?.formatted_address || "";
-    setValue("address", addr);
-    if (searchInputRef.current) searchInputRef.current.value = addr;
-  };
-
-  
-
   useEffect(() => {
-    if (!location || !mapRef.current || !isLoaded) return;
-    const pin = new google.maps.marker.PinElement({
-      background: "#745296",
-      borderColor: "#745296",
-      glyphColor: "#A38BC3",
-    });
+      if (!location || !mapRef.current || !isLoaded) return;
+      const pin = new google.maps.marker.PinElement({
+        background: "#745296",
+        borderColor: "#745296",
+        glyphColor: "#A38BC3",
+      });
     if (!markerRef.current) {
       markerRef.current = new google.maps.marker.AdvancedMarkerElement({
         position: location,
@@ -168,7 +166,7 @@ async function geocode(loc: { lat: number; lng: number }){
     } else {
       markerRef.current.position = location;
     }
-  }, [location, isLoaded]);
+    }, [location, isLoaded, updateLocation]);
 
   // Autocomplete input handles place selection via onPlaceChanged
 
