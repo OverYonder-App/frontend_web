@@ -6,15 +6,16 @@ import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string; org_type: string } }
+  { params }: { params: Promise<{ id: string; org_type: string }> }
 ) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
+  const { id, org_type } = await params;
 
   const { data, error } = await supabase
     .from("organizations")
     .select("*")
-    .eq("institution_id", params.id)
-    .eq("organization_type", params.org_type)
+    .eq("institution_id", id)
+    .eq("organization_type", org_type)
     .maybeSingle();
 
   if (error) {
