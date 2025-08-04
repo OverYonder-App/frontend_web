@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { differenceInMinutes } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Event } from './CalendarView';
 import { computeDayPositions, type DayPosition } from './OverlapUtils';
+import { getZonedNow, toZonedTime } from '@/lib/time';
 
 export interface DayViewProps {
   events: Event[]; // Events already filtered for this day
@@ -28,6 +29,19 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
     () => computeDayPositions(events),
     [events]
   );
+
+  const [now, setNow] = useState<Date>(() => getZonedNow(timeZone));
+
+  useEffect(() => {
+    setNow(getZonedNow(timeZone));
+    const interval = setInterval(() => {
+      setNow(getZonedNow(timeZone));
+    }, 60 * 1000);
+    return () => clearInterval(interval);
+  }, [timeZone]);
+
+  const zonedDate = toZonedTime(date, timeZone);
+  const showNow = now.toDateString() === zonedDate.toDateString();
 
   return (
     <div className="flex h-full overflow-hidden flex-col">
@@ -62,6 +76,21 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
               />
             ))}
           </div>
+
+          {showNow && (
+            <div
+              className="absolute w-full"
+              style={{
+                top: (now.getHours() + now.getMinutes() / 60) * CELL_HEIGHT,
+              }}
+            >
+              <div className="relative w-full h-px bg-red-500">
+                <span className="absolute -left-12 top-0 -translate-y-1/2 text-xs text-red-500">
+                  {formatInTimeZone(now, timeZone, "HH:mm")}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Event blocks */}
           {positioned.map(({ event, col, cols }) => {
