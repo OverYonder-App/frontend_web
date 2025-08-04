@@ -10,6 +10,8 @@ import {
   endOfWeek,
   startOfMonth,
   endOfMonth,
+  startOfDay,
+  endOfDay,
 } from "date-fns";
 import type { EventRecord } from "@/lib/types";
 import CalendarView from "@/components/calendar/CalendarView";
@@ -79,9 +81,19 @@ export default function CalendarClient({ events }: { events: EventRecord[] }) {
   // Filter events based on the current view.
   let filtered = events;
   if (view === "day") {
-    filtered = events.filter((e) =>
-      isSameDay(new Date(e.start as string), current)
-    );
+    const start = startOfDay(current);
+    const end = endOfDay(current);
+    filtered = events.filter((e) => {
+      const s = new Date(e.start as string);
+      const eDate = new Date(e.end as string);
+      return (
+        isSameDay(s, current) ||
+        isSameDay(eDate, current) ||
+        (s <= start && eDate >= end) ||
+        (s < start && eDate > start) ||
+        (s < end && eDate > end)
+      );
+    });
   } else if (view === "week") {
     const start = startOfWeek(current, { weekStartsOn: 1 });
     const end = endOfWeek(current, { weekStartsOn: 1 });
