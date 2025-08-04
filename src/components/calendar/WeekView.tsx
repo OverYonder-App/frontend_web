@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { differenceInMinutes, startOfWeek, addDays, format } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Event } from './CalendarView';
@@ -24,7 +24,12 @@ export interface WeekViewProps {
 const CELL_HEIGHT = 48; // pixels per hour to reduce overall height
 
 export default function WeekView({ events, date, timeZone, onSelectEvent }: WeekViewProps) {
-  const now = new Date();
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(id);
+  }, []);
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const days = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
 
@@ -88,9 +93,10 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
             now.toDateString().slice(0, 3)
           ) && (
             <div
-              className="absolute h-px bg-red-500 w-full"
+              className="absolute h-px w-full"
               style={{
                 top: (now.getHours() + now.getMinutes() / 60) * CELL_HEIGHT,
+                backgroundColor: '#745296',
               }}
             />
           )}

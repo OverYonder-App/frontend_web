@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { differenceInMinutes, format } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Event } from './CalendarView';
@@ -24,6 +24,14 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function DayView({ events, date, timeZone, onSelectEvent }: DayViewProps) {
+  // Track current time
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(id);
+  }, []);
+
   // Compute overlapping columns for the day events
   const positioned = useMemo<DayPosition[]>(
     () => computeDayPositions(events),
@@ -63,6 +71,17 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
               />
             ))}
           </div>
+
+          {/* Current time indicator */}
+          {date.toDateString() === now.toDateString() && (
+            <div
+              className="absolute h-px w-full"
+              style={{
+                top: (now.getHours() + now.getMinutes() / 60) * CELL_HEIGHT,
+                backgroundColor: '#745296',
+              }}
+            />
+          )}
 
           {/* Event blocks */}
           {positioned.map(({ event, col, cols }) => {
