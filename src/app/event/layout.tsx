@@ -6,9 +6,13 @@ import { UserRole } from '@/constants/roles'
 import StudentLayout from '@/app/dashboard/StudentLayout'
 import AdminLayout from '@/app/dashboard/institution-admin/layout'
 import OYAdminLayout from '@/app/dashboard/oy/layout'
+import EventSkeleton from '@/features/events/components/EventSkeleton'
 
 export default function EventLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useUser()
+  const { user, loading } = useUser()
+
+  if (loading) return <EventSkeleton />
+
   const role = user?.role_type as UserRole | undefined
 
   switch (role) {
