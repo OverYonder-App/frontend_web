@@ -24,7 +24,6 @@ export interface WeekViewProps {
 const CELL_HEIGHT = 48; // pixels per hour to reduce overall height
 
 export default function WeekView({ events, date, timeZone, onSelectEvent }: WeekViewProps) {
-  const now = new Date();
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const days = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
 
@@ -82,19 +81,6 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
           {Array.from({ length: 7 }).map((_, dayIdx) => (
             <div key={dayIdx} className="col-span-1 border-r border-gray-200" />
           ))}
-
-          {/* Current time indicator */}
-          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].includes(
-            now.toDateString().slice(0, 3)
-          ) && (
-            <div
-              className="absolute h-px bg-red-500 w-full"
-              style={{
-                top: (now.getHours() + now.getMinutes() / 60) * CELL_HEIGHT,
-              }}
-            />
-          )}
-
           {/* Event blocks */}
           {positioned.map(({ event, day, col, cols }) => {
             const startDate = new Date(event.start);
