@@ -18,7 +18,7 @@ export interface WeekViewProps {
   events: Event[];
   date: Date;
   timeZone: string;
-  onSelectEvent?: (id: string) => void;
+  onSelectEvent: (id: string) => void;
 }
 
 const CELL_HEIGHT = 48; // pixels per hour to reduce overall height
@@ -123,7 +123,7 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
                   width: `calc(${widthPct}% - 4px)`,
                   backgroundColor: bg,
                 }}
-                onClick={() => onSelectEvent?.(event.id)}
+                onClick={() => onSelectEvent(event.id)}
                 title={`${event.title} (${startDate.getHours()}:${String(
                   startDate.getMinutes()
                 ).padStart(2, "0")} - ${endDate.getHours()}:${String(
