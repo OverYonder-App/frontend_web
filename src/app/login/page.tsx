@@ -63,8 +63,8 @@ export default function LoginPage() {
         <Image
           src="/images/overyonder-logo.png"
           alt="OverYonder Logo"
-          width={120}
-          height={120}
+          width={75}
+          height={75}
           className="mx-auto mb-6"
         />
         <h1 className="text-2xl font-bold text-[#745296] mb-4">
