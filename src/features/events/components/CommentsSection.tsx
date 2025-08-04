@@ -66,12 +66,13 @@ export default function CommentsSection({ eventId }: CommentsSectionProps) {
     <div className="mt-8">
       <h2 className="text-xl font-semibold mb-2">Comments</h2>
       <ul className="space-y-2 mb-4">
-        {comments.map((c) => (
-          <li key={c.id} className="border rounded p-2">
-            <p className="text-sm font-semibold">{c.author}</p>
-            <p className="text-sm">{c.text}</p>
-          </li>
-        ))}
+        {comments.length >= 0 &&
+           comments.map((c,index) => (
+            <li key={index} className="border rounded p-2">
+              <p className="text-sm font-semibold">{c.author}</p>
+              <p className="text-sm">{c.text}</p>
+            </li>
+          ))}
         {comments.length === 0 && (
           <li className="text-sm text-gray-500">No comments yet.</li>
         )}

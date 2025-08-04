@@ -42,8 +42,9 @@ export async function fetchEvents(
 
 export async function fetchEvent(id: string) {
   const opts: RequestInit = { credentials: "include" };
+  const cookieStore = await cookies();
   if (typeof window === "undefined") {
-    opts.headers = { Cookie: cookies().toString() };
+    opts.headers = { Cookie: cookieStore.toString() };
   }
 
   const res = await fetch(`${BASE_URL}/${id}`, opts);
