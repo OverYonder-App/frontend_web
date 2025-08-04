@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { differenceInMinutes, format } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
+import { differenceInMinutes } from 'date-fns';
+import { formatInTimeZone, utcToZonedTime } from 'date-fns-tz';
 import { Event } from './CalendarView';
 import { computeDayPositions, type DayPosition } from './OverlapUtils';
 
@@ -51,7 +51,7 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
               key={i}
               className="h-48 flex items-start justify-end pr-1 text-xs text-gray-500"
             >
-              {i}:00
+              {i.toString().padStart(2, '0')}:00
             </div>
           ))}
         </div>
@@ -85,8 +85,8 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
 
           {/* Event blocks */}
           {positioned.map(({ event, col, cols }) => {
-            const startDate = new Date(event.start);
-            const endDate = new Date(event.end);
+            const startDate = utcToZonedTime(new Date(event.start), timeZone);
+            const endDate = utcToZonedTime(new Date(event.end), timeZone);
             const minutesFromMid =
               startDate.getHours() * 60 + startDate.getMinutes();
             const durationMin = differenceInMinutes(endDate, startDate);
@@ -111,7 +111,7 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
                   backgroundColor: bg,
                 }}
                 onClick={() => onSelectEvent(event.id)}
-                title={`${event.title} (${format(startDate, 'h:mm a')} - ${format(endDate, 'h:mm a')})`}
+                title={`${event.title} (${formatInTimeZone(new Date(event.start), timeZone, 'HH:mm')} - ${formatInTimeZone(new Date(event.end), timeZone, 'HH:mm')})`}
               >
                 {event.title}
               </div>
