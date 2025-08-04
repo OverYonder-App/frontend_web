@@ -20,7 +20,7 @@ export interface CalendarViewProps {
   view: 'day' | 'week' | 'month';
   date: Date;
   timeZone: string;
-  onSelectEvent?: (id: string) => void;
+  onSelectEvent: (id: string) => void;
 }
 
 export default function CalendarView({ events, view, date, timeZone, onSelectEvent }: CalendarViewProps) {

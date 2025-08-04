@@ -8,10 +8,10 @@ import { computeDayPositions, type DayPosition } from './OverlapUtils';
 
 
 export interface DayViewProps {
-  events: Event[];          // Events already filtered for this day
+  events: Event[]; // Events already filtered for this day
   date: Date;
   timeZone: string;
-  onSelectEvent?: (id: string) => void;
+  onSelectEvent: (id: string) => void;
 }
 
 const CELL_HEIGHT = 48; // px per hour to reduce overall height
@@ -91,7 +91,7 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
                   width: `calc(${widthPct}% - 4px)`,
                   backgroundColor: bg,
                 }}
-                onClick={() => onSelectEvent?.(event.id)}
+                onClick={() => onSelectEvent(event.id)}
                 title={`${event.title} (${startDate.getHours()}:${String(
                   startDate.getMinutes()
                 ).padStart(2, "0")} - ${endDate.getHours()}:${String(
