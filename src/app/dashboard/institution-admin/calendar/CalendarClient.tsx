@@ -13,7 +13,7 @@ import {
   startOfDay,
   endOfDay,
 } from "date-fns";
-import type { EventRecord } from "@/lib/types";
+import type { Database } from "@/lib/database.types";
 import CalendarView from "@/components/calendar/CalendarView";
 import MiniMonthView from "@/components/calendar/MiniMonthView";
 import CategoryList from "@/components/calendar/CategoryList";
@@ -25,7 +25,9 @@ import { Plus as PlusIcon } from "lucide-react";
  * calendar dashboards. The component provides a search field, view toggles,
  * range navigation, a mini month calendar and a category list in a sidebar.
  */
-export default function CalendarClient({ events }: { events: EventRecord[] }) {
+type EventRow = Database['public']['Tables']['events']['Row'];
+
+export default function CalendarClient({ events }: { events: EventRow[] }) {
   const [view, setView] = useState<"day" | "week" | "month">("week");
   const [current, setCurrent] = useState<Date>(new Date());
   const [miniMonth, setMiniMonth] = useState<Date>(new Date());
@@ -82,8 +84,8 @@ export default function CalendarClient({ events }: { events: EventRecord[] }) {
   const weekStart = startOfWeek(current);
   const weekEnd = endOfWeek(current);
   let filtered = events.filter((e) => {
-    const s = new Date(e.start as string);
-    const eDate = new Date(e.end as string);
+    const s = new Date(e.start_date);
+    const eDate = new Date(e.end_date);
     return s <= weekEnd && eDate >= weekStart;
   });
 
@@ -92,8 +94,8 @@ export default function CalendarClient({ events }: { events: EventRecord[] }) {
     const start = startOfDay(current);
     const end = endOfDay(current);
     filtered = filtered.filter((e) => {
-      const s = new Date(e.start as string);
-      const eDate = new Date(e.end as string);
+      const s = new Date(e.start_date);
+      const eDate = new Date(e.end_date);
       return (
         isSameDay(s, current) ||
         isSameDay(eDate, current) ||
@@ -106,7 +108,7 @@ export default function CalendarClient({ events }: { events: EventRecord[] }) {
     const start = startOfMonth(current);
     const end = endOfMonth(current);
     filtered = filtered.filter((e) => {
-      const d = new Date(e.start as string);
+      const d = new Date(e.start_date);
       return d >= start && d <= end;
     });
   }
