@@ -8,17 +8,18 @@ export default function CompactCalendar({
 }: {
   events?: EventRecord[];
 }) {
-  const [data, setData] = useState<EventRecord[]>(
-    events?.filter((e) => e.status === "approved") || []
-  );
+  const [data, setData] = useState<EventRecord[]>([]);
 
   useEffect(() => {
-    if (!events) {
+    if (Array.isArray(events)) {
+      setData(events.filter((e) => e.status === "approved"));
+    } else {
       fetch("/api/events")
         .then((res) => res.json())
-        .then((all: EventRecord[]) =>
-          setData(all.filter((e) => e.status === "approved"))
-        );
+        .then((all: EventRecord[] | { events: EventRecord[] }) => {
+          const arr = Array.isArray(all) ? all : all.events;
+          setData(arr.filter((e) => e.status === "approved"));
+        });
     }
   }, [events]);
 
