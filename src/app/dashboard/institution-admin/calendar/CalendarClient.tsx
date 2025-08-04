@@ -78,12 +78,20 @@ export default function CalendarClient({ events }: { events: EventRecord[] }) {
           timeZone,
         }).format(current);
 
-  // Filter events based on the current view.
-  let filtered = events;
+  // Filter events so only those in the current week range are passed to the view.
+  const weekStart = startOfWeek(current);
+  const weekEnd = endOfWeek(current);
+  let filtered = events.filter((e) => {
+    const s = new Date(e.start as string);
+    const eDate = new Date(e.end as string);
+    return s <= weekEnd && eDate >= weekStart;
+  });
+
+  // Further narrow the events based on the selected view.
   if (view === "day") {
     const start = startOfDay(current);
     const end = endOfDay(current);
-    filtered = events.filter((e) => {
+    filtered = filtered.filter((e) => {
       const s = new Date(e.start as string);
       const eDate = new Date(e.end as string);
       return (
@@ -94,17 +102,10 @@ export default function CalendarClient({ events }: { events: EventRecord[] }) {
         (s < end && eDate > end)
       );
     });
-  } else if (view === "week") {
-    const start = startOfWeek(current, { weekStartsOn: 1 });
-    const end = endOfWeek(current, { weekStartsOn: 1 });
-    filtered = events.filter((e) => {
-      const d = new Date(e.start as string);
-      return d >= start && d <= end;
-    });
   } else if (view === "month") {
     const start = startOfMonth(current);
     const end = endOfMonth(current);
-    filtered = events.filter((e) => {
+    filtered = filtered.filter((e) => {
       const d = new Date(e.start as string);
       return d >= start && d <= end;
     });
