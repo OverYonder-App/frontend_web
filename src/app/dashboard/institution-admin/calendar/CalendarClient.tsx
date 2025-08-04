@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   addDays,
   addMonths,
@@ -29,6 +30,7 @@ export default function CalendarClient({ events }: { events: EventRecord[] }) {
   const [timeZone, setTimeZone] = useState<string>(
     Intl.DateTimeFormat().resolvedOptions().timeZone
   );
+  const router = useRouter();
 
   const VIEWS: ("day" | "week" | "month")[] = ["day", "week", "month"];
 
@@ -213,6 +215,7 @@ export default function CalendarClient({ events }: { events: EventRecord[] }) {
             events={filtered}
             date={current}
             timeZone={timeZone}
+            onSelectEvent={(id) => router.push(`/event/${id}`)}
           />
         </div>
       </div>
