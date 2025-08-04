@@ -9,14 +9,17 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import type { Event } from "@/features/events/types";
 import type { Database } from "@/lib/database.types";
 
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleString("en-US", {
+const formatDate = (iso: string) => {
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return new Date(iso).toLocaleString("en-US", {
     weekday: "short",
     month: "short",
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZone,
   });
+};
 
 export default function StudentHomeYonderView() {
   const { user } = useCurrentUser();
