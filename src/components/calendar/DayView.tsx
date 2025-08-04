@@ -1,17 +1,16 @@
-"use client"
+"use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { differenceInMinutes } from 'date-fns';
-import { formatInTimeZone, utcToZonedTime } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 import { Event } from './CalendarView';
 import { computeDayPositions, type DayPosition } from './OverlapUtils';
-
 
 export interface DayViewProps {
   events: Event[]; // Events already filtered for this day
   date: Date;
   timeZone: string;
-  onSelectEvent: (id: string) => void;
+  onSelectEvent?: (id: string) => void;
 }
 
 const CELL_HEIGHT = 48; // px per hour to reduce overall height
@@ -24,14 +23,6 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function DayView({ events, date, timeZone, onSelectEvent }: DayViewProps) {
-  // Track current time
-  const [now, setNow] = useState(new Date());
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60000);
-    return () => clearInterval(id);
-  }, []);
-
   // Compute overlapping columns for the day events
   const positioned = useMemo<DayPosition[]>(
     () => computeDayPositions(events),
@@ -51,7 +42,7 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
               key={i}
               className="h-48 flex items-start justify-end pr-1 text-xs text-gray-500"
             >
-              {i.toString().padStart(2, '0')}:00
+              {i}:00
             </div>
           ))}
         </div>
@@ -72,21 +63,10 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
             ))}
           </div>
 
-          {/* Current time indicator */}
-          {date.toDateString() === now.toDateString() && (
-            <div
-              className="absolute h-px w-full"
-              style={{
-                top: (now.getHours() + now.getMinutes() / 60) * CELL_HEIGHT,
-                backgroundColor: '#745296',
-              }}
-            />
-          )}
-
           {/* Event blocks */}
           {positioned.map(({ event, col, cols }) => {
-            const startDate = utcToZonedTime(new Date(event.start), timeZone);
-            const endDate = utcToZonedTime(new Date(event.end), timeZone);
+            const startDate = new Date(event.start);
+            const endDate = new Date(event.end);
             const minutesFromMid =
               startDate.getHours() * 60 + startDate.getMinutes();
             const durationMin = differenceInMinutes(endDate, startDate);
@@ -110,8 +90,12 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
                   width: `calc(${widthPct}% - 4px)`,
                   backgroundColor: bg,
                 }}
-                onClick={() => onSelectEvent(event.id)}
-                title={`${event.title} (${formatInTimeZone(new Date(event.start), timeZone, 'HH:mm')} - ${formatInTimeZone(new Date(event.end), timeZone, 'HH:mm')})`}
+                onClick={() => onSelectEvent?.(event.id)}
+                title={`${event.title} (${startDate.getHours()}:${String(
+                  startDate.getMinutes()
+                ).padStart(2, '0')} - ${endDate.getHours()}:${String(
+                  endDate.getMinutes()
+                ).padStart(2, '0')})`}
               >
                 {event.title}
               </div>
@@ -122,3 +106,4 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
     </div>
   );
 }
+
