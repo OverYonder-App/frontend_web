@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useMemo } from 'react';
 import {
@@ -54,7 +54,7 @@ export default function MonthView({ events, date, timeZone, onSelectEvent }: Mon
       map.set(key, list);
     });
     return map;
-  }, [events,timeZone]);
+  }, [events, timeZone]);
 
   return (
     <div className="grid grid-cols-7 gap-1">
@@ -113,3 +113,4 @@ export default function MonthView({ events, date, timeZone, onSelectEvent }: Mon
     </div>
   );
 }
+

@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
 import React, { useMemo } from 'react';
 import { differenceInMinutes, startOfWeek, addDays } from 'date-fns';
-import { formatInTimeZone, utcToZonedTime } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 import { Event } from './CalendarView';
 import { computeWeekPositions, type WeekPosition } from './OverlapUtils';
 
@@ -18,18 +18,19 @@ export interface WeekViewProps {
   events: Event[];
   date: Date;
   timeZone: string;
-  onSelectEvent: (id: string) => void;
+  onSelectEvent?: (id: string) => void;
 }
 
 const CELL_HEIGHT = 48; // pixels per hour to reduce overall height
 
 export default function WeekView({ events, date, timeZone, onSelectEvent }: WeekViewProps) {
+  const now = new Date();
   const weekStart = startOfWeek(date, { weekStartsOn: 1 });
   const days = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
 
   const positioned = useMemo<WeekPosition[]>(
-    () => computeWeekPositions(events, timeZone),
-    [events, timeZone]
+    () => computeWeekPositions(events),
+    [events]
   );
 
   return (
@@ -46,7 +47,7 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
               key={i}
               className="h-48 flex items-start justify-end pr-1 text-xs text-gray-500"
             >
-              {i.toString().padStart(2, '0')}:00
+              {i}:00
             </div>
           ))}
         </div>
@@ -82,10 +83,22 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
             <div key={dayIdx} className="col-span-1 border-r border-gray-200" />
           ))}
 
+          {/* Current time indicator */}
+          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].includes(
+            now.toDateString().slice(0, 3)
+          ) && (
+            <div
+              className="absolute h-px bg-red-500 w-full"
+              style={{
+                top: (now.getHours() + now.getMinutes() / 60) * CELL_HEIGHT,
+              }}
+            />
+          )}
+
           {/* Event blocks */}
           {positioned.map(({ event, day, col, cols }) => {
-            const startDate = utcToZonedTime(new Date(event.start), timeZone);
-            const endDate = utcToZonedTime(new Date(event.end), timeZone);
+            const startDate = new Date(event.start);
+            const endDate = new Date(event.end);
             const minutesFromMid =
               startDate.getHours() * 60 + startDate.getMinutes();
             const durationMin = differenceInMinutes(endDate, startDate);
@@ -110,8 +123,12 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
                   width: `calc(${widthPct}% - 4px)`,
                   backgroundColor: bg,
                 }}
-                onClick={() => onSelectEvent(event.id)}
-                title={`${event.title} (${formatInTimeZone(new Date(event.start), timeZone, 'HH:mm')} - ${formatInTimeZone(new Date(event.end), timeZone, 'HH:mm')})`}
+                onClick={() => onSelectEvent?.(event.id)}
+                title={`${event.title} (${startDate.getHours()}:${String(
+                  startDate.getMinutes()
+                ).padStart(2, '0')} - ${endDate.getHours()}:${String(
+                  endDate.getMinutes()
+                ).padStart(2, '0')})`}
               >
                 {event.title}
               </div>
@@ -122,3 +139,4 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
     </div>
   );
 }
+

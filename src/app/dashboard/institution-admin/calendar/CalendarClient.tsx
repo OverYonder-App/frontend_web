@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   addDays,
   addMonths,
@@ -10,23 +9,14 @@ import {
   endOfWeek,
   startOfMonth,
   endOfMonth,
-  startOfDay,
-  endOfDay,
 } from "date-fns";
-import { parseDateTime } from "@/lib/utils";
-import type { Database } from "@/lib/database.types";
 import CalendarView from "@/components/calendar/CalendarView";
 import MiniMonthView from "@/components/calendar/MiniMonthView";
 import CategoryList from "@/components/calendar/CategoryList";
 import { Plus as PlusIcon } from "lucide-react";
+import type { Database } from "@/lib/database.types";
 
-/**
- * CalendarClient is the top-level client component for the calendar page.
- * It wraps the calendar view with a dashboard-like layout inspired by modern
- * calendar dashboards. The component provides a search field, view toggles,
- * range navigation, a mini month calendar and a category list in a sidebar.
- */
-type EventRow = Database['public']['Tables']['events']['Row'];
+type EventRow = Database["public"]["Tables"]["events"]["Row"];
 
 export default function CalendarClient({ events }: { events: EventRow[] }) {
   const [view, setView] = useState<"day" | "week" | "month">("week");
@@ -35,7 +25,6 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
   const [timeZone, setTimeZone] = useState<string>(
     Intl.DateTimeFormat().resolvedOptions().timeZone
   );
-  const router = useRouter();
 
   const VIEWS: ("day" | "week" | "month")[] = ["day", "week", "month"];
 
@@ -81,35 +70,24 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
           timeZone,
         }).format(current);
 
-  // Filter events so only those in the current week range are passed to the view.
-  const weekStart = startOfWeek(current);
-  const weekEnd = endOfWeek(current);
-  let filtered = events.filter((e) => {
-    const s = parseDateTime(e.start_date);
-    const eDate = parseDateTime(e.end_date);
-    return s <= weekEnd && eDate >= weekStart;
-  });
-
-  // Further narrow the events based on the selected view.
+  // Filter events based on the current view.
+  let filtered = events;
   if (view === "day") {
-    const start = startOfDay(current);
-    const end = endOfDay(current);
-    filtered = filtered.filter((e) => {
-      const s = parseDateTime(e.start_date);
-      const eDate = parseDateTime(e.end_date);
-      return (
-        isSameDay(s, current) ||
-        isSameDay(eDate, current) ||
-        (s <= start && eDate >= end) ||
-        (s < start && eDate > start) ||
-        (s < end && eDate > end)
-      );
+    filtered = events.filter((e) =>
+      isSameDay(new Date(e.start_date as string), current)
+    );
+  } else if (view === "week") {
+    const start = startOfWeek(current, { weekStartsOn: 1 });
+    const end = endOfWeek(current, { weekStartsOn: 1 });
+    filtered = events.filter((e) => {
+      const d = new Date(e.start_date as string);
+      return d >= start && d <= end;
     });
   } else if (view === "month") {
     const start = startOfMonth(current);
     const end = endOfMonth(current);
-    filtered = filtered.filter((e) => {
-      const d = parseDateTime(e.start_date);
+    filtered = events.filter((e) => {
+      const d = new Date(e.start_date as string);
       return d >= start && d <= end;
     });
   }
@@ -231,10 +209,10 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
             events={filtered}
             date={current}
             timeZone={timeZone}
-            onSelectEvent={(id) => router.push(`/event/${id}`)}
           />
         </div>
       </div>
     </div>
   );
 }
+

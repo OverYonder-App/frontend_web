@@ -1,5 +1,4 @@
 import { Event } from './CalendarView';
-import { utcToZonedTime } from 'date-fns-tz';
 
 /**
  * Represents an event positioned in a day grid with overlap columns.
@@ -71,11 +70,11 @@ export interface WeekPosition extends DayPosition {
  * @param events - Array of events with ISO start/end strings
  * @returns Array of WeekPosition entries with day, column, and span
  */
-export function computeWeekPositions(events: Event[], timeZone: string): WeekPosition[] {
+export function computeWeekPositions(events: Event[]): WeekPosition[] {
   // Group events by weekday (Mon=0..Sun=6)
   const byDay: Record<number, Event[]> = {};
   events.forEach(e => {
-    const start = utcToZonedTime(new Date(e.start), timeZone);
+    const start = new Date(e.start);
     const day = (start.getDay() + 6) % 7;
     byDay[day] = byDay[day] || [];
     byDay[day].push(e);
