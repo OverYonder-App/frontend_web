@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   addDays,
   addMonths,
@@ -19,6 +20,7 @@ import type { Database } from "@/lib/database.types";
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 
 export default function CalendarClient({ events }: { events: EventRow[] }) {
+  const router = useRouter();
   const [view, setView] = useState<"day" | "week" | "month">("week");
   const [current, setCurrent] = useState<Date>(new Date());
   const [miniMonth, setMiniMonth] = useState<Date>(new Date());
@@ -209,6 +211,7 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
             events={filtered}
             date={current}
             timeZone={timeZone}
+            onSelectEvent={(id) => router.push(`/event/${id}`)}
           />
         </div>
       </div>
