@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Event } from './CalendarView';
+import { format } from 'date-fns';
 
 export interface EventBlockProps {
   /** The event data */
@@ -31,8 +32,7 @@ export default function EventBlock({
 }: EventBlockProps) {
   const start = new Date(event.start);
   const end = new Date(event.end);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  const timeRange = `${start.getHours()}:${pad(start.getMinutes())} - ${end.getHours()}:${pad(end.getMinutes())}`;
+  const timeRange = `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')}`;
 
   return (
     <div

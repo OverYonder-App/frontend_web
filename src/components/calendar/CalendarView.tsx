@@ -5,6 +5,7 @@ import type { Database } from '@/lib/database.types';
 import DayView from './DayView';
 import WeekView from './WeekView';
 import MonthView from './MonthView';
+import { parseDateTime } from '@/lib/utils';
 
 export interface Event {
   id: string;
@@ -31,8 +32,8 @@ export default function CalendarView({ events, view, date, timeZone, onSelectEve
     .map((e) => ({
       id: e.event_id,
       title: e.title,
-      start: e.start_date,
-      end: e.end_date,
+      start: parseDateTime(e.start_date).toISOString(),
+      end: parseDateTime(e.end_date).toISOString(),
       status: e.status,
     }));
 

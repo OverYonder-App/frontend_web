@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useMemo } from 'react';
-import { differenceInMinutes, startOfWeek, addDays } from 'date-fns';
+import { differenceInMinutes, startOfWeek, addDays, format } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Event } from './CalendarView';
 import { computeWeekPositions, type WeekPosition } from './OverlapUtils';
@@ -124,11 +124,7 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
                   backgroundColor: bg,
                 }}
                 onClick={() => onSelectEvent(event.id)}
-                title={`${event.title} (${startDate.getHours()}:${String(
-                  startDate.getMinutes()
-                ).padStart(2, "0")} - ${endDate.getHours()}:${String(
-                  endDate.getMinutes()
-                ).padStart(2, "0")})`}
+                title={`${event.title} (${format(startDate, 'h:mm a')} - ${format(endDate, 'h:mm a')})`}
               >
                 {event.title}
               </div>

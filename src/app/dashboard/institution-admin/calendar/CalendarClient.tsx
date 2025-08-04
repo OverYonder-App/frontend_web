@@ -13,6 +13,7 @@ import {
   startOfDay,
   endOfDay,
 } from "date-fns";
+import { parseDateTime } from "@/lib/utils";
 import type { Database } from "@/lib/database.types";
 import CalendarView from "@/components/calendar/CalendarView";
 import MiniMonthView from "@/components/calendar/MiniMonthView";
@@ -84,8 +85,8 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
   const weekStart = startOfWeek(current);
   const weekEnd = endOfWeek(current);
   let filtered = events.filter((e) => {
-    const s = new Date(e.start_date);
-    const eDate = new Date(e.end_date);
+    const s = parseDateTime(e.start_date);
+    const eDate = parseDateTime(e.end_date);
     return s <= weekEnd && eDate >= weekStart;
   });
 
@@ -94,8 +95,8 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
     const start = startOfDay(current);
     const end = endOfDay(current);
     filtered = filtered.filter((e) => {
-      const s = new Date(e.start_date);
-      const eDate = new Date(e.end_date);
+      const s = parseDateTime(e.start_date);
+      const eDate = parseDateTime(e.end_date);
       return (
         isSameDay(s, current) ||
         isSameDay(eDate, current) ||
@@ -108,7 +109,7 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
     const start = startOfMonth(current);
     const end = endOfMonth(current);
     filtered = filtered.filter((e) => {
-      const d = new Date(e.start_date);
+      const d = parseDateTime(e.start_date);
       return d >= start && d <= end;
     });
   }
