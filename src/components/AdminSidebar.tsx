@@ -37,55 +37,55 @@ const NAV: NavItem[] = [
   {
     label: "Events",
     href: "/dashboard/institution-admin/events",
-    sub: [
-      { label: "All Events", href: "/dashboard/institution-admin/events" },
-      {
-        label: "Pending",
-        href: "/dashboard/institution-admin/events/pending",
-      },
-      {
-        label: "Templates",
-        href: "/dashboard/institution-admin/events/templates",
-      },
-    ],
+    // sub: [
+    //   { label: "All Events", href: "/dashboard/institution-admin/events" },
+    //   {
+    //     label: "Pending",
+    //     href: "/dashboard/institution-admin/events/pending",
+    //   },
+    //   {
+    //     label: "Templates",
+    //     href: "/dashboard/institution-admin/events/templates",
+    //   },
+    // ],
   },
   { label: "Clubs", href: "/dashboard/institution-admin/clubs" },
-  {
-    label: "Reservations",
-    href: "/institution-admin/reservations",
-    sub: [
-      { label: "Room Calendar", href: "/institution-admin/reservations" },
-      { label: "Equipment", href: "/institution-admin/reservations/equipment" },
-      { label: "Requests", href: "/institution-admin/reservations/requests" },
-    ],
-  },
-  {
-    label: "Budget",
-    href: "/institution-admin/budget",
-    sub: [
-      { label: "Funding Requests", href: "/institution-admin/budget" },
-      { label: "Allocations", href: "/institution-admin/budget/allocations" },
-      { label: "Ledger", href: "/institution-admin/budget/ledger" },
-    ],
-  },
+  // {
+  //   label: "Reservations",
+  //   href: "/institution-admin/reservations",
+  //   sub: [
+  //     { label: "Room Calendar", href: "/institution-admin/reservations" },
+  //     { label: "Equipment", href: "/institution-admin/reservations/equipment" },
+  //     { label: "Requests", href: "/institution-admin/reservations/requests" },
+  //   ],
+  // },
+  // {
+  //   label: "Budget",
+  //   href: "/institution-admin/budget",
+  //   sub: [
+  //     { label: "Funding Requests", href: "/institution-admin/budget" },
+  //     { label: "Allocations", href: "/institution-admin/budget/allocations" },
+  //     { label: "Ledger", href: "/institution-admin/budget/ledger" },
+  //   ],
+  // },
   { label: "Users", href: "/institution-admin/users" },
-  {
-    label: "Messaging",
-    href: "/institution-admin/messaging",
-    sub: [
-      { label: "Email Composer", href: "/institution-admin/messaging" },
-      { label: "Push", href: "/institution-admin/messaging/push" },
-    ],
-  },
-  {
-    label: "Moderation",
-    href: "/institution-admin/moderation",
-    sub: [
-      { label: "Reported Events", href: "/institution-admin/moderation" },
-      { label: "Images", href: "/institution-admin/moderation/images" },
-    ],
-  },
-  { label: "Analytics", href: "/institution-admin/analytics" },
+  // {
+  //   label: "Messaging",
+  //   href: "/institution-admin/messaging",
+  //   sub: [
+  //     { label: "Email Composer", href: "/institution-admin/messaging" },
+  //     { label: "Push", href: "/institution-admin/messaging/push" },
+  //   ],
+  // },
+  // {
+  //   label: "Moderation",
+  //   href: "/institution-admin/moderation",
+  //   sub: [
+  //     { label: "Reported Events", href: "/institution-admin/moderation" },
+  //     { label: "Images", href: "/institution-admin/moderation/images" },
+  //   ],
+  // },
+  // { label: "Analytics", href: "/institution-admin/analytics" },
   { label: "Settings", href: "/institution-admin/settings" },
 ];
 

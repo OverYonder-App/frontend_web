@@ -11,7 +11,7 @@ import EditEventModal from "./EditEventModal";
 type ViewMode = "cards" | "list" | "compact";
 type SortKey = "date" | "title";
 
-const TABS = ["All Events", "Pending", "Templates"] as const;
+const TABS = ["All Events", "Pending", "Rejected"] as const;
 type TabKey = (typeof TABS)[number];
 
 const MODE_CONFIG: Record<
@@ -42,7 +42,7 @@ export default function EventsExplorer({ events }: { events: EventRecord[] }) {
   const filteredByTab = eventsList.filter((e) => {
     if (selectedTab === "All Events") return true;
     if (selectedTab === "Pending") return e.status === "pending";
-    if (selectedTab === "Templates") return e.status === "template";
+    if (selectedTab === "Rejected") return e.status === "rejected";
     return true;
   });
 
