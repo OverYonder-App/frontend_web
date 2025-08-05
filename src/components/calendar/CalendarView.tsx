@@ -33,7 +33,6 @@ export default function CalendarView({ events, view, date, timeZone, onSelectEve
       title: e.title,
       start: e.start_date as string,
       end: e.end_date as string,
-      category: e.category ?? undefined,
       status: e.status ?? undefined,
     }));
 

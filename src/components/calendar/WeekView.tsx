@@ -44,7 +44,7 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
           {Array.from({ length: 24 }).map((_, i) => (
             <div
               key={i}
-              className="h-48 flex items-start justify-end pr-1 text-xs text-gray-500"
+              className="h-12 flex items-start justify-end pr-1 text-xs text-gray-500"
             >
               {i}:00
             </div>
@@ -112,9 +112,9 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
                 onClick={() => onSelectEvent?.(event.id)}
                 title={`${event.title} (${startDate.getHours()}:${String(
                   startDate.getMinutes()
-                ).padStart(2, '0')} - ${endDate.getHours()}:${String(
+                ).padStart(2, "0")} - ${endDate.getHours()}:${String(
                   endDate.getMinutes()
-                ).padStart(2, '0')})`}
+                ).padStart(2, "0")})`}
               >
                 {event.title}
               </div>

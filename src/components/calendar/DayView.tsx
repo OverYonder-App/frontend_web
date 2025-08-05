@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from 'react';
-import { differenceInMinutes } from 'date-fns';
-import { formatInTimeZone } from 'date-fns-tz';
-import { Event } from './CalendarView';
-import { computeDayPositions, type DayPosition } from './OverlapUtils';
-import { getZonedNow, toZonedTime } from '@/lib/time';
+import React, { useMemo, useState, useEffect } from "react";
+import { differenceInMinutes } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
+import { Event } from "./CalendarView";
+import { computeDayPositions, type DayPosition } from "./OverlapUtils";
+import { getZonedNow, toZonedTime } from "@/lib/time";
 
 export interface DayViewProps {
   events: Event[]; // Events already filtered for this day
@@ -14,16 +14,21 @@ export interface DayViewProps {
   onSelectEvent?: (id: string) => void;
 }
 
-const CELL_HEIGHT = 48; // px per hour to reduce overall height
+const CELL_HEIGHT = 96; // px per hour to reduce overall height
 const CATEGORY_COLORS: Record<string, string> = {
-  Social: '#38bdf8',
-  Academic: '#818cf8',
-  Sports: '#34d399',
-  Cultural: '#fbbf24',
-  Default: '#3b82f6',
+  Social: "#38bdf8",
+  Academic: "#818cf8",
+  Sports: "#34d399",
+  Cultural: "#fbbf24",
+  Default: "#3b82f6",
 };
 
-export default function DayView({ events, date, timeZone, onSelectEvent }: DayViewProps) {
+export default function DayView({
+  events,
+  date,
+  timeZone,
+  onSelectEvent,
+}: DayViewProps) {
   // Compute overlapping columns for the day events
   const positioned = useMemo<DayPosition[]>(
     () => computeDayPositions(events),
@@ -31,6 +36,7 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
   );
 
   const [now, setNow] = useState<Date>(() => getZonedNow(timeZone));
+  console.log((now.getHours() + now.getMinutes() / 60) * CELL_HEIGHT);
 
   useEffect(() => {
     setNow(getZonedNow(timeZone));
@@ -54,7 +60,7 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
           {Array.from({ length: 24 }).map((_, i) => (
             <div
               key={i}
-              className="h-48 flex items-start justify-end pr-1 text-xs text-gray-500"
+              className="h-24 flex items-start justify-end pr-1 text-xs text-gray-500"
             >
               {i}:00
             </div>
@@ -62,7 +68,7 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
         </div>
 
         {/* Events container */}
-        <div className="relative flex-1 overflow-auto">
+        <div className="relative flex-1 overflow-visible">
           {/* Half-hour grid lines */}
           <div className="absolute inset-0 grid grid-rows-[repeat(48,minmax(0,1fr))] w-full">
             {Array.from({ length: 48 }).map((_, idx) => (
@@ -122,9 +128,9 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
                 onClick={() => onSelectEvent?.(event.id)}
                 title={`${event.title} (${startDate.getHours()}:${String(
                   startDate.getMinutes()
-                ).padStart(2, '0')} - ${endDate.getHours()}:${String(
+                ).padStart(2, "0")} - ${endDate.getHours()}:${String(
                   endDate.getMinutes()
-                ).padStart(2, '0')})`}
+                ).padStart(2, "0")})`}
               >
                 {event.title}
               </div>
@@ -135,4 +141,3 @@ export default function DayView({ events, date, timeZone, onSelectEvent }: DayVi
     </div>
   );
 }
-
