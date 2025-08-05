@@ -5,7 +5,7 @@ import React, { useState, Fragment } from "react";
 import { Tab } from "@headlessui/react";
 import Link from "next/link";
 import type { EventRecord } from "@/lib/types";
-import { Grid, List, Menu } from "lucide-react";
+import { Grid, List, Menu, PencilIcon } from "lucide-react";
 import EditEventModal from "./EditEventModal";
 
 type ViewMode = "cards" | "list" | "compact";
@@ -212,19 +212,19 @@ function CardView({
           <div className="absolute top-6 right-6 space-x-2">
             <button
               onClick={() => onEdit(e)}
-              className="text-blue-600 hover:text-blue-800 transition"
+              className="text-blue-600 hover:text-blue-800 transition ml-2"
               aria-label={`Edit ${e.title}`}
             >
-              ✎
+              <PencilIcon size={12}/>
             </button>
-            <button
+            {/* <button
               onClick={() =>
                 fetch(`/api/events/${e.id}/report`, { method: "POST" })
               }
               className="text-red-600 hover:text-red-800 transition text-sm"
             >
               Report
-            </button>
+            </button> */}
           </div>
         </div>
       ))}
