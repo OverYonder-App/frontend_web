@@ -54,8 +54,8 @@ const DEFAULT_CARDS: CardConfig[] = [
     summary: "Month & year overview",
     href: "/dashboard/institution-admin/calendar",
     Icon: CalendarIcon,
-    sparkData: Array.from({ length: 7 }, () => ({
-      value: Math.random() * 10 + 5,
+    sparkData: Array.from({ length: 7 }, (_,i) => ({
+      value: 5 + i,
     })),
   },
   // {
