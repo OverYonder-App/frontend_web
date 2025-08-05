@@ -31,12 +31,11 @@ export default function DayView({
 }: DayViewProps) {
   // Compute overlapping columns for the day events
   const positioned = useMemo<DayPosition[]>(
-    () => computeDayPositions(events),
-    [events]
+    () => computeDayPositions(events, timeZone),
+    [events, timeZone]
   );
 
   const [now, setNow] = useState<Date>(() => getZonedNow(timeZone));
-  console.log((now.getHours() + now.getMinutes() / 60) * CELL_HEIGHT);
 
   useEffect(() => {
     setNow(getZonedNow(timeZone));
@@ -100,8 +99,8 @@ export default function DayView({
 
           {/* Event blocks */}
           {positioned.map(({ event, col, cols }) => {
-            const startDate = new Date(event.start);
-            const endDate = new Date(event.end);
+            const startDate = toZonedTime(new Date(event.start), timeZone);
+            const endDate = toZonedTime(new Date(event.end), timeZone);
             const minutesFromMid =
               startDate.getHours() * 60 + startDate.getMinutes();
             const durationMin = differenceInMinutes(endDate, startDate);
@@ -126,11 +125,11 @@ export default function DayView({
                   backgroundColor: bg,
                 }}
                 onClick={() => onSelectEvent?.(event.id)}
-                title={`${event.title} (${startDate.getHours()}:${String(
-                  startDate.getMinutes()
-                ).padStart(2, "0")} - ${endDate.getHours()}:${String(
-                  endDate.getMinutes()
-                ).padStart(2, "0")})`}
+                title={`${event.title} (${formatInTimeZone(
+                  startDate,
+                  timeZone,
+                  "HH:mm"
+                )} - ${formatInTimeZone(endDate, timeZone, "HH:mm")})`}
               >
                 {event.title}
               </div>

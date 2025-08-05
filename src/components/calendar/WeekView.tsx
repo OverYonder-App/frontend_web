@@ -5,6 +5,7 @@ import { differenceInMinutes, startOfWeek, addDays } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { Event } from './CalendarView';
 import { computeWeekPositions, type WeekPosition } from './OverlapUtils';
+import { toZonedTime } from '@/lib/time';
 
 const CATEGORY_COLORS: Record<string, string> = {
   Social: '#38bdf8',
@@ -24,12 +25,13 @@ export interface WeekViewProps {
 const CELL_HEIGHT = 48; // pixels per hour to reduce overall height
 
 export default function WeekView({ events, date, timeZone, onSelectEvent }: WeekViewProps) {
-  const weekStart = startOfWeek(date, { weekStartsOn: 1 });
+  const zonedDate = toZonedTime(date, timeZone);
+  const weekStart = startOfWeek(zonedDate, { weekStartsOn: 1 });
   const days = Array.from({ length: 7 }).map((_, i) => addDays(weekStart, i));
 
   const positioned = useMemo<WeekPosition[]>(
-    () => computeWeekPositions(events),
-    [events]
+    () => computeWeekPositions(events, timeZone),
+    [events, timeZone]
   );
 
   return (
@@ -83,24 +85,24 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
           ))}
           {/* Event blocks */}
           {positioned.map(({ event, day, col, cols }) => {
-            const startDate = new Date(event.start);
-            const endDate = new Date(event.end);
+            const startDate = toZonedTime(new Date(event.start), timeZone);
+            const endDate = toZonedTime(new Date(event.end), timeZone);
             const minutesFromMid =
               startDate.getHours() * 60 + startDate.getMinutes();
             const durationMin = differenceInMinutes(endDate, startDate);
             const baseLeft = (day / 7) * 100;
             const widthPct = 100 / 7 / cols;
             const leftPct = baseLeft + col * widthPct;
-            const bg = CATEGORY_COLORS[event.category || "Default"];
-            const pending = event.status !== "approved";
+            const bg = CATEGORY_COLORS[event.category || 'Default'];
+            const pending = event.status !== 'approved';
 
             return (
               <div
                 key={event.id}
                 className={`absolute rounded text-white text-xs p-1 overflow-hidden cursor-pointer ${
                   pending
-                    ? "opacity-60 border border-dashed border-gray-700"
-                    : ""
+                    ? 'opacity-60 border border-dashed border-gray-700'
+                    : ''
                 }`}
                 style={{
                   top: (minutesFromMid / 60) * CELL_HEIGHT,
@@ -110,11 +112,11 @@ export default function WeekView({ events, date, timeZone, onSelectEvent }: Week
                   backgroundColor: bg,
                 }}
                 onClick={() => onSelectEvent?.(event.id)}
-                title={`${event.title} (${startDate.getHours()}:${String(
-                  startDate.getMinutes()
-                ).padStart(2, "0")} - ${endDate.getHours()}:${String(
-                  endDate.getMinutes()
-                ).padStart(2, "0")})`}
+                title={`${event.title} (${formatInTimeZone(
+                  startDate,
+                  timeZone,
+                  'HH:mm'
+                )} - ${formatInTimeZone(endDate, timeZone, 'HH:mm')})`}
               >
                 {event.title}
               </div>

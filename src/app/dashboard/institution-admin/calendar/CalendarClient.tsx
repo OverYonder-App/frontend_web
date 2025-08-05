@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import {
   addDays,
   addMonths,
-  isSameDay,
   startOfWeek,
   endOfWeek,
   startOfMonth,
   endOfMonth,
 } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
+import { toZonedTime } from "@/lib/time";
 import CalendarView from "@/components/calendar/CalendarView";
 import MiniMonthView from "@/components/calendar/MiniMonthView";
 import CategoryList from "@/components/calendar/CategoryList";
@@ -74,23 +75,39 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
 
   // Filter events based on the current view.
   let filtered = events;
+  const zonedCurrent = toZonedTime(current, timeZone);
   if (view === "day") {
-    filtered = events.filter((e) =>
-      isSameDay(new Date(e.start_date as string), current)
+    const dayKey = formatInTimeZone(zonedCurrent, timeZone, "yyyy-MM-dd");
+    filtered = events.filter(
+      (e) =>
+        formatInTimeZone(new Date(e.start_date as string), timeZone, "yyyy-MM-dd") ===
+        dayKey
     );
   } else if (view === "week") {
-    const start = startOfWeek(current, { weekStartsOn: 1 });
-    const end = endOfWeek(current, { weekStartsOn: 1 });
+    const start = startOfWeek(zonedCurrent, { weekStartsOn: 1 });
+    const end = endOfWeek(zonedCurrent, { weekStartsOn: 1 });
+    const startKey = formatInTimeZone(start, timeZone, "yyyy-MM-dd");
+    const endKey = formatInTimeZone(end, timeZone, "yyyy-MM-dd");
     filtered = events.filter((e) => {
-      const d = new Date(e.start_date as string);
-      return d >= start && d <= end;
+      const dKey = formatInTimeZone(
+        new Date(e.start_date as string),
+        timeZone,
+        "yyyy-MM-dd"
+      );
+      return dKey >= startKey && dKey <= endKey;
     });
   } else if (view === "month") {
-    const start = startOfMonth(current);
-    const end = endOfMonth(current);
+    const start = startOfMonth(zonedCurrent);
+    const end = endOfMonth(zonedCurrent);
+    const startKey = formatInTimeZone(start, timeZone, "yyyy-MM-dd");
+    const endKey = formatInTimeZone(end, timeZone, "yyyy-MM-dd");
     filtered = events.filter((e) => {
-      const d = new Date(e.start_date as string);
-      return d >= start && d <= end;
+      const dKey = formatInTimeZone(
+        new Date(e.start_date as string),
+        timeZone,
+        "yyyy-MM-dd"
+      );
+      return dKey >= startKey && dKey <= endKey;
     });
   }
 

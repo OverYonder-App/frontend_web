@@ -10,6 +10,7 @@ import {
   isSameMonth,
 } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
+import { toZonedTime } from '@/lib/time';
 import { Event } from './CalendarView';
 
 export interface MonthViewProps {
@@ -28,7 +29,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function MonthView({ events, date, timeZone, onSelectEvent }: MonthViewProps) {
-  const monthStart = startOfMonth(date);
+  const zonedDate = toZonedTime(date, timeZone);
+  const monthStart = startOfMonth(zonedDate);
   const monthEnd = endOfMonth(monthStart);
   const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 }); // Monday
   const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
