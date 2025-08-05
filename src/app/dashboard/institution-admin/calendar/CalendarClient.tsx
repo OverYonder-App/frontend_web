@@ -12,10 +12,11 @@ import {
   endOfMonth,
 } from "date-fns";
 import CalendarView from "@/components/calendar/CalendarView";
-import MiniMonthView from "@/components/calendar/MiniMonthView";
-import CategoryList from "@/components/calendar/CategoryList";
+// import MiniMonthView from "@/components/calendar/MiniMonthView";
+// import CategoryList from "@/components/calendar/CategoryList";
 import { Plus as PlusIcon } from "lucide-react";
 import type { Database } from "@/lib/database.types";
+import Link from "next/link";
 
 type EventRow = Database["public"]["Tables"]["events"]["Row"];
 
@@ -161,30 +162,31 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
           ))}
         </select>
         {/* Add event button */}
-        <button
-          type="button"
+        <Link
+          href="/dashboard/institution-admin/events/create"
           className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
         >
           <PlusIcon className="w-4 h-4" />
           Add Event
-        </button>
+        </Link>
       </div>
       {/* Main layout: sidebar and calendar view */}
       <div className="flex flex-1 overflow-hidden rounded-lg border bg-white shadow-sm">
         {/* Sidebar with mini calendar and categories */}
-        <div className="w-72 hidden md:block border-r p-4 overflow-y-auto">
-          <MiniMonthView
+        {/* <div className="w-72 hidden md:block border-r p-4 overflow-y-auto"> */}
+          {/* <MiniMonthView
             date={miniMonth}
             selected={current}
             onMonthChange={(d) => setMiniMonth(d)}
             onSelect={(d) => setCurrent(d)}
-          />
-          <div className="mt-6">
+          /> */}
+
+          {/* <div className="mt-6">
             <div className="mb-2 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-700">
                 My Calendars
               </h3>
-              {/* Placeholder for add calendar button */}
+              {/* Placeholder for add calendar button 
               <button
                 type="button"
                 className="p-1 rounded hover:bg-gray-100"
@@ -202,8 +204,8 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
               ]}
               showCheckbox
             />
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
         {/* Main calendar view */}
         <div className="flex-1 overflow-auto p-2">
           <CalendarView
