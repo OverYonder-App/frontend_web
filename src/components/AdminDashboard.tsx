@@ -3,9 +3,8 @@
 
 import React, { useState, useEffect } from "react";
 
-import Link from "next/link";
+
 import { useRouter } from "next/navigation";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -16,8 +15,8 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import CompactCalendar from "@/components/calendar/CompactCalendar";
 import type { EventRecord } from "@/lib/types";
-import { Combobox } from "@headlessui/react";
-import Tippy from "@tippyjs/react";
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react";
+
 import {
   Calendar as CalendarIcon,
   CreditCard as CreditCardIcon,
@@ -59,16 +58,16 @@ const DEFAULT_CARDS: CardConfig[] = [
       value: Math.random() * 10 + 5,
     })),
   },
-  {
-    id: "billing",
-    title: "Accounts & Billing",
-    summary: "Balance & payments",
-    href: "/admin/billing",
-    Icon: CreditCardIcon,
-    sparkData: Array.from({ length: 7 }, () => ({
-      value: Math.random() * 5000,
-    })),
-  },
+  // {
+  //   id: "billing",
+  //   title: "Accounts & Billing",
+  //   summary: "Balance & payments",
+  //   href: "/admin/billing",
+  //   Icon: CreditCardIcon,
+  //   sparkData: Array.from({ length: 7 }, () => ({
+  //     value: Math.random() * 5000,
+  //   })),
+  // },
   {
     id: "events",
     title: "Manage Events",
@@ -86,20 +85,20 @@ const DEFAULT_CARDS: CardConfig[] = [
     href: "/dashboard/institution-admin/clubs",
     Icon: ClubsIcon,
   },
-  {
-    id: "reservations",
-    title: "Reservations",
-    summary: "Rooms & equipment",
-    href: "/dashboard/institution-admin/reservations",
-    Icon: ReservationsIcon,
-  },
-  {
-    id: "budget",
-    title: "Budget & Funding",
-    summary: "Requests & allocations",
-    href: "/dashboard/institution-admin/budget",
-    Icon: BudgetIcon,
-  },
+  // {
+  //   id: "reservations",
+  //   title: "Reservations",
+  //   summary: "Rooms & equipment",
+  //   href: "/dashboard/institution-admin/reservations",
+  //   Icon: ReservationsIcon,
+  // },
+  // {
+  //   id: "budget",
+  //   title: "Budget & Funding",
+  //   summary: "Requests & allocations",
+  //   href: "/dashboard/institution-admin/budget",
+  //   Icon: BudgetIcon,
+  // },
   {
     id: "users",
     title: "Users",
@@ -107,34 +106,34 @@ const DEFAULT_CARDS: CardConfig[] = [
     href: "/dashboard/institution-admin/users",
     Icon: UsersIcon,
   },
-  {
-    id: "messaging",
-    title: "Messaging",
-    summary: "Email & push",
-    href: "/dashboard/institution-admin/messaging",
-    Icon: MessagingIcon,
-  },
-  {
-    id: "moderation",
-    title: "Moderation",
-    summary: "Reported content",
-    href: "/dashboard/institution-admin/moderation",
-    Icon: ModerationIcon,
-  },
-  {
-    id: "images",
-    title: "Image Moderation",
-    summary: "Review flagged images",
-    href: "/dashboard/institution-admin/moderation/images",
-    Icon: ImagesIcon,
-  },
-  {
-    id: "analytics",
-    title: "Analytics",
-    summary: "Usage & performance",
-    href: "/dashboard/institution-admin/analytics",
-    Icon: AnalyticsIcon,
-  },
+  // {
+  //   id: "messaging",
+  //   title: "Messaging",
+  //   summary: "Email & push",
+  //   href: "/dashboard/institution-admin/messaging",
+  //   Icon: MessagingIcon,
+  // },
+  // {
+  //   id: "moderation",
+  //   title: "Moderation",
+  //   summary: "Reported content",
+  //   href: "/dashboard/institution-admin/moderation",
+  //   Icon: ModerationIcon,
+  // },
+  // {
+  //   id: "images",
+  //   title: "Image Moderation",
+  //   summary: "Review flagged images",
+  //   href: "/dashboard/institution-admin/moderation/images",
+  //   Icon: ImagesIcon,
+  // },
+  // {
+  //   id: "analytics",
+  //   title: "Analytics",
+  //   summary: "Usage & performance",
+  //   href: "/dashboard/institution-admin/analytics",
+  //   Icon: AnalyticsIcon,
+  // },
   {
     id: "settings",
     title: "Settings",
@@ -170,10 +169,11 @@ export default function AdminDashboard() {
   const [pinned, setPinned] = useState<string[]>([]);
   const [visible, setVisible] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [notifCount] = useState(3);
+  // const [notifCount] = useState(3);
   const [query, setQuery] = useState("");
   const [showCmd, setShowCmd] = useState(false);
   const [events, setEvents] = useState<EventRecord[]>([]);
+  const [selectedCard, setSelectedCard] = useState<CardConfig | null>(null);
 
   // Initialize state from localStorage
   useEffect(() => {
@@ -273,7 +273,7 @@ export default function AdminDashboard() {
         >
           Search
         </button>
-        <Tippy content="Notifications">
+        {/* <Tippy content="Notifications">
           <button className="relative p-2 bg-white dark:bg-gray-800 rounded-full shadow">
             <BellIcon />
             {notifCount > 0 && (
@@ -282,19 +282,20 @@ export default function AdminDashboard() {
               </span>
             )}
           </button>
-        </Tippy>
+        </Tippy> */}
       </div>
 
       {/* Command Palette */}
       {showCmd && (
-        <Combobox
-          as="div"
-          onChange={(item: CardConfig) => {
+        <Combobox<CardConfig | null>
+          onChange={(item: CardConfig | null) => {
             setShowCmd(false);
-            window.location.href = item.href;
+            if (item) {
+              setSelectedCard(item);
+              window.location.href = item.href;
+            }
           }}
-          value=""
-          nullable
+          value={selectedCard}
         >
           <div
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
@@ -305,7 +306,7 @@ export default function AdminDashboard() {
           />
           <div className="fixed z-50 top-24 left-1/2 w-full max-w-md -translate-x-1/2 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl">
             <div className="flex items-center gap-2">
-              <Combobox.Input
+              <ComboboxInput
                 placeholder="Search cards..."
                 className="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
                 onChange={(e) => setQuery(e.target.value)}
@@ -321,23 +322,23 @@ export default function AdminDashboard() {
                 </button>
               )}
             </div>
-            <Combobox.Options className="mt-3 max-h-60 overflow-auto rounded-md border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+            <ComboboxOptions className="mt-3 max-h-60 overflow-auto rounded-md border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
               {filtered.length > 0 ? (
                 filtered.map((item) => (
-                  <Combobox.Option
+                  <ComboboxOption
                     key={item.id}
                     value={item}
                     className="cursor-pointer p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
                     {item.title}
-                  </Combobox.Option>
+                  </ComboboxOption>
                 ))
               ) : (
                 <div className="p-3 text-center text-sm text-gray-500">
                   No results
                 </div>
               )}
-            </Combobox.Options>
+            </ComboboxOptions>
           </div>
         </Combobox>
       )}
@@ -454,7 +455,7 @@ function DashboardCard({
       ) : (
         <p className="text-sm text-gray-500 dark:text-gray-400">
           {text}{" "}
-          <button
+          {/* <button
             onClick={(e) => {
               e.stopPropagation();
               setEditing(true);
@@ -462,10 +463,10 @@ function DashboardCard({
             className="inline-flex items-center"
           >
             <EditIcon className="w-4 h-4 text-gray-400 hover:text-gray-600" />
-          </button>
+          </button> */}
         </p>
       )}
-      {card.sparkData && (
+      {/* {card.sparkData && (
         <div className="mt-2 h-16">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={card.sparkData}>
@@ -479,9 +480,9 @@ function DashboardCard({
             </LineChart>
           </ResponsiveContainer>
         </div>
-      )}
+      )} */}
       {card.id === "calendar" && events && <CompactCalendar events={events} />}
-      <Tippy content="Quick create">
+      {/* <Tippy content="Quick create">
         <Link
           href={card.href}
           onClick={(e) => e.stopPropagation()}
@@ -489,7 +490,7 @@ function DashboardCard({
         >
           <AddIcon />
         </Link>
-      </Tippy>
+      </Tippy> */}
     </div>
   );
 }
