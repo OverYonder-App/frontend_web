@@ -1,17 +1,20 @@
 // File: src/components/EventsExplorer.tsx
 "use client";
 
-import React, { useState, Fragment } from "react";
-import { Tab } from "@headlessui/react";
+import React, { useState, Fragment, useEffect } from "react";
+import { Tab, TabGroup, TabList } from "@headlessui/react";
 import Link from "next/link";
 import type { EventRecord } from "@/lib/types";
 import { Grid, List, Menu, PencilIcon } from "lucide-react";
 import EditEventModal from "./EditEventModal";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type ViewMode = "cards" | "list" | "compact";
 type SortKey = "date" | "title";
 
-const TABS = ["All Events", "Pending", "Rejected"] as const;
+// const TABS = ["All Events", "Pending", "Rejected"] as const;
+const TABS = ["All Events", "Approved", "Pending", "Rejected"] as const;
+
 type TabKey = (typeof TABS)[number];
 
 const MODE_CONFIG: Record<
@@ -23,6 +26,26 @@ const MODE_CONFIG: Record<
   compact: { label: "Compact View", Icon: Menu },
 };
 
+const tabToStatus: Record<TabKey, string | null> = {
+  "All Events": null,
+  Approved: "approved",
+  Pending: "pending",
+  Rejected: "rejected",
+};
+
+const statusToTab = (status: string | null): TabKey => {
+  switch (status) {
+    case "approved":
+      return "Approved";
+    case "pending":
+      return "Pending";
+    case "rejected":
+      return "Rejected";
+    default:
+      return "All Events";
+  }
+};
+
 const statusStyles: Record<string, string> = {
   approved: "bg-green-100 text-green-800",
   pending: "bg-yellow-100 text-yellow-800",
@@ -31,16 +54,47 @@ const statusStyles: Record<string, string> = {
 };
 
 export default function EventsExplorer({ events }: { events: EventRecord[] }) {
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [eventsList, setEventsList] = useState<EventRecord[]>(events);
-  const [selectedTab, setSelectedTab] = useState<TabKey>("All Events");
+  // const [selectedTab, setSelectedTab] = useState<TabKey>("All Events");
+  const [selectedTab, setSelectedTab] = useState<TabKey>(() =>
+    statusToTab(searchParams.get("status"))
+  );
   const [mode, setMode] = useState<ViewMode>("cards");
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("date");
   const [editing, setEditing] = useState<EventRecord | null>(null);
 
+  useEffect(() => {
+    setSelectedTab(statusToTab(searchParams.get("status")));
+  }, [searchParams]);
+
+  useEffect(() => {
+    setEventsList(events);
+  }, [events]);
+
+  const handleTabChange = (i: number) => {
+    const tab = TABS[i];
+    setSelectedTab(tab);
+    const status = tabToStatus[tab];
+    const params = new URLSearchParams(searchParams.toString());
+    if (status) {
+      params.set("status", status);
+    } else {
+      params.delete("status");
+    }
+    const queryString = params.toString();
+    router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`);
+  };
+
   // 1) filter by tab
   const filteredByTab = eventsList.filter((e) => {
     if (selectedTab === "All Events") return true;
+    if (selectedTab === "Approved") return e.status === "approved";
     if (selectedTab === "Pending") return e.status === "pending";
     if (selectedTab === "Rejected") return e.status === "rejected";
     return true;
@@ -58,13 +112,14 @@ export default function EventsExplorer({ events }: { events: EventRecord[] }) {
   return (
     <div className="space-y-6 p-6 bg-gray-50 min-h-full">
       {/* ─── Tabs & Toolbar ───────────────────────────────────── */}
-      <Tab.Group
+      <TabGroup
         selectedIndex={TABS.indexOf(selectedTab)}
-        onChange={(i) => setSelectedTab(TABS[i])}
+        // onChange={(i) => setSelectedTab(TABS[i])}
+        onChange={handleTabChange}
       >
         <div className="flex flex-wrap items-center justify-between gap-4">
           {/* Tabs */}
-          <Tab.List className="inline-flex overflow-hidden rounded-lg bg-white border">
+          <TabList className="inline-flex overflow-hidden rounded-lg bg-white border">
             {TABS.map((tab) => (
               <Tab as={Fragment} key={tab}>
                 {({ selected }) => (
@@ -80,7 +135,7 @@ export default function EventsExplorer({ events }: { events: EventRecord[] }) {
                 )}
               </Tab>
             ))}
-          </Tab.List>
+          </TabList>
 
           {/* Right Controls: View Modes + Plus Button */}
           <div className="flex items-center gap-2 flex-wrap">
@@ -138,7 +193,7 @@ export default function EventsExplorer({ events }: { events: EventRecord[] }) {
             </select>
           </div>
         </div>
-      </Tab.Group>
+      </TabGroup>
 
       {/* ─── Content ─────────────────────────────────────────── */}
       {mode === "cards" && <CardView events={filtered} onEdit={setEditing} />}

@@ -13,11 +13,26 @@ type EventRow = Database["public"]["Tables"]["events"]["Row"] & {
   organizations: { name: string } | null;
 };
 
-export default async function EventsPage() {
+interface EventsPageProps {
+  searchParams: { status?: string };
+}
+
+export default async function EventsPage({ searchParams }: EventsPageProps) {
   const supabase = await getSupabaseServerClient();
-  const { data } = await supabase
-    .from("events")
-    .select("*, organizations(name)");
+  // const { data } = await supabase
+  //   .from("events")
+  //   .select("*, organizations(name)");
+
+     const status = searchParams.status;
+
+     let query = supabase.from("events").select("*, organizations(name)");
+     const allowedStatuses = ["approved", "pending", "rejected"] as const;
+     type AllowedStatus = (typeof allowedStatuses)[number];
+     if (status && allowedStatuses.includes(status as AllowedStatus)) {
+       query = query.eq("status", status as AllowedStatus);
+     }
+
+     const { data } = await query;
 
   const events: EventRecord[] = ((data as EventRow[]) || []).map((ev) => ({
     id: ev.event_id,
