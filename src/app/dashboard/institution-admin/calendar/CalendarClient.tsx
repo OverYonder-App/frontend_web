@@ -152,7 +152,7 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
         <select
           value={timeZone}
           onChange={(e) => setTimeZone(e.target.value)}
-          className="rounded border px-2 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="rounded border px-2 py-2 text-sm focus:outline-none hidden focus:ring-1 focus:ring-blue-500"
         >
           {zones.map((z) => (
             <option key={z} value={z}>
