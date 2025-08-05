@@ -74,8 +74,8 @@ const DEFAULT_CARDS: CardConfig[] = [
     summary: "Create, edit & approve",
     href: "/dashboard/institution-admin/events",
     Icon: EventsIcon,
-    sparkData: Array.from({ length: 7 }, () => ({
-      value: Math.floor(Math.random() * 20),
+    sparkData: Array.from({ length: 7 }, (_, i) => ({
+      value: 10+i,
     })),
   },
   {
