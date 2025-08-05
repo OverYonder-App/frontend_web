@@ -24,7 +24,7 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
   const router = useRouter();
   const [view, setView] = useState<"day" | "week" | "month">("week");
   const [current, setCurrent] = useState<Date>(new Date());
-  const [miniMonth, setMiniMonth] = useState<Date>(new Date());
+  // const [miniMonth, setMiniMonth] = useState<Date>(new Date());
   const [timeZone, setTimeZone] = useState<string>(
     Intl.DateTimeFormat().resolvedOptions().timeZone
   );

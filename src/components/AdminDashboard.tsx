@@ -19,22 +19,22 @@ import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headl
 
 import {
   Calendar as CalendarIcon,
-  CreditCard as CreditCardIcon,
+  // CreditCard as CreditCardIcon,
   List as EventsIcon,
   Users as ClubsIcon,
-  Box as ReservationsIcon,
-  DollarSign as BudgetIcon,
+  // Box as ReservationsIcon,
+  // DollarSign as BudgetIcon,
   User as UsersIcon,
-  Mail as MessagingIcon,
-  ShieldOff as ModerationIcon,
-  Image as ImagesIcon,
-  BarChart2 as AnalyticsIcon,
+  // Mail as MessagingIcon,
+  // ShieldOff as ModerationIcon,
+  // Image as ImagesIcon,
+  // BarChart2 as AnalyticsIcon,
   Settings as SettingsIcon,
   Star as StarOnIcon,
   StarOff as StarOffIcon,
-  PlusCircle as AddIcon,
-  Bell as BellIcon,
-  Edit2 as EditIcon,
+  // PlusCircle as AddIcon,
+  // Bell as BellIcon,
+  // Edit2 as EditIcon,
 } from "lucide-react";
 
 // Configuration for dashboard cards
