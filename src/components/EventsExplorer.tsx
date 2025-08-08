@@ -5,7 +5,7 @@ import React, { useState, Fragment, useEffect } from "react";
 import { Tab, TabGroup, TabList } from "@headlessui/react";
 import Link from "next/link";
 import type { EventRecord } from "@/lib/types";
-import { Grid, List, Menu, PencilIcon } from "lucide-react";
+import { Eye, Grid, List, Menu, PencilIcon } from "lucide-react";
 import EditEventModal from "./EditEventModal";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -221,6 +221,7 @@ function CardView({
   events: EventRecord[];
   onEdit: (e: EventRecord) => void;
 }) {
+  const router = useRouter();
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {events.map((e) => (
@@ -228,7 +229,7 @@ function CardView({
           key={e.id}
           className="relative bg-white rounded-2xl p-6 shadow hover:shadow-lg transition"
         >
-          <h2 className="text-xl font-semibold mb-1 truncate">{e.title}</h2>
+          <h2 className="text-xl font-semibold mb-1">{e.title}</h2>
           <p className="text-sm text-gray-500 mb-2">
             {new Date(e.start ?? e.date).toLocaleDateString(undefined, {
               month: "short",
@@ -264,13 +265,20 @@ function CardView({
           {e.creator && (
             <p className="mt-1 text-xs text-gray-500">Created by {e.creator}</p>
           )}
-          <div className="absolute top-6 right-6 space-x-2">
+          <div className="absolute top-7 right-6 space-x-2 flex">
+            <Link
+              href={`/event/${e.id}`}
+              className="text-blue-600 hover:text-blue-800 transition"
+              aria-label={`View ${e.title}`}
+            >
+              <Eye size={12} />
+            </Link>
             <button
               onClick={() => onEdit(e)}
-              className="text-blue-600 hover:text-blue-800 transition ml-2"
+              className="text-blue-600 hover:text-blue-800 transition"
               aria-label={`Edit ${e.title}`}
             >
-              <PencilIcon size={12}/>
+              <PencilIcon size={12} />
             </button>
             {/* <button
               onClick={() =>
@@ -345,7 +353,7 @@ function ListView({
                   Edit
                 </button>
               </td>
-              <td className="px-4 py-2">
+              {/* <td className="px-4 py-2">
                 <button
                   onClick={() =>
                     fetch(`/api/events/${e.id}/report`, { method: "POST" })
@@ -354,7 +362,7 @@ function ListView({
                 >
                   Report
                 </button>
-              </td>
+              </td> */}
             </tr>
           ))}
         </tbody>
