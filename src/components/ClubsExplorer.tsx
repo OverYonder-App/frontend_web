@@ -1,146 +1,293 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
+import { Tab, TabGroup, TabList } from "@headlessui/react";
 import Link from "next/link";
 import type { Organization } from "@/features/organizations/api";
-import {
-  fetchClubs,
-  approveClub,
-  rejectClub,
-  deleteClub,
-} from "@/features/organizations/api";
+import { Eye, Grid, List, Menu, PencilIcon } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export default function ClubsExplorer() {
-  const [clubs, setClubs] = useState<Organization[]>([]);
-  const [status, setStatus] = useState("");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
+type ViewMode = "cards" | "list" | "compact";
+type SortKey = "created" | "name";
 
-  const load = useCallback(async () => {
-    const { clubs } = await fetchClubs({ status, search, page });
-    setClubs(clubs);
-  }, [status, search, page]);
+const TABS = ["All Clubs", "Approved", "Pending", "Rejected"] as const;
+type TabKey = (typeof TABS)[number];
+
+const MODE_CONFIG: Record<ViewMode, { label: string; Icon: React.FC<React.SVGProps<SVGSVGElement>> }> = {
+  cards: { label: "Card View", Icon: Grid },
+  list: { label: "List View", Icon: List },
+  compact: { label: "Compact View", Icon: Menu },
+};
+
+const tabToStatus: Record<TabKey, string | null> = {
+  "All Clubs": null,
+  Approved: "approved",
+  Pending: "pending",
+  Rejected: "rejected",
+};
+
+const statusToTab = (status: string | null): TabKey => {
+  switch (status) {
+    case "approved":
+      return "Approved";
+    case "pending":
+      return "Pending";
+    case "rejected":
+      return "Rejected";
+    default:
+      return "All Clubs";
+  }
+};
+
+const statusStyles: Record<string, string> = {
+  approved: "bg-green-100 text-green-800",
+  pending: "bg-yellow-100 text-yellow-800",
+  rejected: "bg-red-100 text-red-800",
+};
+
+export default function ClubsExplorer({ clubs }: { clubs: Organization[] }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [clubsList, setClubsList] = useState<Organization[]>(clubs);
+  const [selectedTab, setSelectedTab] = useState<TabKey>(() =>
+    statusToTab(searchParams.get("status"))
+  );
+  const [mode, setMode] = useState<ViewMode>("cards");
+  const [query, setQuery] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("created");
 
   useEffect(() => {
-    load();
-  }, [load]);
+    setSelectedTab(statusToTab(searchParams.get("status")));
+  }, [searchParams]);
+
+  useEffect(() => {
+    setClubsList(clubs);
+  }, [clubs]);
+
+  const handleTabChange = (i: number) => {
+    const tab = TABS[i];
+    setSelectedTab(tab);
+    const status = tabToStatus[tab];
+    const params = new URLSearchParams(searchParams.toString());
+    if (status) {
+      params.set("status", status);
+    } else {
+      params.delete("status");
+    }
+    const queryString = params.toString();
+    router.replace(`${pathname}${queryString ? `?${queryString}` : ""}`);
+  };
+
+  const filteredByTab = clubsList.filter((c) => {
+    if (selectedTab === "All Clubs") return true;
+    if (selectedTab === "Approved") return c.status === "approved";
+    if (selectedTab === "Pending") return c.status === "pending";
+    if (selectedTab === "Rejected") return c.status === "rejected";
+    return true;
+  });
+
+  const filtered = filteredByTab
+    .filter((c) => c.name.toLowerCase().includes(query.toLowerCase()))
+    .sort((a, b) =>
+      sortKey === "created"
+        ? new Date(a.created_at ?? 0).getTime() -
+          new Date(b.created_at ?? 0).getTime()
+        : a.name.localeCompare(b.name)
+    );
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Clubs</h1>
-        <Link
-          href="/dashboard/institution-admin/clubs/create"
-          className="rounded bg-blue-600 px-4 py-2 text-white"
+    <div className="space-y-6 p-6 bg-gray-50 min-h-full">
+      <TabGroup selectedIndex={TABS.indexOf(selectedTab)} onChange={handleTabChange}>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <TabList className="inline-flex overflow-hidden rounded-lg bg-white border">
+            {TABS.map((tab) => (
+              <Tab as={Fragment} key={tab}>
+                {({ selected }) => (
+                  <button
+                    className={`px-4 py-2 text-sm font-medium transition ${
+                      selected
+                        ? "bg-blue-600 text-white"
+                        : "text-slate-700 hover:bg-blue-50 hover:text-blue-600"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                )}
+              </Tab>
+            ))}
+          </TabList>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="inline-flex overflow-hidden rounded-full border bg-white">
+              {(Object.keys(MODE_CONFIG) as ViewMode[]).map((m) => {
+                const { label, Icon } = MODE_CONFIG[m];
+                const active = mode === m;
+                return (
+                  <button
+                    key={m}
+                    onClick={() => setMode(m)}
+                    className={`flex items-center gap-1 px-4 py-2 text-sm font-medium transition ${
+                      active
+                        ? "bg-blue-600 text-white"
+                        : "text-slate-700 hover:bg-blue-50 hover:text-blue-600"
+                    }`}
+                    aria-label={label}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="hidden sm:inline">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <Link
+              href="/dashboard/institution-admin/clubs/create"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow"
+              aria-label="Create new club"
+            >
+              +
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search clubs..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="border border-gray-300 rounded-xl px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-500"
+            />
+            <select
+              value={sortKey}
+              onChange={(e) => setSortKey(e.target.value as SortKey)}
+              className="border border-gray-300 rounded-xl px-3 py-2 shadow-sm"
+            >
+              <option value="created">Sort by Created</option>
+              <option value="name">Sort by Name</option>
+            </select>
+          </div>
+        </div>
+      </TabGroup>
+
+      {mode === "cards" && <CardView clubs={filtered} />}
+      {mode === "list" && <ListView clubs={filtered} />}
+      {mode === "compact" && <CompactView clubs={filtered} />}
+    </div>
+  );
+}
+
+function CardView({ clubs }: { clubs: Organization[] }) {
+  return (
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {clubs.map((c) => (
+        <div
+          key={c.organization_id}
+          className="relative bg-white rounded-2xl p-6 shadow hover:shadow-lg transition"
         >
-          Add Club
-        </Link>
-      </div>
-      <div className="flex gap-2">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search..."
-          className="flex-1 rounded border px-2 py-1"
-        />
-        <select
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
-            setPage(1);
-          }}
-          className="rounded border px-2 py-1"
-        >
-          <option value="">All</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
-        <button
-          onClick={() => {
-            setPage(1);
-            load();
-          }}
-          className="rounded border px-4 py-1"
-        >
-          Filter
-        </button>
-      </div>
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead>
-          <tr className="bg-gray-50">
-            <th className="px-4 py-2 text-left text-sm font-medium">Name</th>
-            <th className="px-4 py-2 text-left text-sm font-medium">Status</th>
-            <th className="px-4 py-2 text-right text-sm font-medium">Actions</th>
+          <h2 className="text-xl font-semibold mb-1">{c.name}</h2>
+          <p className="text-sm text-gray-500 mb-2 line-clamp-2">{c.description}</p>
+          <span
+            className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+              statusStyles[c.status ?? "pending"]
+            }`}
+          >
+            {c.status?.toUpperCase()}
+          </span>
+          <div className="absolute top-6 right-6 space-x-2 flex">
+            <Link
+              href={`/dashboard/institution-admin/clubs/${c.organization_id}`}
+              className="text-blue-600 hover:text-blue-800 transition"
+              aria-label={`View ${c.name}`}
+            >
+              <Eye size={12} />
+            </Link>
+            <Link
+              href={`/dashboard/institution-admin/clubs/${c.organization_id}/edit`}
+              className="text-blue-600 hover:text-blue-800 transition"
+              aria-label={`Edit ${c.name}`}
+            >
+              <PencilIcon size={12} />
+            </Link>
+          </div>
+        </div>
+      ))}
+      {clubs.length === 0 && (
+        <div className="col-span-full text-center py-20 text-gray-500">
+          No clubs yet...
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ListView({ clubs }: { clubs: Organization[] }) {
+  return (
+    <div className="overflow-auto rounded-lg border bg-white shadow">
+      <table className="min-w-full divide-y bg-white">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="px-4 py-2 text-left font-medium">Name</th>
+            <th className="px-4 py-2 text-left font-medium">Status</th>
+            <th className="px-4 py-2 text-left font-medium">Edit</th>
           </tr>
         </thead>
-        <tbody>
-          {clubs.map((club) => (
-            <tr key={club.organization_id} className="border-b">
-              <td className="px-4 py-2">{club.name}</td>
-              <td className="px-4 py-2">{club.status}</td>
-              <td className="px-4 py-2 text-right space-x-2">
+        <tbody className="divide-y bg-white">
+          {clubs.map((c) => (
+            <tr key={c.organization_id} className="hover:bg-gray-50">
+              <td className="px-4 py-2">{c.name}</td>
+              <td className="px-4 py-2 capitalize">{c.status}</td>
+              <td className="px-4 py-2">
                 <Link
-                  href={`/dashboard/institution-admin/clubs/${club.organization_id}`}
-                  className="text-blue-600"
-                >
-                  View
-                </Link>
-                <Link
-                  href={`/dashboard/institution-admin/clubs/${club.organization_id}/edit`}
-                  className="text-green-600"
+                  href={`/dashboard/institution-admin/clubs/${c.organization_id}/edit`}
+                  className="text-blue-600 hover:underline"
                 >
                   Edit
                 </Link>
-                <button
-                  onClick={async () => {
-                    await approveClub(club.organization_id);
-                    load();
-                  }}
-                  className="text-blue-600"
-                >
-                  Approve
-                </button>
-                <button
-                  onClick={async () => {
-                    await rejectClub(club.organization_id);
-                    load();
-                  }}
-                  className="text-yellow-600"
-                >
-                  Reject
-                </button>
-                <button
-                  onClick={async () => {
-                    if (confirm("Delete this club?")) {
-                      await deleteClub(club.organization_id);
-                      load();
-                    }
-                  }}
-                  className="text-red-600"
-                >
-                  Delete
-                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <div className="flex justify-between">
-        <button
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-          className="rounded border px-3 py-1 disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <button
-          onClick={() => setPage(page + 1)}
-          className="rounded border px-3 py-1"
-        >
-          Next
-        </button>
-      </div>
+      {clubs.length === 0 && (
+        <div className="text-center py-6 text-gray-500">No clubs yet...</div>
+      )}
     </div>
   );
 }
+
+function CompactView({ clubs }: { clubs: Organization[] }) {
+  return (
+    <ul className="space-y-2">
+      {clubs.map((c) => (
+        <li
+          key={c.organization_id}
+          className="flex items-center justify-between bg-white rounded-lg p-3 shadow hover:bg-gray-50 transition"
+        >
+          <p className="font-medium truncate">{c.name}</p>
+          <div className="flex gap-2">
+            <Link
+              href={`/dashboard/institution-admin/clubs/${c.organization_id}`}
+              className="text-blue-600 hover:underline text-sm"
+            >
+              View
+            </Link>
+            <Link
+              href={`/dashboard/institution-admin/clubs/${c.organization_id}/edit`}
+              className="text-blue-600 hover:underline text-sm"
+            >
+              Edit
+            </Link>
+          </div>
+        </li>
+      ))}
+      {clubs.length === 0 && (
+        <li className="text-center py-6 text-gray-500">No clubs yet...</li>
+      )}
+    </ul>
+  );
+}
+
