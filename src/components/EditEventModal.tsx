@@ -5,7 +5,7 @@
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import EditEventForm from './EditEventForm'
-import type { EventRecord } from '@/lib/types'
+import type { EventRecord } from '@/features/events/api'
 
 interface EditEventModalProps {
   /** The event to edit. When null the modal is hidden. */
@@ -16,6 +16,8 @@ interface EditEventModalProps {
   onClose: () => void
   /** Called after a successful save with the updated event */
   onSaved: (e: EventRecord) => void
+  /** Called after the event is deleted */
+  onDeleted?: (id: string) => void
 }
 
 /**
@@ -24,7 +26,7 @@ interface EditEventModalProps {
  * when an event is supplied. On successful save, the `onSaved` callback
  * is invoked and the modal is closed.
  */
-export default function EditEventModal({ event, open, onClose, onSaved }: EditEventModalProps) {
+export default function EditEventModal({ event, open, onClose, onSaved, onDeleted }: EditEventModalProps) {
   return (
     <Transition appear show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -53,6 +55,10 @@ export default function EditEventModal({ event, open, onClose, onSaved }: EditEv
                       onClose()
                     }}
                     onClose={onClose}
+                    onDeleted={(id) => {
+                      onDeleted?.(id)
+                      onClose()
+                    }}
                   />
                 )}
               </Dialog.Panel>
