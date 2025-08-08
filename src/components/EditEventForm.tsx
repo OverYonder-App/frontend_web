@@ -79,6 +79,8 @@ export default function EditEventForm({
   const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
     null,
   );
+  const geocodeCache = useRef<Map<string, string>>(new Map());
+  const skipGeocodeRef = useRef<boolean>(!!event.address);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -108,22 +110,40 @@ export default function EditEventForm({
   const address = useWatch({ control, name: "address" });
 
   useEffect(() => {
-    geocoderRef.current = isLoaded ? new google.maps.Geocoder() : null;
+    if (isLoaded) geocoderRef.current = new google.maps.Geocoder();
+  }, [isLoaded]);
+
+  useEffect(() => {
     if (
-      isLoaded &&
-      location &&
-      (location.lat !== 0 || location.lng !== 0)
-    ) {
-      geocoderRef.current
-        ?.geocode({ location })
-        .then(({ results }) => {
-          const addr = results[0]?.formatted_address || "";
-          setValue("address", addr);
-        })
-        .catch(() => {
-          setValue("address", "");
-        });
+      !isLoaded ||
+      !location ||
+      (location.lat === 0 && location.lng === 0) ||
+      !geocoderRef.current
+    )
+      return;
+
+    if (skipGeocodeRef.current) {
+      skipGeocodeRef.current = false;
+      return;
     }
+
+    const key = `${location.lat},${location.lng}`;
+    const cached = geocodeCache.current.get(key);
+    if (cached) {
+      setValue("address", cached);
+      return;
+    }
+
+    geocoderRef.current
+      .geocode({ location })
+      .then(({ results }) => {
+        const addr = results[0]?.formatted_address || "";
+        geocodeCache.current.set(key, addr);
+        setValue("address", addr);
+      })
+      .catch(() => {
+        setValue("address", "");
+      });
   }, [isLoaded, location, setValue]);
 
   useEffect(() => {
@@ -162,6 +182,12 @@ export default function EditEventForm({
       markerRef.current.map = map;
     }
   }, [location, map, isLoaded, updateLocation]);
+
+  useEffect(() => {
+    if (map && location) {
+      map.setCenter(location);
+    }
+  }, [map, location]);
 
   const watched = useWatch({ control });
 
@@ -393,6 +419,7 @@ export default function EditEventForm({
               const place = autocompleteRef.current!.getPlace();
               const loc = place.geometry?.location;
               if (loc) {
+                skipGeocodeRef.current = true;
                 updateLocation({ lat: loc.lat(), lng: loc.lng() });
               }
               const addr = place.formatted_address || "";
