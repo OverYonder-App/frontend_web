@@ -1,17 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { fetchEvent } from "@/features/events/api.server";
+import { fetchEvent, fetchEventAttendees } from "@/features/events/api.server";
 import CommentsSection from "@/features/events/components/CommentsSection";
+import AttendeeList from "@/features/events/components/AttendeeList";
 import EventActions from "./EventActions";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-
-interface Attendee {
-  id?: string;
-  name?: string;
-  [key: string]: unknown;
-}
 
 
 export const metadata: Metadata = {
@@ -26,15 +21,14 @@ export default async function EventPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  
-  const { event } = await fetchEvent(id);
+
+  const [{ event }, attendees] = await Promise.all([
+    fetchEvent(id),
+    fetchEventAttendees(id),
+  ]);
   if (!event) {
     notFound();
   }
-
-  // const attendees:
-  //   | Attendee[]
-  //   | undefined = (event as { attendees?: Attendee[] }).attendees;
 
   return (
     <div className="max-w-3xl mx-auto py-8">
@@ -65,32 +59,10 @@ export default async function EventPage({
           )}
         </div>
       </div>
-      {/* <AttendeeList attendees={attendees || []} /> */}
+      <AttendeeList attendees={attendees} />
       <EventActions creatorId={event.created_by} eventId={event.event_id} />
 
       <CommentsSection eventId={event.event_id} />
-    </div>
-  );
-}
-
-
-function AttendeeList({ attendees }: { attendees: (Attendee | string)[] }) {
-
-  return (
-    <div className="mb-8">
-      <h2 className="text-xl font-semibold mb-2">Attendees</h2>
-      {attendees.length === 0 ? (
-        <p className="text-sm text-gray-500">No attendees yet.</p>
-      ) : (
-        <ul className="list-disc list-inside space-y-1">
-          {attendees.map((a, idx) => {
-            const key = typeof a === "string" ? idx : a.id || idx;
-            const name = typeof a === "string" ? a : a.name || "";
-            return <li key={key}>{name}</li>;
-          })}
-
-        </ul>
-      )}
     </div>
   );
 }

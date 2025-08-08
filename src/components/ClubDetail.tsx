@@ -3,22 +3,28 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import type { Organization } from "@/features/organizations/api";
+import Image from "next/image";
+import type { Organization, OrgMember } from "@/features/organizations/api";
 import {
   fetchClub,
   approveClub,
   rejectClub,
   deleteClub,
+  fetchClubMembers,
 } from "@/features/organizations/api";
 
 export default function ClubDetail({ clubId }: { clubId: string }) {
   const [club, setClub] = useState<Organization | null>(null);
+  const [members, setMembers] = useState<OrgMember[]>([]);
 
   const router = useRouter();
 
   useEffect(() => {
     fetchClub(clubId).then((data) => {
       setClub(data.club);
+    });
+    fetchClubMembers(clubId).then((data) => {
+      setMembers(data);
     });
   }, [clubId]);
 
@@ -47,9 +53,35 @@ export default function ClubDetail({ clubId }: { clubId: string }) {
     }
   };
 
+  const formatName = (m: OrgMember) => {
+    const u = m.users;
+    if (!u) return m.user_id;
+    const full = [u.first_name, u.last_name].filter(Boolean).join(" ").trim();
+    return full || u.username;
+  };
+
+  const executives = members.filter((m) => m.is_executive);
+  const regularMembers = members.filter((m) => !m.is_executive);
+
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">{club.name}</h1>
+      {club.logo_url && (
+        <Image
+          src={club.logo_url}
+          alt={`${club.name} logo`}
+          width={128}
+          height={128}
+          className="h-32 w-32 rounded object-cover"
+        />
+      )}
+      <h1 className="flex items-center text-2xl font-semibold">
+        {club.name}
+        {club.status === "approved" && (
+          <span className="ml-2 rounded bg-green-100 px-2 py-1 text-sm font-medium text-green-800">
+            Approved
+          </span>
+        )}
+      </h1>
       <p>{club.description}</p>
       <p className="font-medium">Status: {club.status}</p>
       <div className="space-x-2">
@@ -78,7 +110,24 @@ export default function ClubDetail({ clubId }: { clubId: string }) {
           Delete
         </button>
       </div>
-    
+
+      <div>
+        <h2 className="text-xl font-semibold">Executives</h2>
+        <ul className="list-disc pl-5">
+          {executives.map((m) => (
+            <li key={m.user_id}>{formatName(m)}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h2 className="text-xl font-semibold">Members</h2>
+        <ul className="list-disc pl-5">
+          {regularMembers.map((m) => (
+            <li key={m.user_id}>{formatName(m)}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

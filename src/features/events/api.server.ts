@@ -5,6 +5,9 @@ import { cookies } from "next/headers";
 export type EventRecord = Database["public"]["Tables"]["events"]["Row"];
 export type EventInsert = Database["public"]["Tables"]["events"]["Insert"];
 export type EventUpdate = Database["public"]["Tables"]["events"]["Update"];
+export type EventAttendee = Database["public"]["Tables"]["event_attendance"]["Row"] & {
+  users?: Database["public"]["Tables"]["users"]["Row"] | null;
+};
 
 async function handleResponse(res: Response) {
   const data = await res.json();
@@ -49,6 +52,18 @@ export async function fetchEvent(id: string) {
 
   const res = await fetch(`${BASE_URL}/${id}`, opts);
   return (await handleResponse(res)) as { event: EventRecord };
+}
+
+export async function fetchEventAttendees(id: string): Promise<EventAttendee[]> {
+  const opts: RequestInit = { credentials: "include" };
+  const cookieStore = await cookies();
+  if (typeof window === "undefined") {
+    opts.headers = { Cookie: cookieStore.toString() };
+  }
+
+  const res = await fetch(`${BASE_URL}/${id}/attendees`, opts);
+  const data = await handleResponse(res);
+  return data.attendees as EventAttendee[];
 }
 
 export async function createEvent(payload: EventInsert): Promise<EventRecord> {
