@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { fetchEvent } from "@/features/events/api";
+import { fetchEvent } from "@/features/events/api.server";
 import CommentsSection from "@/features/events/components/CommentsSection";
 import EventActions from "./EventActions";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 interface Attendee {
   id?: string;
@@ -11,16 +13,28 @@ interface Attendee {
   [key: string]: unknown;
 }
 
+
+export const metadata: Metadata = {
+  title: "Event - Institution Admin",
+  description: "The number #1 campus engagement platform",
+};
+
+
 export default async function EventPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  
   const { event } = await fetchEvent(id);
-  const attendees:
-    | Attendee[]
-    | undefined = (event as { attendees?: Attendee[] }).attendees;
+  if (!event) {
+    notFound();
+  }
+
+  // const attendees:
+  //   | Attendee[]
+  //   | undefined = (event as { attendees?: Attendee[] }).attendees;
 
   return (
     <div className="max-w-3xl mx-auto py-8">
@@ -51,8 +65,8 @@ export default async function EventPage({
           )}
         </div>
       </div>
-      <AttendeeList attendees={attendees || []} />
-      <EventActions creatorId={event.created_by} />
+      {/* <AttendeeList attendees={attendees || []} /> */}
+      <EventActions creatorId={event.created_by} eventId={event.event_id} />
 
       <CommentsSection eventId={event.event_id} />
     </div>

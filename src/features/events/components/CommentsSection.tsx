@@ -39,7 +39,7 @@ export default function CommentsSection({ eventId }: CommentsSectionProps) {
 
   const canPost =
     user &&
-    [UserRole.STUDENT, UserRole.FACULTY].includes(
+    [UserRole.INSTITUTION_ADMIN, UserRole.FACULTY].includes(
       user.role_type as UserRole,
     );
 
