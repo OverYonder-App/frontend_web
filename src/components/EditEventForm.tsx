@@ -5,14 +5,15 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { EventRecord } from '@/lib/types'
+import { Database } from '@/lib/database.types'
 
 interface EditEventFormProps {
   /** The event being edited */
-  event: EventRecord
+  event: Database["public"]["Tables"]["events"]["Row"]
   /** Called when the form should close */
-  onClose?: () => void
+  onClose?: () => void;
   /** Called with the updated event after a successful save */
-  onSaved?: (event: EventRecord) => void
+  onSaved?: (event: EventRecord) => void;
 }
 
 /**
@@ -25,7 +26,7 @@ export default function EditEventForm({ event, onClose, onSaved }: EditEventForm
   const router = useRouter()
   const [form, setForm] = useState({
     title: event.title,
-    date: event.date,
+    date: event.start_date,
     description: event.description,
   })
   const [submitting, setSubmitting] = useState(false)
@@ -40,7 +41,7 @@ export default function EditEventForm({ event, onClose, onSaved }: EditEventForm
     if (submitting) return
     setSubmitting(true)
     try {
-      const res = await fetch(`/api/events/${event.id}`, {
+      const res = await fetch(`/api/events/${event.event_id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...event, ...form }),

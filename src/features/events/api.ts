@@ -1,6 +1,6 @@
 import type { Database } from "@/lib/database.types";
 import { getBaseUrl } from "@/lib/utils";
-import { cookies } from "next/headers";
+
 
 export type EventRecord = Database["public"]["Tables"]["events"]["Row"];
 export type EventInsert = Database["public"]["Tables"]["events"]["Insert"];
@@ -30,24 +30,15 @@ export async function fetchEvents(
   if (options.search) params.append("q", options.search);
   if (options.page) params.append("page", String(options.page));
 
-  const opts: RequestInit = { credentials: "include" };
-  if (typeof window === "undefined") {
-    opts.headers = { Cookie: cookies().toString() };
-  }
-
-  const res = await fetch(`${BASE_URL}?${params.toString()}`, opts);
+  const res = await fetch(`${BASE_URL}?${params.toString()}`, {
+    credentials: "include",
+  });
   const data = await handleResponse(res);
   return { events: data.events as EventRecord[], count: data.count as number };
 }
 
 export async function fetchEvent(id: string) {
-  const opts: RequestInit = { credentials: "include" };
-  const cookieStore = await cookies();
-  if (typeof window === "undefined") {
-    opts.headers = { Cookie: cookieStore.toString() };
-  }
-
-  const res = await fetch(`${BASE_URL}/${id}`, opts);
+  const res = await fetch(`${BASE_URL}/${id}`, { credentials: "include" });
   return (await handleResponse(res)) as { event: EventRecord };
 }
 

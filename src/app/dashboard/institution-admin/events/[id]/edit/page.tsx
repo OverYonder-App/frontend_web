@@ -5,10 +5,9 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { fetchEvent, type EventRecord } from "@/features/events/api";
 
-const EditEventForm = dynamic(
-  () => import("@/components/EditEventForm"),
-  { ssr: false }
-);
+const EditEventForm = dynamic(() => import("@/components/EditEventForm"), {
+  ssr: false,
+});
 
 export default function Page() {
   const { id } = useParams<{ id: string }>();
@@ -28,4 +27,3 @@ export default function Page() {
 
   return <EditEventForm event={event} />;
 }
-
