@@ -6,7 +6,6 @@ import { Tab, TabGroup, TabList } from "@headlessui/react";
 import Link from "next/link";
 import type { EventRecord } from "@/lib/types";
 import { Eye, Grid, List, Menu, PencilIcon } from "lucide-react";
-import EditEventModal from "./EditEventModal";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type ViewMode = "cards" | "list" | "compact";
@@ -67,7 +66,6 @@ export default function EventsExplorer({ events }: { events: EventRecord[] }) {
   const [mode, setMode] = useState<ViewMode>("cards");
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("date");
-  const [editing, setEditing] = useState<EventRecord | null>(null);
 
   useEffect(() => {
     setSelectedTab(statusToTab(searchParams.get("status")));
@@ -196,32 +194,14 @@ export default function EventsExplorer({ events }: { events: EventRecord[] }) {
       </TabGroup>
 
       {/* ─── Content ─────────────────────────────────────────── */}
-      {mode === "cards" && <CardView events={filtered} onEdit={setEditing} />}
-      {mode === "list" && <ListView events={filtered} onEdit={setEditing} />}
-      {mode === "compact" && (
-        <CompactView events={filtered} onEdit={setEditing} />
-      )}
-      <EditEventModal
-        event={editing}
-        open={editing !== null}
-        onClose={() => setEditing(null)}
-        onSaved={(ev) => {
-          setEventsList((list) => list.map((e) => (e.id === ev.id ? ev : e)));
-          setEditing(null);
-        }}
-      />
+      {mode === "cards" && <CardView events={filtered} />}
+      {mode === "list" && <ListView events={filtered} />}
+      {mode === "compact" && <CompactView events={filtered} />}
     </div>
   );
 }
 
-function CardView({
-  events,
-  onEdit,
-}: {
-  events: EventRecord[];
-  onEdit: (e: EventRecord) => void;
-}) {
-  const router = useRouter();
+function CardView({ events }: { events: EventRecord[] }) {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {events.map((e) => (
@@ -273,13 +253,13 @@ function CardView({
             >
               <Eye size={12} />
             </Link>
-            <button
-              onClick={() => onEdit(e)}
+            <Link
+              href={`/dashboard/institution-admin/events/${e.id}/edit`}
               className="text-blue-600 hover:text-blue-800 transition"
               aria-label={`Edit ${e.title}`}
             >
               <PencilIcon size={12} />
-            </button>
+            </Link>
             {/* <button
               onClick={() =>
                 fetch(`/api/events/${e.id}/report`, { method: "POST" })
@@ -300,13 +280,7 @@ function CardView({
   );
 }
 
-function ListView({
-  events,
-  onEdit,
-}: {
-  events: EventRecord[];
-  onEdit: (e: EventRecord) => void;
-}) {
+function ListView({ events }: { events: EventRecord[] }) {
   return (
     <div className="overflow-auto rounded-lg border bg-white shadow">
       <table className="min-w-full divide-y bg-white">
@@ -346,12 +320,12 @@ function ListView({
               <td className="px-4 py-2">{e.organizer}</td>
               <td className="px-4 py-2">{e.creator ?? "Unknown"}</td>
               <td className="px-4 py-2">
-                <button
-                  onClick={() => onEdit(e)}
+                <Link
+                  href={`/dashboard/institution-admin/events/${e.id}/edit`}
                   className="text-blue-600 hover:underline"
                 >
                   Edit
-                </button>
+                </Link>
               </td>
               {/* <td className="px-4 py-2">
                 <button
@@ -371,13 +345,7 @@ function ListView({
   );
 }
 
-function CompactView({
-  events,
-  onEdit,
-}: {
-  events: EventRecord[];
-  onEdit: (e: EventRecord) => void;
-}) {
+function CompactView({ events }: { events: EventRecord[] }) {
   return (
     <ul className="space-y-2">
       {events.map((e) => (
@@ -406,12 +374,12 @@ function CompactView({
             </p>
           </div>
           <div className="flex gap-2">
-            <button
-              onClick={() => onEdit(e)}
+            <Link
+              href={`/dashboard/institution-admin/events/${e.id}/edit`}
               className="text-blue-600 hover:underline text-sm"
             >
               Edit
-            </button>
+            </Link>
             <button
               onClick={() =>
                 fetch(`/api/events/${e.id}/report`, { method: "POST" })
