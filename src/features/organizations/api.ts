@@ -4,6 +4,9 @@ import { getBaseUrl } from "@/lib/utils";
 export type Organization = Database["public"]["Tables"]["organizations"]["Row"];
 export type OrganizationInsert = Database["public"]["Tables"]["organizations"]["Insert"];
 export type OrganizationUpdate = Database["public"]["Tables"]["organizations"]["Update"];
+export type OrgMember = Database["public"]["Tables"]["org_members"]["Row"] & {
+  users?: Database["public"]["Tables"]["users"]["Row"] | null;
+};
 
 async function handleResponse(res: Response) {
   const data = await res.json();
@@ -85,4 +88,12 @@ export async function deleteClub(id: string): Promise<void> {
     credentials: "include",
   });
   await handleResponse(res);
+}
+
+export async function fetchClubMembers(id: string): Promise<OrgMember[]> {
+  const res = await fetch(`${BASE_URL}/${id}/members`, {
+    credentials: "include",
+  });
+  const data = await handleResponse(res);
+  return data.members as OrgMember[];
 }

@@ -5,6 +5,9 @@ import { getBaseUrl } from "@/lib/utils";
 export type EventRecord = Database["public"]["Tables"]["events"]["Row"];
 export type EventInsert = Database["public"]["Tables"]["events"]["Insert"];
 export type EventUpdate = Database["public"]["Tables"]["events"]["Update"];
+export type EventAttendee = Database["public"]["Tables"]["event_attendance"]["Row"] & {
+  users?: Database["public"]["Tables"]["users"]["Row"] | null;
+};
 
 async function handleResponse(res: Response) {
   const data = await res.json();
@@ -40,6 +43,14 @@ export async function fetchEvents(
 export async function fetchEvent(id: string) {
   const res = await fetch(`${BASE_URL}/${id}`, { credentials: "include" });
   return (await handleResponse(res)) as { event: EventRecord };
+}
+
+export async function fetchEventAttendees(id: string): Promise<EventAttendee[]> {
+  const res = await fetch(`${BASE_URL}/${id}/attendees`, {
+    credentials: "include",
+  });
+  const data = await handleResponse(res);
+  return data.attendees as EventAttendee[];
 }
 
 export async function createEvent(
