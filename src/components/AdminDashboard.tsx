@@ -103,7 +103,7 @@ const DEFAULT_CARDS: CardConfig[] = [
     id: "users",
     title: "Users",
     summary: "Directory & roles",
-    href: "/dashboard/institution-admin/users",
+    href: "/users",
     Icon: UsersIcon,
   },
   // {

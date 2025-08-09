@@ -12,14 +12,14 @@ export async function GET(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // if (!user || user.app_metadata?.role_type !== "Institution Admin") {
+  if (!user || user.app_metadata?.role_type !== "Institution Admin") {
 
-  //   return NextResponse.json({ error: "Unauthorized" }, {
-  //     status: 401,
-  //     headers,
-  //   });
+    return NextResponse.json({ error: "Unauthorized" }, {
+      status: 401,
+      headers,
+    });
 
-  // }
+  }
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");

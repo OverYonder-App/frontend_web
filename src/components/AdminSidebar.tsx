@@ -68,7 +68,7 @@ const NAV: NavItem[] = [
   //     { label: "Ledger", href: "/institution-admin/budget/ledger" },
   //   ],
   // },
-  { label: "Users", href: "/institution-admin/users" },
+  { label: "Users", href: "/users" },
   // {
   //   label: "Messaging",
   //   href: "/institution-admin/messaging",
