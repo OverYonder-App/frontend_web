@@ -26,3 +26,15 @@ export async function fetchUsers(): Promise<UserRecord[]> {
   const data = await handleResponse(res);
   return data.users as UserRecord[];
 }
+
+export async function fetchUser(id: string): Promise<{ user: UserRecord }> {
+  const opts: RequestInit = { credentials: "include" };
+
+  if (typeof window === "undefined") {
+    const cookieStore = await cookies();
+    opts.headers = { Cookie: cookieStore.toString() };
+  }
+
+  const res = await fetch(`${BASE_URL}/${id}`, opts);
+  return (await handleResponse(res)) as { user: UserRecord };
+}

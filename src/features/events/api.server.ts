@@ -23,6 +23,8 @@ export interface FetchEventsOptions {
   status?: string;
   search?: string;
   page?: number;
+  creatorId?: string;
+  participantId?: string;
 }
 
 export async function fetchEvents(
@@ -32,6 +34,8 @@ export async function fetchEvents(
   if (options.status) params.append("status", options.status);
   if (options.search) params.append("q", options.search);
   if (options.page) params.append("page", String(options.page));
+  if (options.creatorId) params.append("creator", options.creatorId);
+  if (options.participantId) params.append("participant", options.participantId);
 
   const opts: RequestInit = { credentials: "include" };
   if (typeof window === "undefined") {
