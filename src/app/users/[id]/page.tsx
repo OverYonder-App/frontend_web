@@ -66,7 +66,7 @@ export default async function UserPage({
         )}
         <div className="space-y-1">
           <h1 className="text-2xl font-bold">{fullName || user.username}</h1>
-          {role && <p className="text-gray-600">{role}</p>}
+          {/* {role && <p className="text-gray-600">{role}</p>} */}
           {institutionName ? (
             <p className="text-gray-600">Member of {institutionName}</p>
           ) : (

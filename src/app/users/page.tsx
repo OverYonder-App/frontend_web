@@ -4,9 +4,11 @@ import Link from "next/link";
 
 export default async function UsersPage() {
   const users = await fetchUsers();
+  const institutionName = users[0]?.institutions?.institution_name;
 
   return (
     <main className="p-6 space-y-4">
+      <h1 className="text-lg text-black-500">Member of {institutionName}</h1>
       {users.length === 0 ? (
         <p className="text-center text-sm text-gray-500">No users yet...</p>
       ) : (
