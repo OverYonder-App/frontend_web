@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { fetchUser, type UserRecord } from '@/features/users/api'
+import { fetchUser, type UserRecord, type UserWithInstitution } from '@/features/users/api'
 import { fetchEvents, type EventRecord } from '@/features/events/api.server'
 import { Metadata } from 'next'
 
@@ -23,7 +23,7 @@ export default async function UserPage({
   } catch {
     notFound()
   }
-  const user = userData?.user
+  const user = userData?.user as UserWithInstitution
   if (!user) {
     notFound()
   }
@@ -49,6 +49,7 @@ export default async function UserPage({
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ')
   const userWithRole = user as UserRecord & { role_type?: string; role?: string }
   const role = userWithRole.role_type || userWithRole.role || user.role_id
+  const institutionName = user.institutions?.institution_name
 
   return (
     <div className="max-w-3xl mx-auto py-8 space-y-6">
@@ -62,9 +63,14 @@ export default async function UserPage({
             className="w-24 h-24 rounded-full object-cover"
           />
         )}
-        <div>
+        <div className="space-y-1">
           <h1 className="text-2xl font-bold">{fullName || user.username}</h1>
           {role && <p className="text-gray-600">{role}</p>}
+          {institutionName ? (
+            <p className="text-gray-600">Member of {institutionName}</p>
+          ) : (
+            <p className="text-sm text-gray-500">No institution yet...</p>
+          )}
         </div>
       </div>
 

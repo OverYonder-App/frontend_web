@@ -8,6 +8,7 @@ export default function UserSkeleton() {
         <div className="flex-1 space-y-2">
           <div className="h-6 bg-gray-200 rounded w-1/3" />
           <div className="h-4 bg-gray-200 rounded w-1/4" />
+          <div className="h-4 bg-gray-200 rounded w-1/5" />
         </div>
       </div>
       <div className="space-y-2">
