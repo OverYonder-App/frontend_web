@@ -121,21 +121,21 @@ export default function AdminSidebar() {
   return (
     <aside
       className={`
-        bg-white border-r border-gray-200 shadow-sm min-h flex flex-col
+        bg-sidebar text-sidebar-foreground border-r border-sidebar-border shadow-sm min-h flex flex-col
         transition-all duration-200 ease-in-out
         ${collapsed ? "w-16" : "w-64"}
       `}
     >
       {/* Branding and collapse control */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-sidebar-border">
         {!collapsed && (
-          <span className="text-xl font-semibold text-gray-900">
+          <span className="text-xl font-semibold text-sidebar-foreground">
             OverYonder
           </span>
         )}
         <button
           onClick={() => setCollapsed((c) => !c)}
-          className="p-1 rounded hover:bg-gray-100 focus:outline-none"
+          className="p-1 rounded hover:bg-sidebar-accent focus:outline-none"
           aria-label="Toggle sidebar"
         >
           {collapsed ? (
@@ -163,8 +163,8 @@ export default function AdminSidebar() {
                   className={`flex items-center w-full px-3 py-2 rounded-md
                     ${
                       isActive
-                        ? "bg-blue-50 text-blue-700"
-                        : "text-gray-700 hover:bg-gray-100"
+                        ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     }
                     focus:outline-none transition-colors`}
                 >
@@ -188,8 +188,8 @@ export default function AdminSidebar() {
                   className={`flex items-center px-3 py-2 rounded-md
                     ${
                       isActive
-                        ? "bg-blue-50 text-blue-700 font-semibold"
-                        : "text-gray-700 hover:bg-gray-100"
+                        ? "bg-sidebar-primary text-sidebar-primary-foreground font-semibold"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     }
                     transition-colors`}
                   title={collapsed ? item.label : undefined}
@@ -210,8 +210,8 @@ export default function AdminSidebar() {
                         className={`block text-sm px-3 py-1 rounded-md
                           ${
                             subActive
-                              ? "font-medium bg-blue-50 text-blue-700"
-                              : "text-gray-600 hover:bg-gray-50"
+                              ? "font-medium bg-sidebar-accent text-sidebar-accent-foreground"
+                              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                           }
                           transition-colors`}
                       >
@@ -224,24 +224,24 @@ export default function AdminSidebar() {
             </div>
           );
         })}
-        <hr className="my-4" />
+        <hr className="my-4 border-sidebar-border" />
         <button
           onClick={handleLogout}
-          className={`flex items-center w-full px-3 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors`}
+          className={`flex items-center w-full px-3 py-2 rounded-md text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors`}
         >
           <LogOut className="w-5 h-5" />
           {!collapsed && <span className="ml-3">Log out</span>}
         </button>
       </nav>
-      <div className="border-t border-gray-200 p-4 flex items-center gap-3">
+      <div className="border-t border-sidebar-border p-4 flex items-center gap-3">
         <Avatar>
           <AvatarImage src="https://source.unsplash.com/random/40x40?profile" />
           <AvatarFallback>UN</AvatarFallback>
         </Avatar>
         {!collapsed && (
           <div className="text-sm">
-            <p className="font-medium">{user?.email}</p>
-            <p className="text-gray-500 text-xs">Account</p>
+            <p className="font-medium text-sidebar-foreground">{user?.email}</p>
+            <p className="text-muted-foreground text-xs">Account</p>
           </div>
         )}
       </div>

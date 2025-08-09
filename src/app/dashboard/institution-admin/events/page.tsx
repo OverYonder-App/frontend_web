@@ -49,7 +49,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   }));
 
   return (
-    <section className="p-5 bg-gray-50 min-h-full">
+    <section className="p-5 bg-background min-h-full">
       <EventsExplorer events={events} />
     </section>
   );

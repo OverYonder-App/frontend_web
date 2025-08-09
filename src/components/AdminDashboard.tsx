@@ -213,10 +213,7 @@ export default function AdminDashboard() {
     return (
       <div className="p-6 animate-pulse grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-40 bg-gray-200 dark:bg-gray-700 rounded-2xl"
-          />
+          <div key={i} className="h-40 bg-muted rounded-2xl" />
         ))}
       </div>
     );
@@ -261,15 +258,15 @@ export default function AdminDashboard() {
   };
 
   return (
-    <section className="p-6 bg-gray-50 dark:bg-gray-900 min-h-full flex-1">
+    <section className="p-6 bg-background min-h-full flex-1">
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-6 gap-4">
-        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100 flex-1">
+        <h1 className="text-3xl font-extrabold text-foreground flex-1">
           Dashboard
         </h1>
         <button
           onClick={() => setShowCmd(true)}
-          className="px-6 py-2 bg-white dark:bg-gray-800 rounded-lg shadow"
+          className="px-6 py-2 bg-card rounded-lg shadow"
         >
           Search
         </button>
@@ -304,37 +301,37 @@ export default function AdminDashboard() {
               setQuery("");
             }}
           />
-          <div className="fixed z-50 top-24 left-1/2 w-full max-w-md -translate-x-1/2 rounded-xl bg-white dark:bg-gray-900 p-4 shadow-xl">
+          <div className="fixed z-50 top-24 left-1/2 w-full max-w-md -translate-x-1/2 rounded-xl bg-card p-4 shadow-xl">
             <div className="flex items-center gap-2">
               <ComboboxInput
                 placeholder="Search cards..."
-                className="w-full rounded-md border border-gray-300 bg-gray-100 px-3 py-2 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                className="w-full rounded-md border border-border bg-muted px-3 py-2 text-foreground focus:border-primary focus:ring-2 focus:ring-primary"
                 onChange={(e) => setQuery(e.target.value)}
               />
               {query && (
                 <button
                   type="button"
                   onClick={() => setQuery("")}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="text-muted-foreground hover:text-foreground"
                   aria-label="Clear search"
                 >
                   ×
                 </button>
               )}
             </div>
-            <ComboboxOptions className="mt-3 max-h-60 overflow-auto rounded-md border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+            <ComboboxOptions className="mt-3 max-h-60 overflow-auto rounded-md border border-border bg-card">
               {filtered.length > 0 ? (
                 filtered.map((item) => (
                   <ComboboxOption
                     key={item.id}
                     value={item}
-                    className="cursor-pointer p-3 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="cursor-pointer p-3 hover:bg-muted"
                   >
                     {item.title}
                   </ComboboxOption>
                 ))
               ) : (
-                <div className="p-3 text-center text-sm text-gray-500">
+                <div className="p-3 text-center text-sm text-muted-foreground">
                   No results
                 </div>
               )}
@@ -351,8 +348,8 @@ export default function AdminDashboard() {
             onClick={() => toggleVisible(c.id)}
             className={`px-3 py-1 rounded-full text-sm ${
               visible.includes(c.id)
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground"
             }`}
           >
             {" "}
@@ -369,7 +366,7 @@ export default function AdminDashboard() {
         >
           {pinnedCards.length > 0 && (
             <>
-              <h2 className="w-full mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <h2 className="w-full mb-2 text-lg font-semibold text-foreground">
                 Favorites
               </h2>
               <div className="flex flex-wrap gap-4 mb-4">
@@ -383,7 +380,7 @@ export default function AdminDashboard() {
                   />
                 ))}
               </div>
-              <h2 className="w-full mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <h2 className="w-full mb-2 text-lg font-semibold text-foreground">
                 All
               </h2>
             </>
@@ -423,7 +420,7 @@ function DashboardCard({
   return (
     <div
       onDoubleClick={() => router.push(card.href)}
-      className="relative w-60 bg-white dark:bg-gray-800 rounded-2xl p-4 shadow hover:shadow-lg transition cursor-pointer"
+      className="relative w-60 bg-card rounded-2xl p-4 shadow hover:shadow-lg transition cursor-pointer"
     >
       <button
         onPointerDown={(e) => e.stopPropagation()}
@@ -432,16 +429,16 @@ function DashboardCard({
           e.stopPropagation();
           onTogglePin();
         }}
-        className="absolute top-2 right-2 text-gray-400 hover:text-yellow-500 z-20"
+        className="absolute top-2 right-2 text-muted-foreground hover:text-yellow-500 z-20"
         aria-label={isPinned ? "Unpin card" : "Pin card"}
       >
         {isPinned ? <StarOnIcon /> : <StarOffIcon />}
       </button>
       {(() => {
         const Icon = card.Icon;
-        return <Icon className="w-6 h-6 text-blue-600 mb-2" />;
+        return <Icon className="w-6 h-6 text-primary mb-2" />;
       })()}
-      <h3 className="font-semibold mb-1 text-slate-900 dark:text-slate-100">
+      <h3 className="font-semibold mb-1 text-foreground">
         {card.title}
       </h3>
       {editing ? (
@@ -450,10 +447,10 @@ function DashboardCard({
           value={text}
           onChange={(e) => setText(e.target.value)}
           onBlur={() => setEditing(false)}
-          className="w-full p-1 border rounded bg-gray-100 dark:bg-gray-700"
+          className="w-full p-1 border border-border rounded bg-muted"
         />
       ) : (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="text-sm text-muted-foreground">
           {text}{" "}
           {/* <button
             onClick={(e) => {
@@ -462,8 +459,8 @@ function DashboardCard({
             }}
             className="inline-flex items-center"
           >
-            <EditIcon className="w-4 h-4 text-gray-400 hover:text-gray-600" />
-          </button> */}
+            <EditIcon className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+        </button> */}
         </p>
       )}
       {/* {card.sparkData && (
@@ -486,7 +483,7 @@ function DashboardCard({
         <Link
           href={card.href}
           onClick={(e) => e.stopPropagation()}
-          className="absolute bottom-2 right-2 text-blue-600 hover:text-blue-800 z-20"
+          className="absolute bottom-2 right-2 text-primary hover:text-primary/80 z-20"
         >
           <AddIcon />
         </Link>

@@ -34,7 +34,7 @@ export default async function ClubsPage({ searchParams }: ClubsPageProps) {
   );
 
   return (
-    <section className="p-6 sm:p-8 bg-gray-50 min-h-full">
+    <section className="p-6 sm:p-8 bg-background min-h-full">
       <ClubsExplorer clubs={clubs} />
     </section>
   );

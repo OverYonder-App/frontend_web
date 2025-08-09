@@ -98,18 +98,18 @@ export default function ClubsExplorer({ clubs }: { clubs: Organization[] }) {
     );
 
   return (
-    <div className="space-y-6 p-6 bg-gray-50 min-h-full">
+    <div className="space-y-6 p-6 bg-background min-h-full">
       <TabGroup selectedIndex={TABS.indexOf(selectedTab)} onChange={handleTabChange}>
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <TabList className="inline-flex overflow-hidden rounded-lg bg-white border">
+          <TabList className="inline-flex overflow-hidden rounded-lg bg-card border border-border">
             {TABS.map((tab) => (
               <Tab as={Fragment} key={tab}>
                 {({ selected }) => (
                   <button
                     className={`px-4 py-2 text-sm font-medium transition ${
                       selected
-                        ? "bg-blue-600 text-white"
-                        : "text-slate-700 hover:bg-blue-50 hover:text-blue-600"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-primary/10 hover:text-primary"
                     }`}
                   >
                     {tab}
@@ -120,7 +120,7 @@ export default function ClubsExplorer({ clubs }: { clubs: Organization[] }) {
           </TabList>
 
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="inline-flex overflow-hidden rounded-full border bg-white">
+            <div className="inline-flex overflow-hidden rounded-full border border-border bg-card">
               {(Object.keys(MODE_CONFIG) as ViewMode[]).map((m) => {
                 const { label, Icon } = MODE_CONFIG[m];
                 const active = mode === m;
@@ -130,8 +130,8 @@ export default function ClubsExplorer({ clubs }: { clubs: Organization[] }) {
                     onClick={() => setMode(m)}
                     className={`flex items-center gap-1 px-4 py-2 text-sm font-medium transition ${
                       active
-                        ? "bg-blue-600 text-white"
-                        : "text-slate-700 hover:bg-blue-50 hover:text-blue-600"
+                        ? "bg-primary text-primary-foreground"
+                        : "text-foreground hover:bg-primary/10 hover:text-primary"
                     }`}
                     aria-label={label}
                   >
@@ -144,7 +144,7 @@ export default function ClubsExplorer({ clubs }: { clubs: Organization[] }) {
 
             <Link
               href="/dashboard/institution-admin/clubs/create"
-              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-600 text-white hover:bg-blue-700 shadow"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow"
               aria-label="Create new club"
             >
               +
@@ -159,12 +159,12 @@ export default function ClubsExplorer({ clubs }: { clubs: Organization[] }) {
               placeholder="Search clubs..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="border border-gray-300 rounded-xl px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-500"
+              className="border border-border rounded-xl px-4 py-2 shadow-sm focus:ring-2 focus:ring-primary"
             />
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value as SortKey)}
-              className="border border-gray-300 rounded-xl px-3 py-2 shadow-sm"
+              className="border border-border rounded-xl px-3 py-2 shadow-sm"
             >
               <option value="created">Sort by Created</option>
               <option value="name">Sort by Name</option>
@@ -186,10 +186,10 @@ function CardView({ clubs }: { clubs: Organization[] }) {
       {clubs.map((c) => (
         <div
           key={c.organization_id}
-          className="relative bg-white rounded-2xl p-6 shadow hover:shadow-lg transition"
+          className="relative bg-card rounded-2xl p-6 shadow hover:shadow-lg transition"
         >
           <h2 className="text-xl font-semibold mb-1">{c.name}</h2>
-          <p className="text-sm text-gray-500 mb-2 line-clamp-2">{c.description}</p>
+          <p className="text-sm text-muted-foreground mb-2 line-clamp-2">{c.description}</p>
           <span
             className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
               statusStyles[c.status ?? "pending"]
@@ -200,14 +200,14 @@ function CardView({ clubs }: { clubs: Organization[] }) {
           <div className="absolute top-6 right-6 space-x-2 flex">
             <Link
               href={`/dashboard/institution-admin/clubs/${c.organization_id}`}
-              className="text-blue-600 hover:text-blue-800 transition"
+              className="text-primary hover:text-primary/80 transition"
               aria-label={`View ${c.name}`}
             >
               <Eye size={12} />
             </Link>
             <Link
               href={`/dashboard/institution-admin/clubs/${c.organization_id}/edit`}
-              className="text-blue-600 hover:text-blue-800 transition"
+              className="text-primary hover:text-primary/80 transition"
               aria-label={`Edit ${c.name}`}
             >
               <PencilIcon size={12} />
@@ -216,7 +216,7 @@ function CardView({ clubs }: { clubs: Organization[] }) {
         </div>
       ))}
       {clubs.length === 0 && (
-        <div className="col-span-full text-center py-20 text-gray-500">
+        <div className="col-span-full text-center py-20 text-muted-foreground">
           No clubs yet...
         </div>
       )}
@@ -226,24 +226,24 @@ function CardView({ clubs }: { clubs: Organization[] }) {
 
 function ListView({ clubs }: { clubs: Organization[] }) {
   return (
-    <div className="overflow-auto rounded-lg border bg-white shadow">
-      <table className="min-w-full divide-y bg-white">
-        <thead className="bg-gray-50">
+    <div className="overflow-auto rounded-lg border border-border bg-card shadow">
+      <table className="min-w-full divide-y bg-card">
+        <thead className="bg-muted">
           <tr>
             <th className="px-4 py-2 text-left font-medium">Name</th>
             <th className="px-4 py-2 text-left font-medium">Status</th>
             <th className="px-4 py-2 text-left font-medium">Edit</th>
           </tr>
         </thead>
-        <tbody className="divide-y bg-white">
+        <tbody className="divide-y bg-card">
           {clubs.map((c) => (
-            <tr key={c.organization_id} className="hover:bg-gray-50">
+            <tr key={c.organization_id} className="hover:bg-muted">
               <td className="px-4 py-2">{c.name}</td>
               <td className="px-4 py-2 capitalize">{c.status}</td>
               <td className="px-4 py-2">
                 <Link
                   href={`/dashboard/institution-admin/clubs/${c.organization_id}/edit`}
-                  className="text-blue-600 hover:underline"
+                  className="text-primary hover:underline"
                 >
                   Edit
                 </Link>
@@ -253,7 +253,7 @@ function ListView({ clubs }: { clubs: Organization[] }) {
         </tbody>
       </table>
       {clubs.length === 0 && (
-        <div className="text-center py-6 text-gray-500">No clubs yet...</div>
+        <div className="text-center py-6 text-muted-foreground">No clubs yet...</div>
       )}
     </div>
   );
@@ -265,19 +265,19 @@ function CompactView({ clubs }: { clubs: Organization[] }) {
       {clubs.map((c) => (
         <li
           key={c.organization_id}
-          className="flex items-center justify-between bg-white rounded-lg p-3 shadow hover:bg-gray-50 transition"
+          className="flex items-center justify-between bg-card rounded-lg p-3 shadow hover:bg-muted transition"
         >
           <p className="font-medium truncate">{c.name}</p>
           <div className="flex gap-2">
             <Link
               href={`/dashboard/institution-admin/clubs/${c.organization_id}`}
-              className="text-blue-600 hover:underline text-sm"
+              className="text-primary hover:underline text-sm"
             >
               View
             </Link>
             <Link
               href={`/dashboard/institution-admin/clubs/${c.organization_id}/edit`}
-              className="text-blue-600 hover:underline text-sm"
+              className="text-primary hover:underline text-sm"
             >
               Edit
             </Link>
@@ -285,7 +285,7 @@ function CompactView({ clubs }: { clubs: Organization[] }) {
         </li>
       ))}
       {clubs.length === 0 && (
-        <li className="text-center py-6 text-gray-500">No clubs yet...</li>
+        <li className="text-center py-6 text-muted-foreground">No clubs yet...</li>
       )}
     </ul>
   );
