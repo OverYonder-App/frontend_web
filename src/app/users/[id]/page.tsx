@@ -58,6 +58,7 @@ export default async function UserPage({
           <Image
             src={user.avatar_url}
             alt={fullName}
+            priority={true}
             width={96}
             height={96}
             className="w-24 h-24 rounded-full object-cover"
