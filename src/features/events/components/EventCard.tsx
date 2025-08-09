@@ -23,7 +23,7 @@ export default function EventCard({ event }: EventCardProps) {
           className="w-full h-40 object-cover"
         />
         <div className="p-4 space-y-2">
-          <h3 className="text-lg font-semibold text-[#745296]">{event.title}</h3>
+          <h3 className="text-lg font-semibold text-primary">{event.title}</h3>
           <p className="text-sm text-gray-600 flex items-center gap-1">
             <CalendarClock size={14} /> {event.date}
           </p>
@@ -32,7 +32,7 @@ export default function EventCard({ event }: EventCardProps) {
           </p>
           <p className="text-xs text-gray-400">Hosted by {event.host}</p>
           <div className="flex justify-between items-center pt-2">
-            <Button size="sm" className="text-sm bg-[#745296] hover:bg-[#845296]">
+            <Button size="sm" className="text-sm bg-primary hover:bg-[#845296]">
               <Calendar /> RSVP
             </Button>
             <div className="flex items-center gap-1 text-xs text-gray-500">

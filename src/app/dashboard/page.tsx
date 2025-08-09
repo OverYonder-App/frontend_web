@@ -41,7 +41,7 @@ export default function DashboardRouter() {
   }, [user, router, delayedLoading]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#745296] text-white px-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-primary text-white px-4">
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ repeat: Infinity, duration: 1, ease: "linear" }}

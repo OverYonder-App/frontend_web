@@ -67,7 +67,7 @@ export default function LoginPage() {
           height={75}
           className="mx-auto mb-6"
         />
-        <h1 className="text-2xl font-bold text-[#745296] mb-4">
+        <h1 className="text-2xl font-bold text-primary mb-4">
           Welcome to OverYonder
         </h1>
         <p className="text-sm text-gray-600 mb-6">
@@ -79,21 +79,21 @@ export default function LoginPage() {
           placeholder="School email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#745296] mb-3"
+          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary mb-3"
         />
         <input
           type="password"
           placeholder="Password (optional)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#745296] mb-4"
+          className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary mb-4"
         />
 
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
         <div className="flex flex-col gap-3">
           <Button
-            className="w-full bg-[#745296] text-white hover:bg-[#624080]"
+            className="w-full bg-primary text-white hover:bg-[#624080]"
             onClick={handleLogin}
             disabled={loading}
           >
@@ -101,7 +101,7 @@ export default function LoginPage() {
           </Button>
           <Button
             variant="outline"
-            className="w-full border-[#745296] text-[#745296] hover:bg-[#f3f0f7]"
+            className="w-full border-primary text-primary hover:bg-[#f3f0f7]"
             onClick={handleMagicLink}
             disabled={loading}
           >
@@ -109,13 +109,13 @@ export default function LoginPage() {
           </Button>
           <p className="text-sm text-gray-600">
             Don&apos;t have an account? Register{" "}
-            <Link className="text-[#745296] underline" href={"/register"}>
+            <Link className="text-primary underline" href={"/register"}>
               here
             </Link>
           </p>
           <hr className="my-4" />
           <Button
-            className="w-full bg-red text-[#745296] hover:text-white hover:bg-[#3367D6]"
+            className="w-full bg-red text-primary hover:text-white hover:bg-[#3367D6]"
             onClick={() => handleOAuth("google")}
           >
             <FcGoogle className="text-xl mr-2" />

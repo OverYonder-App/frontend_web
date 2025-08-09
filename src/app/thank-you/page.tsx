@@ -10,7 +10,7 @@ export default function ThankYouPage() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="text-4xl font-bold text-[#745296]"
+        className="text-4xl font-bold text-primary"
       >
         Thank You!
       </motion.h1>
@@ -27,7 +27,7 @@ export default function ThankYouPage() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.6 }}
       >
-        <Link href="/" className="text-[#745296] underline">
+        <Link href="/" className="text-primary underline">
           Back to home
         </Link>
       </motion.div>

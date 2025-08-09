@@ -19,9 +19,9 @@ export default function MobileDrawerNav() {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger className="p-2">
           <svg viewBox="0 0 100 80" width="24" height="24">
-            <rect width="100" height="10" fill="#745296" />
-            <rect y="30" width="100" height="10" fill="#745296" />
-            <rect y="60" width="100" height="10" fill="#745296" />
+            <rect width="100" height="10" fill="var(--over-yonder)" />
+            <rect y="30" width="100" height="10" fill="var(--over-yonder)" />
+            <rect y="60" width="100" height="10" fill="var(--over-yonder)" />
           </svg>
         </SheetTrigger>
         <SheetContent
@@ -29,7 +29,7 @@ export default function MobileDrawerNav() {
           className="w-[85vw] max-w-sm p-6 bg-white flex flex-col justify-between"
         >
           <div>
-            <h1 className="text-[#745296] font-bold text-xl mb-6">
+            <h1 className="text-primary font-bold text-xl mb-6">
               OverYonder
             </h1>
             <nav className="space-y-4 text-sm">
@@ -57,14 +57,14 @@ export default function MobileDrawerNav() {
           </div>
         </SheetContent>
       </Sheet>
-      <h1 className="text-[#745296] font-bold text-xl p-2">OverYonder</h1>
+      <h1 className="text-primary font-bold text-xl p-2">OverYonder</h1>
     </div>
   );
 }
 
 function NavItem({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <button className="flex items-center gap-3 w-full text-left text-gray-800 hover:text-[#745296]">
+    <button className="flex items-center gap-3 w-full text-left text-gray-800 hover:text-primary">
       {icon}
       {label}
     </button>

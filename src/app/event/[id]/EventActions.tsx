@@ -30,7 +30,7 @@ export default function EventActions({ creatorId, eventId }: EventActionsProps) 
   return (
     <div className="flex gap-2 mb-8">
       {canRSVP && (
-        <Button className="bg-[#745296] hover:bg-[#845296]">RSVP</Button>
+        <Button className="bg-primary hover:bg-[#845296]">RSVP</Button>
       )}
       {canEdit && (
         <Link
@@ -39,7 +39,7 @@ export default function EventActions({ creatorId, eventId }: EventActionsProps) 
               ? `/dashboard/institution-admin/events/${eventId}/edit`
               : `/event/${eventId}/edit`
           }
-          className="bg-[#fefefe] border text-[#745296] hover:text-[#845296] flex items-center px-3 rounded"
+          className="bg-[#fefefe] border text-primary hover:text-[#845296] flex items-center px-3 rounded"
         >
           Edit Event &nbsp;
           <PenIcon size={15} />

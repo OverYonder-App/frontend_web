@@ -183,8 +183,8 @@ export default function CreateEventForm() {
   useEffect(() => {
     if (!location || !map || !isLoaded) return;
     const pin = new google.maps.marker.PinElement({
-      background: "#745296",
-      borderColor: "#745296",
+      background: "var(--over-yonder)",
+      borderColor: "var(--over-yonder)",
       glyphColor: "#A38BC3",
     });
     if (!markerRef.current) {

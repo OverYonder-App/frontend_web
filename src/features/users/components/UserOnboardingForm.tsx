@@ -92,7 +92,7 @@ export default function UserOnboardingForm() {
 
   return (
     <div className="max-w-xl mx-auto p-6 text-left">
-      <h2 className="text-2xl font-bold text-[#745296] mb-4">
+      <h2 className="text-2xl font-bold text-primary mb-4">
         Complete Your Profile
       </h2>
 
@@ -136,7 +136,7 @@ export default function UserOnboardingForm() {
             </div>
           )}
           <Button
-            className="w-full bg-[#745296] text-white"
+            className="w-full bg-primary text-white"
             onClick={() => setStep(2)}
           >
             Next
@@ -174,7 +174,7 @@ export default function UserOnboardingForm() {
             <Button variant="outline" onClick={() => setStep(1)}>
               Back
             </Button>
-            <Button className="bg-[#745296] text-white" onClick={handleSubmit}>
+            <Button className="bg-primary text-white" onClick={handleSubmit}>
               Submit
             </Button>
           </div>
