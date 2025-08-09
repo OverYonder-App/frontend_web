@@ -21,7 +21,7 @@ export default function BaseLayout({
   return (
     <div className="flex min-h-screen w-full">
       {sidebar && (
-        <aside className="hidden md:block w-64 bg-[#745296] text-white p-4">
+        <aside className="hidden md:block w-64 bg-primary text-white p-4">
           {sidebar}
         </aside>
       )}

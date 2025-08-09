@@ -86,7 +86,7 @@ export default function CommentsSection({ eventId }: CommentsSectionProps) {
           />
           <Button
             onClick={handleSubmit}
-            className="bg-[#745296] hover:bg-[#845296]"
+            className="bg-primary hover:bg-[#845296]"
           >
             Post Comment
           </Button>

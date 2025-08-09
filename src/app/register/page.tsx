@@ -125,7 +125,7 @@ export default function RegistrationPage() {
     <>
       <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-[#f9f5fc]">
         {/* Masonry Floating Event Cards */}
-        <div className="hidden md:block bg-gradient-to-br from-[#745296] to-[#9e7bb5] relative overflow-hidden px-4 py-8 h-screen">
+        <div className="hidden md:block bg-gradient-to-br from-primary to-accent relative overflow-hidden px-4 py-8 h-screen">
           <div className="absolute inset-0 columns-2 gap-6 px-2 space-y-6">
             {eventCards.map((event, i) => (
               <motion.div
@@ -140,7 +140,7 @@ export default function RegistrationPage() {
                   delay: i * 2,
                 }}
               >
-                <h4 className="text-md font-semibold text-[#745296] mb-1">
+                <h4 className="text-md font-semibold text-primary mb-1">
                   {event.title}
                 </h4>
                 <p className="text-xs text-gray-700 mb-1">
@@ -166,7 +166,7 @@ export default function RegistrationPage() {
               height={100}
               className="mx-auto mb-6"
             />
-            <h1 className="text-2xl font-bold text-[#745296] mb-2">
+            <h1 className="text-2xl font-bold text-primary mb-2">
               Create an Account
             </h1>
             <p className="text-sm text-gray-600 mb-6">
@@ -179,7 +179,7 @@ export default function RegistrationPage() {
               placeholder="School email"
               value={form.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#745296] mb-3"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary mb-3"
             />
             <input
               type="password"
@@ -187,7 +187,7 @@ export default function RegistrationPage() {
               placeholder="Password"
               value={form.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#745296] mb-3"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary mb-3"
             />
             <input
               type="password"
@@ -195,13 +195,13 @@ export default function RegistrationPage() {
               placeholder="Confirm Password"
               value={form.confirm}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#745296] mb-4"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary mb-4"
             />
 
             <UIErrorMessage message={error} />
 
             <Button
-              className="w-full bg-[#745296] text-white hover:bg-[#624080]"
+              className="w-full bg-primary text-white hover:bg-[#624080]"
               onClick={handleRegister}
               disabled={loading}
             >
@@ -210,7 +210,7 @@ export default function RegistrationPage() {
 
             <p className="text-sm text-gray-600 mt-6">
               Already have an account?{" "}
-              <a href="/login" className="text-[#745296] font-medium">
+              <a href="/login" className="text-primary font-medium">
                 Log in
               </a>
             </p>
@@ -222,7 +222,7 @@ export default function RegistrationPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="text-center">
           <DialogHeader>
-            <DialogTitle className="text-[#745296] text-xl">
+            <DialogTitle className="text-primary text-xl">
               🎉 Registration Successful!
             </DialogTitle>
           </DialogHeader>
@@ -231,7 +231,7 @@ export default function RegistrationPage() {
             onboarding.
           </p>
           <Button
-            className="mt-6 w-full bg-[#745296] text-white hover:bg-[#624080]"
+            className="mt-6 w-full bg-primary text-white hover:bg-[#624080]"
             onClick={() => router.push("/onboarding")}
           >
             Go to Onboarding

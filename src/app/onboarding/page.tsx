@@ -66,7 +66,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen p-6 max-w-xl mx-auto text-center">
-      <h1 className="text-2xl font-bold text-[#745296] mb-4">
+      <h1 className="text-2xl font-bold text-primary mb-4">
         Welcome to OverYonder 🎓
       </h1>
 
@@ -96,7 +96,7 @@ export default function OnboardingPage() {
 
       {institutionStatus === "not_found" && isAdminChoice === false && (
         <div className="mt-6 space-y-4 text-left">
-          <h2 className="text-lg font-semibold text-[#745296]">
+          <h2 className="text-lg font-semibold text-primary">
             Get Your School Onboarded
           </h2>
           <p>
@@ -111,7 +111,7 @@ export default function OnboardingPage() {
             className="w-full px-4 py-2 border rounded-md"
           />
           <Button
-            className="w-full bg-[#745296] text-white"
+            className="w-full bg-primary text-white"
             onClick={handleStudentSubmit}
           >
             Request Access

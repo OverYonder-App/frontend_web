@@ -51,7 +51,7 @@ export default function StudentLayout({
         )}
         <button
         //   onMouseEnter={() => setFabOpen((prev) => !prev)}
-          className="bg-[#745296] text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-[#684287] transition"
+          className="bg-primary text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-[#684287] transition"
         >
           <Plus size={28} />
         </button>

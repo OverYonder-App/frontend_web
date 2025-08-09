@@ -50,7 +50,7 @@ export default function AddInstitutionForm() {
 
   return (
     <div className="mt-6 space-y-6 text-left">
-      <h2 className="text-lg font-semibold text-[#745296]">
+      <h2 className="text-lg font-semibold text-primary">
         {step === 1 ? "Institution Info" : "Institution Domain"}
       </h2>
 
@@ -82,7 +82,7 @@ export default function AddInstitutionForm() {
             className="w-full px-4 py-2 border rounded-md"
           />
           <Button
-            className="w-full bg-[#745296] text-white"
+            className="w-full bg-primary text-white"
             onClick={handleNext}
           >
             Next
@@ -115,7 +115,7 @@ export default function AddInstitutionForm() {
               Back
             </Button>
             <Button
-              className="w-1/2 bg-[#745296] text-white"
+              className="w-1/2 bg-primary text-white"
               onClick={handleSubmit}
             >
               Submit & Become Admin

@@ -57,7 +57,7 @@ export default function Home() {
   return (
     <>
       <HomeHeader />
-      <main className="flex flex-col items-center justify-center min-h-screen pt-0 pb-0 px-6 py-12 bg-white text-[#745296]">
+      <main className="flex flex-col items-center justify-center min-h-screen pt-0 pb-0 px-6 py-12 bg-white text-primary">
         <section className="relative w-full h-[calc(100vh-60px)] flex flex-col justify-center text-center overflow-hidden">
           {/* Background video */}
           <FloatingCards />
@@ -75,14 +75,14 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 z-10">
             <Button
-              className="bg-[#745296] text-white hover:bg-[#624080]"
+              className="bg-primary text-white hover:bg-[#624080]"
               asChild
             >
               <Link href="/login">I&apos;m a Student / Faculty</Link>
             </Button>
             <Button
               variant="outline"
-              className=" text-[#745296] hover:text-white hover:bg-[#745296]"
+              className=" text-primary hover:text-white hover:bg-primary"
               asChild
             >
               <Link href="/onboarding">I&apos;m an Institution Admin</Link>
@@ -92,7 +92,7 @@ export default function Home() {
 
         <section className="w-full bg-[#f9f5fc] py-20">
           <div className="max-w-5xl mx-auto text-center">
-            <h2 className="text-3xl font-extrabold text-[#745296] mb-6 tracking-tight">
+            <h2 className="text-3xl font-extrabold text-primary mb-6 tracking-tight">
               Trusted by Institutions Who Believe in Student Leadership
             </h2>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mt-8">
@@ -103,7 +103,7 @@ export default function Home() {
                 alt="College of Idaho Logo"
                 className="h-16 w-auto grayscale hover:grayscale-0 transition duration-300"
               />
-              {/* <span className="text-xl font-semibold text-[#745296]">
+              {/* <span className="text-xl font-semibold text-primary">
                 College of Idaho
               </span> */}
             </div>
@@ -112,7 +112,7 @@ export default function Home() {
 
         <section id="features" className="w-full bg-white py-20">
           <div className="max-w-3xl mx-auto px-6 text-center">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#745296] mb-10">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-primary mb-10">
               Who&apos;s it for?
             </h2>
             <div className="flex justify-center gap-4 mb-6">
@@ -122,8 +122,8 @@ export default function Home() {
                   onClick={() => setActive(key as keyof typeof roles)}
                   className={`px-4 py-2 rounded-full font-semibold border transition ${
                     active === key
-                      ? "bg-[#745296] text-white border-transparent"
-                      : "bg-white text-[#745296] border-[#745296]"
+                      ? "bg-primary text-white border-transparent"
+                      : "bg-white text-primary border-primary"
                   }`}
                 >
                   {role.label}
@@ -137,7 +137,7 @@ export default function Home() {
         </section>
 
         <section id="preview" className="w-full max-w-7xl py-20 text-center">
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-[#745296] mb-10">
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-primary mb-10">
             Preview the App
           </h3>
           <p className="text-gray-600 mb-8">
@@ -168,7 +168,7 @@ export default function Home() {
         </section>
 
         <section className="w-full max-w-7xl py-20 text-center">
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-[#745296] mb-10">
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-primary mb-10">
             How It Works
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-gray-700">
@@ -189,7 +189,7 @@ export default function Home() {
 
         <section id="faq" className="w-full bg-white  pb-0 py-20">
           <div className="max-w-2xl mx-auto px-6 text-center">
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-[#745296] mb-10">
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-primary mb-10">
               Frequently Asked Questions
             </h3>
             <div className="space-y-4 text-left">
@@ -200,7 +200,7 @@ export default function Home() {
                 >
                   <button
                     onClick={() => toggle(index)}
-                    className="w-full px-5 py-4 text-left font-medium text-[#745296] bg-gray-50 hover:bg-gray-100 transition"
+                    className="w-full px-5 py-4 text-left font-medium text-primary bg-gray-50 hover:bg-gray-100 transition"
                   >
                     {faq.question}
                   </button>
@@ -215,13 +215,13 @@ export default function Home() {
             <div className="mt-10 flex justify-center gap-4">
               <Button
                 variant="outline"
-                className="border-[#745296] text-[#745296] hover:bg-[#f3f0f7]"
+                className="border-primary text-primary hover:bg-[#f3f0f7]"
                 asChild
               >
                 <Link href="/onboarding">Request Access</Link>
               </Button>
               <Button
-                className="bg-[#745296] text-white hover:bg-[#624080]"
+                className="bg-primary text-white hover:bg-[#624080]"
                 asChild
               >
                 <Link href="/login">Join Your School</Link>

@@ -12,7 +12,7 @@
 //   return (
 //     <BaseLayout>
 //       <div className="space-y-6">
-//         <h1 className="text-xl font-bold text-[#745296]">
+//         <h1 className="text-xl font-bold text-primary">
 //           Institution Admin Panel
 //         </h1>
 //         <div>

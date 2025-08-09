@@ -60,7 +60,7 @@ export default function StudentHomeYonderView() {
     <StudentLayout>
       <main className="min-h-screen bg-[#f9f9ff] p-4 md:p-8">
         <header className="mb-4 md:mb-6">
-          <h1 className="text-2xl font-bold text-[#745296]">
+          <h1 className="text-2xl font-bold text-primary">
             What’s happening at your campus
           </h1>
         </header>
@@ -69,19 +69,19 @@ export default function StudentHomeYonderView() {
           <TabsList className="bg-[#eee6f7] rounded-lg p-2 w-full max-w-lg flex gap-2">
             <TabsTrigger
               value="events"
-              className="data-[state=active]:bg-[#745296] data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
             >
               Events
             </TabsTrigger>
             <TabsTrigger
               value="groups"
-              className="data-[state=active]:bg-[#745296] data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
             >
               Groups
             </TabsTrigger>
             <TabsTrigger
               value="announcements"
-              className="data-[state=active]:bg-[#745296] data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
             >
               Announcements
             </TabsTrigger>

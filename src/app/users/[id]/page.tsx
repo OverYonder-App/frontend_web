@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { fetchUser, type UserRecord, type UserWithInstitution } from '@/features/users/api'
+import { fetchUser, type UserWithInstitution } from '@/features/users/api'
 import { fetchEvents, type EventRecord } from '@/features/events/api.server'
 import { Metadata } from 'next'
 
@@ -47,8 +47,6 @@ export default async function UserPage({
   const events = Array.from(eventsMap.values())
 
   const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ')
-  const userWithRole = user as UserRecord & { role_type?: string; role?: string }
-  const role = userWithRole.role_type || userWithRole.role || user.role_id
   const institutionName = user.institutions?.institution_name
 
   return (

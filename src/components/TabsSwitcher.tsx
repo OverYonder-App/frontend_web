@@ -22,25 +22,25 @@ export default function TabsSwitcher() {
       <TabsList className="bg-[#eee6f7] rounded-xl p-2 flex gap-2 max-w-full overflow-x-auto">
         <TabsTrigger
           value="feed"
-          className="data-[state=active]:bg-[#745296] data-[state=active]:text-white px-5 py-2 rounded-md text-sm font-medium"
+          className="data-[state=active]:bg-primary data-[state=active]:text-white px-5 py-2 rounded-md text-sm font-medium"
         >
           My Feed
         </TabsTrigger>
         <TabsTrigger
           value="discover"
-          className="data-[state=active]:bg-[#745296] data-[state=active]:text-white px-5 py-2 rounded-md text-sm font-medium"
+          className="data-[state=active]:bg-primary data-[state=active]:text-white px-5 py-2 rounded-md text-sm font-medium"
         >
           Discover Events
         </TabsTrigger>
         <TabsTrigger
           value="clubs"
-          className="data-[state=active]:bg-[#745296] data-[state=active]:text-white px-5 py-2 rounded-md text-sm font-medium"
+          className="data-[state=active]:bg-primary data-[state=active]:text-white px-5 py-2 rounded-md text-sm font-medium"
         >
           Clubs
         </TabsTrigger>
         <TabsTrigger
           value="groups"
-          className="data-[state=active]:bg-[#745296] data-[state=active]:text-white px-5 py-2 rounded-md text-sm font-medium"
+          className="data-[state=active]:bg-primary data-[state=active]:text-white px-5 py-2 rounded-md text-sm font-medium"
         >
           Groups
         </TabsTrigger>
@@ -78,7 +78,7 @@ export default function TabsSwitcher() {
 
       <TabsContent value="feed">
         <Card className="p-4 shadow-sm">
-          <h3 className="font-semibold text-[#745296]">
+          <h3 className="font-semibold text-primary">
             Basketball Game Today
           </h3>
           <p className="text-sm text-gray-600">
@@ -89,7 +89,7 @@ export default function TabsSwitcher() {
 
       <TabsContent value="discover">
         <Card className="p-4 shadow-sm">
-          <h3 className="font-semibold text-[#745296]">Open Mic Night</h3>
+          <h3 className="font-semibold text-primary">Open Mic Night</h3>
           <p className="text-sm text-gray-600">
             Join us Friday night to showcase your talent.
           </p>
@@ -98,7 +98,7 @@ export default function TabsSwitcher() {
 
       <TabsContent value="clubs">
         <Card className="p-4 shadow-sm">
-          <h3 className="font-semibold text-[#745296]">
+          <h3 className="font-semibold text-primary">
             New: Outdoor Adventures Club
           </h3>
           <p className="text-sm text-gray-600">
@@ -109,7 +109,7 @@ export default function TabsSwitcher() {
 
       <TabsContent value="groups">
         <Card className="p-4 shadow-sm">
-          <h3 className="font-semibold text-[#745296]">
+          <h3 className="font-semibold text-primary">
             Startup Builders Group
           </h3>
           <p className="text-sm text-gray-600">
