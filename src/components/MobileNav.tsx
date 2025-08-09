@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import {
   Home,
@@ -29,9 +30,13 @@ export default function MobileDrawerNav() {
           className="w-[85vw] max-w-sm p-6 bg-white flex flex-col justify-between"
         >
           <div>
-            <h1 className="text-primary font-bold text-xl mb-6">
-              OverYonder
-            </h1>
+            <Image
+              src="/images/overyonder-logo.png"
+              alt="OverYonder logo"
+              width={150}
+              height={40}
+              className="mb-6"
+            />
             <nav className="space-y-4 text-sm">
               <NavItem icon={<Home size={18} />} label="Home" />
               <NavItem icon={<Calendar size={18} />} label="Your Events" />
@@ -57,7 +62,13 @@ export default function MobileDrawerNav() {
           </div>
         </SheetContent>
       </Sheet>
-      <h1 className="text-primary font-bold text-xl p-2">OverYonder</h1>
+      <Image
+        src="/images/overyonder-logo.png"
+        alt="OverYonder logo"
+        width={150}
+        height={40}
+        className="p-2"
+      />
     </div>
   );
 }

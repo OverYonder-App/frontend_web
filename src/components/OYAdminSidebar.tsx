@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   ChevronLeft,
@@ -9,7 +10,7 @@ import {
   School,
   Users as UsersIcon,
   FileWarning,
-  Image,
+  Image as ImageIcon,
   LogOut,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -34,7 +35,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   Institutions: School,
   Users: UsersIcon,
   Reports: FileWarning,
-  Media: Image,
+  Media: ImageIcon,
 };
 
 export default function OYAdminSidebar() {
@@ -52,9 +53,13 @@ export default function OYAdminSidebar() {
       className={`bg-white border-r border-gray-200 shadow-sm min-h flex flex-col transition-all duration-200 ease-in-out ${collapsed ? "w-16" : "w-64"}`}
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-        {!collapsed && (
-          <span className="text-xl font-semibold text-gray-900">OverYonder</span>
-        )}
+        <Image
+          src="/images/overyonder-logo.png"
+          alt="OverYonder logo"
+          width={collapsed ? 40 : 160}
+          height={40}
+          className="transition-all"
+        />
         <button
           onClick={() => setCollapsed((c) => !c)}
           className="p-1 rounded hover:bg-gray-100 focus:outline-none"

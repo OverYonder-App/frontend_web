@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Home,
   Calendar,
@@ -28,7 +29,13 @@ export default function SidebarNav() {
   return (
     <aside className="hidden md:flex flex-col justify-between w-64 bg-primary text-white h-screen p-4">
       <div>
-        <h1 className="text-xl font-bold mb-6">OverYonder</h1>
+        <Image
+          src="/images/overyonder-logo.png"
+          alt="OverYonder logo"
+          width={160}
+          height={40}
+          className="mb-6"
+        />
         <nav className="space-y-4 text-sm">
           {navItems.map((item) => (
             <Link
