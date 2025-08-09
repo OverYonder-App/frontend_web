@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
-import { fetchUsers, type UserRecord } from "@/features/users/api";
+import { fetchUsers, type UserWithInstitution } from "@/features/users/api";
+import Link from "next/link";
 
 export default async function UsersPage() {
   const users = await fetchUsers();
@@ -9,10 +10,23 @@ export default async function UsersPage() {
       {users.length === 0 ? (
         <p className="text-center text-sm text-gray-500">No users yet...</p>
       ) : (
-        users.map((user: UserRecord) => (
-          <Card key={user.user_id} className="p-4">
-            <h3 className="font-semibold">{user.email}</h3>
-          </Card>
+        users.map((user: UserWithInstitution) => (
+          <Link
+            key={user.user_id}
+            href={`/users/${user.user_id}`}
+            className="block"
+          >
+            <Card className="p-4 hover:bg-gray-50">
+              <h3 className="font-semibold">{user.email}</h3>
+              {user.institutions?.institution_name ? (
+                <p className="text-sm text-gray-500">
+                  Member of {user.institutions.institution_name}
+                </p>
+              ) : (
+                <p className="text-sm text-gray-500">No institution yet...</p>
+              )}
+            </Card>
+          </Link>
         ))
       )}
     </main>

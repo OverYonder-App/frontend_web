@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from("users")
-    .select("user_id, email");
+    .select("user_id, email, institutions(institution_name)");
 
   if (error) {
     return NextResponse.json(

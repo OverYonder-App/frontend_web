@@ -3,6 +3,9 @@ import { getBaseUrl } from "@/lib/utils";
 import { cookies } from "next/headers";
 
 export type UserRecord = Database["public"]["Tables"]["users"]["Row"];
+export type UserWithInstitution = UserRecord & {
+  institutions: { institution_name: string } | null;
+};
 
 async function handleResponse(res: Response) {
   const data = await res.json();
@@ -14,7 +17,7 @@ async function handleResponse(res: Response) {
 
 const BASE_URL = `${getBaseUrl()}/api/users`;
 
-export async function fetchUsers(): Promise<UserRecord[]> {
+export async function fetchUsers(): Promise<UserWithInstitution[]> {
   const opts: RequestInit = { credentials: "include" };
 
   if (typeof window === "undefined") {
@@ -24,10 +27,10 @@ export async function fetchUsers(): Promise<UserRecord[]> {
 
   const res = await fetch(BASE_URL, opts);
   const data = await handleResponse(res);
-  return data.users as UserRecord[];
+  return data.users as UserWithInstitution[];
 }
 
-export async function fetchUser(id: string): Promise<{ user: UserRecord }> {
+export async function fetchUser(id: string): Promise<{ user: UserWithInstitution }> {
   const opts: RequestInit = { credentials: "include" };
 
   if (typeof window === "undefined") {
@@ -36,5 +39,5 @@ export async function fetchUser(id: string): Promise<{ user: UserRecord }> {
   }
 
   const res = await fetch(`${BASE_URL}/${id}`, opts);
-  return (await handleResponse(res)) as { user: UserRecord };
+  return (await handleResponse(res)) as { user: UserWithInstitution };
 }
