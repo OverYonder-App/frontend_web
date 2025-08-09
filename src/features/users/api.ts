@@ -14,7 +14,10 @@ async function handleResponse(res: Response) {
 const BASE_URL = `${getBaseUrl()}/api/users`;
 
 export async function fetchUsers(): Promise<UserRecord[]> {
-  const res = await fetch(BASE_URL, { credentials: "include" });
+  const res = await fetch(BASE_URL, {
+    // forward cookies for authenticated requests
+    credentials: "include",
+  });
   const data = await handleResponse(res);
   return data.users as UserRecord[];
 }
