@@ -96,25 +96,25 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 p-4">
+    <div className="flex flex-col h-full bg-background p-4">
       {/* Header section: search, view toggles, navigation and actions */}
-      <div className="mb-4 rounded-lg border bg-white shadow-sm p-4 flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4">
+      <div className="mb-4 rounded-lg border border-border bg-card shadow-sm p-4 flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4">
         {/* Search input */}
         <input
           type="search"
           placeholder="Search for anything"
-          className="flex-1 rounded border px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="flex-1 rounded border border-border px-3 py-2 text-sm placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
         />
         {/* View toggles */}
-        <div className="inline-flex overflow-hidden rounded border bg-white">
+        <div className="inline-flex overflow-hidden rounded border border-border bg-card">
           {VIEWS.map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
               className={`px-4 py-2 text-sm font-medium capitalize transition ${
                 view === v
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-700 hover:bg-blue-50 hover:text-blue-600"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground hover:bg-primary/10 hover:text-primary"
               }`}
             >
               {v}
@@ -125,7 +125,7 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
         <button
           type="button"
           onClick={() => setCurrent(new Date())}
-          className="rounded border px-4 py-2 text-sm hover:bg-gray-50"
+          className="rounded border border-border px-4 py-2 text-sm hover:bg-muted"
         >
           Today
         </button>
@@ -133,7 +133,7 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
           <button
             type="button"
             onClick={() => changeRange(-1)}
-            className="px-3 py-2 text-sm hover:bg-gray-50"
+            className="px-3 py-2 text-sm hover:bg-muted"
             aria-label="Previous"
           >
             &lt;
@@ -141,7 +141,7 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
           <button
             type="button"
             onClick={() => changeRange(1)}
-            className="px-3 py-2 text-sm border-l hover:bg-gray-50"
+            className="px-3 py-2 text-sm border-l hover:bg-muted"
             aria-label="Next"
           >
             &gt;
@@ -153,7 +153,7 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
         <select
           value={timeZone}
           onChange={(e) => setTimeZone(e.target.value)}
-          className="rounded border px-2 py-2 text-sm focus:outline-none hidden focus:ring-1 focus:ring-blue-500"
+          className="rounded border border-border px-2 py-2 text-sm focus:outline-none hidden focus:ring-1 focus:ring-primary"
         >
           {zones.map((z) => (
             <option key={z} value={z}>
@@ -164,14 +164,14 @@ export default function CalendarClient({ events }: { events: EventRow[] }) {
         {/* Add event button */}
         <Link
           href="/dashboard/institution-admin/events/create"
-          className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="flex items-center gap-2 rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
           <PlusIcon className="w-4 h-4" />
           Add Event
         </Link>
       </div>
       {/* Main layout: sidebar and calendar view */}
-      <div className="flex flex-1 overflow-hidden rounded-lg border bg-white shadow-sm">
+      <div className="flex flex-1 overflow-hidden rounded-lg border border-border bg-card shadow-sm">
         {/* Sidebar with mini calendar and categories */}
         {/* <div className="w-72 hidden md:block border-r p-4 overflow-y-auto"> */}
           {/* <MiniMonthView
