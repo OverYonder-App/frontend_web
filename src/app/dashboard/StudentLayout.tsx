@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import MobileDrawerNav from "@/components/MobileNav";
 import SidebarNav from "@/components/SideNav";
 import { Plus, Users, Flag, CalendarPlus } from "lucide-react";
+import AnnouncementsSidebar from "@/components/AnnouncementsSidebar";
 
 export default function StudentLayout({
   children,
@@ -34,7 +35,12 @@ export default function StudentLayout({
     <div className={`flex ${isMobile ? "flex-col" : ""} h-screen w-full`}>
       {isMobile ? <MobileDrawerNav /> : <SidebarNav />}
       <main className="flex-1 overflow-auto bg-[#f9f9ff] p-4 md:p-8">
-        {children}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
+          <section>{children}</section>
+          <aside className="hidden lg:block">
+            <AnnouncementsSidebar />
+          </aside>
+        </div>
       </main>
       {/* FAB expandable */}
       <div

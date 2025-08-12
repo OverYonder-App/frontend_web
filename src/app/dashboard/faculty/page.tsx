@@ -1,10 +1,14 @@
 // src/app/dashboard/admin/institution/InstitutionAdminDashboard.tsx
 import BaseLayout from "@/components/layouts/BaseLayout";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
+import AnnouncementsSidebar from "@/components/AnnouncementsSidebar";
 
 export default function FacultyDashboard() {
   return (
-    <BaseLayout searchbar={<GlobalSearchBar />}>
+    <BaseLayout
+      searchbar={<GlobalSearchBar />}
+      rightSidebar={<AnnouncementsSidebar />}
+    >
       <div className="space-y-6">
         <h1 className="text-xl font-bold text-primary">Faculty Panel</h1>
         <div>
