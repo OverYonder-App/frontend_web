@@ -11,11 +11,7 @@ import ClubFeedCarousel from "@/features/events/components/ClubFeedCarousel";
 import GroupFeedCarousel from "@/features/events/components/GroupFeedCarousel";
 import NewClubsCarousel from "@/features/organizations/components/NewClubsCarousel";
 import AllClubsCarousel from "@/features/organizations/components/AllClubsCarousel";
-import ClubCategoryFilter from "@/features/organizations/components/ClubCategoryFilter";
-import { useState } from "react";
-
 export default function StudentHomeYonderView() {
-  const [category, setCategory] = useState<string | undefined>();
 
   return (
     <StudentLayout>
@@ -92,16 +88,13 @@ export default function StudentHomeYonderView() {
           </TabsContent>
 
           <TabsContent value="clubs" className="space-y-8">
-            <div className="flex justify-end">
-              <ClubCategoryFilter value={category} onChange={setCategory} />
-            </div>
             <section>
               <h2 className="text-lg font-semibold mb-2">New Clubs</h2>
-              <NewClubsCarousel category={category} />
+              <NewClubsCarousel />
             </section>
             <section>
               <h2 className="text-lg font-semibold mb-2">All Clubs</h2>
-              <AllClubsCarousel category={category} />
+              <AllClubsCarousel />
             </section>
           </TabsContent>
 

@@ -12,11 +12,7 @@ interface Club {
   created_at?: string | null;
 }
 
-export default function NewClubsCarousel({
-  category,
-}: {
-  category?: string;
-}) {
+export default function NewClubsCarousel() {
   const [clubs, setClubs] = useState<Club[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,7 +26,6 @@ export default function NewClubsCarousel({
           order: "desc",
           limit: "10",
         });
-        if (category) params.append("category_id", category);
         const res = await fetch(`/api/organizations?${params.toString()}`, {
           credentials: "include",
         });
@@ -42,7 +37,7 @@ export default function NewClubsCarousel({
       }
     }
     load();
-  }, [category]);
+  }, []);
 
   if (loading) {
     return <ClubsSkeleton />;
