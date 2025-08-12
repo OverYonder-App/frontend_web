@@ -12,12 +12,16 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get("status");
   const search = searchParams.get("q");
   const page = Number(searchParams.get("page") ?? "1");
+  const sort = searchParams.get("sort") ?? "start_date";
+  const order = searchParams.get("order") ?? "asc";
+  const upcoming = searchParams.get("upcoming") === "true";
+  const live = searchParams.get("live") === "true";
   const from = (page - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
 
   let query = supabase
     .from("events")
-    .select("*", { count: "exact" });
+    .select("*, organization:organizations(name)", { count: "exact" });
 
   if (status) {
     query = query.eq(
@@ -28,9 +32,16 @@ export async function GET(req: NextRequest) {
   if (search) {
     query = query.ilike("title", `%${search}%`);
   }
+  if (upcoming) {
+    query = query.gte("start_date", new Date().toISOString());
+  }
+  if (live) {
+    const now = new Date().toISOString();
+    query = query.lte("start_date", now).gte("end_date", now);
+  }
 
   const { data, error, count } = await query
-    .order("start_date", { ascending: true })
+    .order(sort, { ascending: order !== "desc" })
     .range(from, to);
 
   if (error) {
