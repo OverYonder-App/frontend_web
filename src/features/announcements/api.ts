@@ -1,3 +1,4 @@
+"use server"
 import type { Database } from "@/lib/database.types";
 import { getBaseUrl } from "@/lib/utils";
 import { cookies } from "next/headers";
