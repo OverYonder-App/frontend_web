@@ -8,6 +8,8 @@ import { supabase } from "@/lib/supabase";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import type { Event } from "@/features/events/types";
 import type { Database } from "@/lib/database.types";
+import GlobalSearchBar from "@/components/GlobalSearchBar";
+import useGlobalEventFilters from "@/hooks/useGlobalEventFilters";
 
 const formatDate = (iso: string) => {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -24,6 +26,7 @@ const formatDate = (iso: string) => {
 export default function StudentHomeYonderView() {
   const { user } = useCurrentUser();
   const [events, setEvents] = useState<Event[]>([]);
+  const { startDate, endDate } = useGlobalEventFilters();
 
   useEffect(() => {
     if (!user?.institution_id) return;
@@ -39,6 +42,8 @@ export default function StudentHomeYonderView() {
         )
         .eq("institution_id", user?.institution_id)
         .eq("status", "approved")
+        .gte("start_date", startDate.toISOString())
+        .lte("start_date", endDate.toISOString())
         .order("start_date", { ascending: true });
       if (data) {
         const mapped = (data as unknown as EventRow[]).map((e) => ({
@@ -54,15 +59,16 @@ export default function StudentHomeYonderView() {
       }
     }
     loadEvents();
-  }, [user]);
+  }, [user, startDate, endDate]);
 
   return (
     <StudentLayout>
       <main className="min-h-screen bg-[#f9f9ff] p-4 md:p-8">
-        <header className="mb-4 md:mb-6">
+        <header className="mb-4 md:mb-6 space-y-4">
           <h1 className="text-2xl font-bold text-primary">
             What’s happening at your campus
           </h1>
+          <GlobalSearchBar />
         </header>
 
         <Tabs defaultValue="events" className="space-y-4">
@@ -88,11 +94,17 @@ export default function StudentHomeYonderView() {
           </TabsList>
 
           <TabsContent value="events">
-            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {events.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </section>
+            {events.length === 0 ? (
+              <div className="text-center text-sm text-gray-500 pt-10">
+                No events yet...
+              </div>
+            ) : (
+              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {events.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </section>
+            )}
           </TabsContent>
 
           <TabsContent value="groups">
