@@ -11,7 +11,7 @@ export default function StudentLayout({
   children: React.ReactNode;
 }) {
   const [isMobile, setIsMobile] = useState(false);
-    const [fabOpen, setFabOpen] = useState(false);
+  const [fabOpen, setFabOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -32,9 +32,11 @@ export default function StudentLayout({
 
 
   return (
-    <div className={`flex ${isMobile ? "flex-col" : ""} h-screen w-full`}>
+    <div
+      className={`flex ${isMobile ? "flex-col" : ""} h-screen w-full overflow-x-hidden`}
+    >
       {isMobile ? <MobileDrawerNav /> : <SidebarNav />}
-      <main className="flex-1 overflow-auto bg-[#f9f9ff] p-4 md:p-8">
+      <main className="flex-1 overflow-y-auto bg-[#f9f9ff] p-4 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
           <section>{children}</section>
           <aside className="hidden lg:block">
