@@ -7,6 +7,8 @@ import UpcomingEventsCarousel from "@/features/events/components/UpcomingEventsC
 import HottestEventsCarousel from "@/features/events/components/HottestEventsCarousel";
 import LiveEventsCarousel from "@/features/events/components/LiveEventsCarousel";
 import MoreEventsList from "@/features/events/components/MoreEventsList";
+import ClubFeedCarousel from "@/features/events/components/ClubFeedCarousel";
+import GroupFeedCarousel from "@/features/events/components/GroupFeedCarousel";
 
 export default function StudentHomeYonderView() {
   return (
@@ -21,6 +23,12 @@ export default function StudentHomeYonderView() {
 
         <Tabs defaultValue="discover" className="space-y-4">
           <TabsList className="bg-[#eee6f7] rounded-lg p-2 w-full max-w-lg flex gap-2">
+            <TabsTrigger
+              value="feed"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+            >
+              My Feed
+            </TabsTrigger>
             <TabsTrigger
               value="discover"
               className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
@@ -40,6 +48,17 @@ export default function StudentHomeYonderView() {
               Announcements
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="feed" className="space-y-8">
+            <section>
+              <h2 className="text-lg font-semibold mb-2">Clubs</h2>
+              <ClubFeedCarousel />
+            </section>
+            <section>
+              <h2 className="text-lg font-semibold mb-2">Groups</h2>
+              <GroupFeedCarousel />
+            </section>
+          </TabsContent>
 
           <TabsContent value="discover" className="space-y-8">
             <section>
