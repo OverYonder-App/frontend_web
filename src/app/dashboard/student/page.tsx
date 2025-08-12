@@ -9,8 +9,14 @@ import LiveEventsCarousel from "@/features/events/components/LiveEventsCarousel"
 import MoreEventsList from "@/features/events/components/MoreEventsList";
 import ClubFeedCarousel from "@/features/events/components/ClubFeedCarousel";
 import GroupFeedCarousel from "@/features/events/components/GroupFeedCarousel";
+import NewClubsCarousel from "@/features/organizations/components/NewClubsCarousel";
+import AllClubsCarousel from "@/features/organizations/components/AllClubsCarousel";
+import ClubCategoryFilter from "@/features/organizations/components/ClubCategoryFilter";
+import { useState } from "react";
 
 export default function StudentHomeYonderView() {
+  const [category, setCategory] = useState<string | undefined>();
+
   return (
     <StudentLayout>
       <main className="min-h-screen bg-[#f9f9ff] p-4 md:p-8">
@@ -34,6 +40,12 @@ export default function StudentHomeYonderView() {
               className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
             >
               Discover
+            </TabsTrigger>
+            <TabsTrigger
+              value="clubs"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+            >
+              Clubs
             </TabsTrigger>
             <TabsTrigger
               value="groups"
@@ -76,6 +88,20 @@ export default function StudentHomeYonderView() {
             <section>
               <h2 className="text-lg font-semibold mb-2">More Events</h2>
               <MoreEventsList />
+            </section>
+          </TabsContent>
+
+          <TabsContent value="clubs" className="space-y-8">
+            <div className="flex justify-end">
+              <ClubCategoryFilter value={category} onChange={setCategory} />
+            </div>
+            <section>
+              <h2 className="text-lg font-semibold mb-2">New Clubs</h2>
+              <NewClubsCarousel category={category} />
+            </section>
+            <section>
+              <h2 className="text-lg font-semibold mb-2">All Clubs</h2>
+              <AllClubsCarousel category={category} />
             </section>
           </TabsContent>
 
