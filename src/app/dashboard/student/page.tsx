@@ -1,66 +1,14 @@
 "use client";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import EventCard from "@/features/events/components/EventCard";
 import StudentLayout from "../StudentLayout";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import type { Event } from "@/features/events/types";
-import type { Database } from "@/lib/database.types";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
-import useGlobalEventFilters from "@/hooks/useGlobalEventFilters";
-
-const formatDate = (iso: string) => {
-  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  return new Date(iso).toLocaleString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone,
-  });
-};
+import UpcomingEventsCarousel from "@/features/events/components/UpcomingEventsCarousel";
+import HottestEventsCarousel from "@/features/events/components/HottestEventsCarousel";
+import LiveEventsCarousel from "@/features/events/components/LiveEventsCarousel";
+import MoreEventsList from "@/features/events/components/MoreEventsList";
 
 export default function StudentHomeYonderView() {
-  const { user } = useCurrentUser();
-  const [events, setEvents] = useState<Event[]>([]);
-  const { startDate, endDate } = useGlobalEventFilters();
-
-  useEffect(() => {
-    if (!user?.institution_id) return;
-    async function loadEvents() {
-      type EventRow = Database["public"]["Tables"]["events"]["Row"] & {
-        organization?: { name: string | null } | null;
-      };
-
-      const { data } = await supabase
-        .from("events")
-        .select(
-          "event_id, title, start_date, address, image_url, organization:organizations(name)"
-        )
-        .eq("institution_id", user?.institution_id)
-        .eq("status", "approved")
-        .gte("start_date", startDate.toISOString())
-        .lte("start_date", endDate.toISOString())
-        .order("start_date", { ascending: true });
-      if (data) {
-        const mapped = (data as unknown as EventRow[]).map((e) => ({
-          id: e.event_id,
-          title: e.title,
-          date: formatDate(e.start_date),
-          location: e.address ?? "",
-          image: e.image_url ?? "https://picsum.photos/seed/picsum/800/500",
-          host: e.organization?.name || "",
-          attendees: [],
-        }));
-        setEvents(mapped);
-      }
-    }
-    loadEvents();
-  }, [user, startDate, endDate]);
-
   return (
     <StudentLayout>
       <main className="min-h-screen bg-[#f9f9ff] p-4 md:p-8">
@@ -71,13 +19,13 @@ export default function StudentHomeYonderView() {
           <GlobalSearchBar />
         </header>
 
-        <Tabs defaultValue="events" className="space-y-4">
+        <Tabs defaultValue="discover" className="space-y-4">
           <TabsList className="bg-[#eee6f7] rounded-lg p-2 w-full max-w-lg flex gap-2">
             <TabsTrigger
-              value="events"
+              value="discover"
               className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
             >
-              Events
+              Discover
             </TabsTrigger>
             <TabsTrigger
               value="groups"
@@ -93,18 +41,23 @@ export default function StudentHomeYonderView() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="events">
-            {events.length === 0 ? (
-              <div className="text-center text-sm text-gray-500 pt-10">
-                No events yet...
-              </div>
-            ) : (
-              <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {events.map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </section>
-            )}
+          <TabsContent value="discover" className="space-y-8">
+            <section>
+              <h2 className="text-lg font-semibold mb-2">Upcoming Events</h2>
+              <UpcomingEventsCarousel />
+            </section>
+            <section>
+              <h2 className="text-lg font-semibold mb-2">Hottest Events</h2>
+              <HottestEventsCarousel />
+            </section>
+            <section>
+              <h2 className="text-lg font-semibold mb-2">Live Now</h2>
+              <LiveEventsCarousel />
+            </section>
+            <section>
+              <h2 className="text-lg font-semibold mb-2">More Events</h2>
+              <MoreEventsList />
+            </section>
           </TabsContent>
 
           <TabsContent value="groups">
