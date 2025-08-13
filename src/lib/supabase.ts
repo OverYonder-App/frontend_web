@@ -15,6 +15,7 @@ export const supabase = createBrowserClient<Database>(
   {
     cookies: {
       getAll() {
+        if (typeof document === "undefined") return [];
         return document.cookie
           .split("; ")
           .filter(Boolean)
