@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import StudentLayout from "../StudentLayout";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
 import UpcomingEventsCarousel from "@/features/events/components/UpcomingEventsCarousel";
@@ -14,7 +13,40 @@ import NewClubsCarousel from "@/features/organizations/components/NewClubsCarous
 import AllClubsCarousel from "@/features/organizations/components/AllClubsCarousel";
 
 export default function StudentHomeYonderView() {
+  const [section, setSection] = useState<"events" | "clubs">("events");
+  const [view, setView] = useState<"discover" | "feed">("discover");
   const [range, setRange] = useState<"week" | "month">("week");
+
+  const navButton = (
+    label: string,
+    active: boolean,
+    onClick: () => void
+  ) => (
+    <button
+      onClick={onClick}
+      className={`flex-none px-4 py-2 text-sm font-medium border-b-2 ${
+        active
+          ? "border-primary text-primary"
+          : "border-transparent text-muted-foreground"
+      }`}
+    >
+      {label}
+    </button>
+  );
+
+  const rangeButton = (
+    label: string,
+    value: "week" | "month"
+  ) => (
+    <button
+      onClick={() => setRange(value)}
+      className={`rounded-sm px-3 py-1 text-xs ${
+        range === value ? "bg-primary text-white" : ""
+      }`}
+    >
+      {label}
+    </button>
+  );
 
   return (
     <StudentLayout>
@@ -26,107 +58,83 @@ export default function StudentHomeYonderView() {
           <GlobalSearchBar />
         </header>
 
-        <Tabs defaultValue="events" className="space-y-4">
-          <TabsList className="w-full justify-start gap-6 rounded-none border-b bg-transparent p-0">
-            <TabsTrigger
-              value="events"
-              className="flex-none h-10 rounded-none border-0 border-b-2 border-transparent bg-transparent px-4 text-sm font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary"
-            >
-              Events
-            </TabsTrigger>
-            <TabsTrigger
-              value="clubs"
-              className="flex-none h-10 rounded-none border-0 border-b-2 border-transparent bg-transparent px-4 text-sm font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary"
-            >
-              Clubs
-            </TabsTrigger>
-          </TabsList>
+        <div className="space-y-6">
+          <nav className="flex gap-6 border-b">
+            {navButton("Events", section === "events", () => setSection("events"))}
+            {navButton("Clubs", section === "clubs", () => setSection("clubs"))}
+          </nav>
 
-          <TabsContent value="events" className="space-y-8">
-            <Tabs defaultValue="discover" className="space-y-8">
-              <TabsList className="w-full max-w-lg justify-start gap-6 rounded-none border-b bg-transparent p-0">
-                <TabsTrigger
-                  value="discover"
-                  className="flex-none h-10 rounded-none border-0 border-b-2 border-transparent bg-transparent px-4 text-sm font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary"
-                >
-                  Discover
-                </TabsTrigger>
-                <TabsTrigger
-                  value="feed"
-                  className="flex-none h-10 rounded-none border-0 border-b-2 border-transparent bg-transparent px-4 text-sm font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary"
-                >
-                  My Feed
-                </TabsTrigger>
-              </TabsList>
+          {section === "events" && (
+            <div className="space-y-8">
+              <nav className="flex gap-6 border-b">
+                {navButton(
+                  "Discover",
+                  view === "discover",
+                  () => setView("discover")
+                )}
+                {navButton("My Feed", view === "feed", () => setView("feed"))}
+              </nav>
 
-              <TabsContent value="discover" className="space-y-8">
-                <Tabs
-                  value={range}
-                  onValueChange={(v) => setRange(v as "week" | "month")}
-                  className="flex justify-end"
-                >
-                  <TabsList className="rounded-md bg-muted p-1">
-                    <TabsTrigger
-                      value="week"
-                      className="rounded-sm px-3 py-1 text-xs data-[state=active]:bg-primary data-[state=active]:text-white"
-                    >
-                      This Week
-                    </TabsTrigger>
-                    <TabsTrigger
-                      value="month"
-                      className="rounded-sm px-3 py-1 text-xs data-[state=active]:bg-primary data-[state=active]:text-white"
-                    >
-                      This Month
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
+              {view === "discover" && (
+                <div className="space-y-8">
+                  <div className="flex justify-end">
+                    <div className="rounded-md bg-muted p-1 flex gap-1">
+                      {rangeButton("This Week", "week")}
+                      {rangeButton("This Month", "month")}
+                    </div>
+                  </div>
 
-                <section>
-                  <h2 className="text-lg font-semibold mb-2">Upcoming Events</h2>
-                  <UpcomingEventsCarousel range={range} />
-                </section>
-                <section>
-                  <h2 className="text-lg font-semibold mb-2">Hottest Events</h2>
-                  <HottestEventsCarousel range={range} />
-                </section>
-                <section>
-                  <h2 className="text-lg font-semibold mb-2">Live Events</h2>
-                  <LiveEventsCarousel range={range} />
-                </section>
-                <section>
-                  <h2 className="text-lg font-semibold mb-2">More Events</h2>
-                  <MoreEventsList range={range} />
-                </section>
-              </TabsContent>
+                  <section>
+                    <h2 className="text-lg font-semibold mb-2">Upcoming Events</h2>
+                    <UpcomingEventsCarousel range={range} />
+                  </section>
+                  <section>
+                    <h2 className="text-lg font-semibold mb-2">Hottest Events</h2>
+                    <HottestEventsCarousel range={range} />
+                  </section>
+                  <section>
+                    <h2 className="text-lg font-semibold mb-2">Live Events</h2>
+                    <LiveEventsCarousel range={range} />
+                  </section>
+                  <section>
+                    <h2 className="text-lg font-semibold mb-2">More Events</h2>
+                    <MoreEventsList range={range} />
+                  </section>
+                </div>
+              )}
 
-              <TabsContent value="feed" className="space-y-8">
-                <section>
-                  <h2 className="text-lg font-semibold mb-2">
-                    Events from clubs you have joined
-                  </h2>
-                  <ClubFeedCarousel />
-                </section>
-                <section>
-                  <h2 className="text-lg font-semibold mb-2">
-                    Events from groups you are apart of
-                  </h2>
-                  <GroupFeedCarousel />
-                </section>
-              </TabsContent>
-            </Tabs>
-          </TabsContent>
+              {view === "feed" && (
+                <div className="space-y-8">
+                  <section>
+                    <h2 className="text-lg font-semibold mb-2">
+                      Events from clubs you have joined
+                    </h2>
+                    <ClubFeedCarousel />
+                  </section>
+                  <section>
+                    <h2 className="text-lg font-semibold mb-2">
+                      Events from groups you are apart of
+                    </h2>
+                    <GroupFeedCarousel />
+                  </section>
+                </div>
+              )}
+            </div>
+          )}
 
-          <TabsContent value="clubs" className="space-y-8">
-            <section>
-              <h2 className="text-lg font-semibold mb-2">New Clubs</h2>
-              <NewClubsCarousel />
-            </section>
-            <section>
-              <h2 className="text-lg font-semibold mb-2">More Clubs</h2>
-              <AllClubsCarousel />
-            </section>
-          </TabsContent>
-        </Tabs>
+          {section === "clubs" && (
+            <div className="space-y-8">
+              <section>
+                <h2 className="text-lg font-semibold mb-2">New Clubs</h2>
+                <NewClubsCarousel />
+              </section>
+              <section>
+                <h2 className="text-lg font-semibold mb-2">More Clubs</h2>
+                <AllClubsCarousel />
+              </section>
+            </div>
+          )}
+        </div>
       </main>
     </StudentLayout>
   );
