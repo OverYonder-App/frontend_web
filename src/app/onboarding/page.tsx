@@ -28,7 +28,8 @@ export default function OnboardingPage() {
       try {
         if (!loading) {
           const res = await fetch(
-            `api/institution_domains/check?domain=${domain}`
+            `/api/institution_domains/check?domain=${domain}`,
+            { credentials: "include" }
           );
           const data = await res.json();
           setInstitutionStatus(data.exists ? "found" : "not_found");
@@ -53,6 +54,7 @@ export default function OnboardingPage() {
           userEmail,
           directorEmail: studentDirectorEmail,
         }),
+        credentials: "include",
       });
       router.push("/thank-you");
     } catch (err) {

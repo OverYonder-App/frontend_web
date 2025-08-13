@@ -14,7 +14,7 @@ export default function CompactCalendar({
     if (Array.isArray(events)) {
       setData(events.filter((e) => e.status === "approved"));
     } else {
-      fetch("/api/events")
+      fetch("/api/events", { credentials: "include" })
         .then((res) => res.json())
         .then((all: EventRecord[] | { events: EventRecord[] }) => {
           const arr = Array.isArray(all) ? all : all.events;

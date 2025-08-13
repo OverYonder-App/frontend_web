@@ -39,7 +39,8 @@ export default function UserOnboardingForm() {
       const domain = user.email.split("@")[1];
       try {
         const res = await fetch(
-          `/api/institution_domains/check?domain=${domain}`
+          `/api/institution_domains/check?domain=${domain}`,
+          { credentials: "include" }
         );
         const data = await res.json();
         setTypeCategory(data.type_category);
@@ -66,6 +67,7 @@ export default function UserOnboardingForm() {
         const uploadRes = await fetch("/api/upload/avatar", {
           method: "POST",
           body: uploadForm,
+          credentials: "include",
         });
 
         const uploadData = await uploadRes.json();
@@ -79,6 +81,7 @@ export default function UserOnboardingForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, avatarUrl }),
+        credentials: "include",
       });
 
       if (!res.ok) throw new Error("Onboarding failed");
