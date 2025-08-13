@@ -27,16 +27,16 @@ export default function StudentHomeYonderView() {
         </header>
 
         <Tabs defaultValue="events" className="space-y-4">
-          <TabsList className="bg-[#eee6f7] rounded-lg p-2 w-full max-w-sm flex gap-2">
+          <TabsList className="w-full justify-start gap-6 rounded-none border-b bg-transparent p-0">
             <TabsTrigger
               value="events"
-              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="flex-none h-10 rounded-none border-0 border-b-2 border-transparent bg-transparent px-4 text-sm font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary"
             >
               Events
             </TabsTrigger>
             <TabsTrigger
               value="clubs"
-              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+              className="flex-none h-10 rounded-none border-0 border-b-2 border-transparent bg-transparent px-4 text-sm font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary"
             >
               Clubs
             </TabsTrigger>
@@ -44,16 +44,16 @@ export default function StudentHomeYonderView() {
 
           <TabsContent value="events" className="space-y-8">
             <Tabs defaultValue="discover" className="space-y-8">
-              <TabsList className="bg-[#eee6f7] rounded-lg p-2 w-full max-w-lg flex gap-2">
+              <TabsList className="w-full max-w-lg justify-start gap-6 rounded-none border-b bg-transparent p-0">
                 <TabsTrigger
                   value="discover"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+                  className="flex-none h-10 rounded-none border-0 border-b-2 border-transparent bg-transparent px-4 text-sm font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary"
                 >
                   Discover
                 </TabsTrigger>
                 <TabsTrigger
                   value="feed"
-                  className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+                  className="flex-none h-10 rounded-none border-0 border-b-2 border-transparent bg-transparent px-4 text-sm font-medium text-muted-foreground data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary"
                 >
                   My Feed
                 </TabsTrigger>
@@ -65,16 +65,16 @@ export default function StudentHomeYonderView() {
                   onValueChange={(v) => setRange(v as "week" | "month")}
                   className="flex justify-end"
                 >
-                  <TabsList className="bg-[#eee6f7] rounded-lg p-1">
+                  <TabsList className="rounded-md bg-muted p-1">
                     <TabsTrigger
                       value="week"
-                      className="data-[state=active]:bg-primary data-[state=active]:text-white px-3 py-1 rounded-md text-xs"
+                      className="rounded-sm px-3 py-1 text-xs data-[state=active]:bg-primary data-[state=active]:text-white"
                     >
                       This Week
                     </TabsTrigger>
                     <TabsTrigger
                       value="month"
-                      className="data-[state=active]:bg-primary data-[state=active]:text-white px-3 py-1 rounded-md text-xs"
+                      className="rounded-sm px-3 py-1 text-xs data-[state=active]:bg-primary data-[state=active]:text-white"
                     >
                       This Month
                     </TabsTrigger>
