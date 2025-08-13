@@ -26,7 +26,7 @@ export default function SidebarNav() {
     window.location.href = "/login";
   };
   return (
-    <aside className="hidden md:flex flex-col justify-between w-64 bg-primary text-white h-screen p-4">
+    <aside className="hidden md:flex flex-col justify-between w-56 bg-primary text-white h-screen p-4">
       <div>
         <h1 className="text-xl font-bold mb-6">OverYonder</h1>
         <nav className="space-y-4 text-sm">
