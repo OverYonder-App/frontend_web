@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { UserProvider } from "@/context/UserContext";
 import { InstitutionProvider } from "@/context/InstitutionContext";
+import QueryProvider from "@/context/QueryProvider";
 
 
 export const metadata: Metadata = {
@@ -19,9 +20,11 @@ export default function RootLayout({
       <body
         className={`antialiased scroll-smooth`}
       >
-        <UserProvider>
-          <InstitutionProvider>{children}</InstitutionProvider>
-        </UserProvider>
+        <QueryProvider>
+          <UserProvider>
+            <InstitutionProvider>{children}</InstitutionProvider>
+          </UserProvider>
+        </QueryProvider>
       </body>
     </html>
   );
