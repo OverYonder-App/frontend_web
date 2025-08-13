@@ -48,6 +48,20 @@ export default function StudentHomeYonderView() {
     </button>
   );
 
+  const viewButton = (
+    label: string,
+    value: "discover" | "feed"
+  ) => (
+    <button
+      onClick={() => setView(value)}
+      className={`rounded-sm px-3 py-1 text-xs ${
+        view === value ? "bg-primary text-white" : ""
+      }`}
+    >
+      {label}
+    </button>
+  );
+
   return (
     <StudentLayout>
       <main className="min-h-screen bg-[#f9f9ff] p-4 md:p-8">
@@ -66,13 +80,11 @@ export default function StudentHomeYonderView() {
 
           {section === "events" && (
             <div className="space-y-8">
-              <nav className="flex w-full border-b">
-                {navButton(
-                  "Discover",
-                  view === "discover",
-                  () => setView("discover")
-                )}
-                {navButton("My Feed", view === "feed", () => setView("feed"))}
+              <nav className="flex w-full">
+                <div className="rounded-md bg-muted p-1 flex gap-1">
+                  {viewButton("Discover", "discover")}
+                  {viewButton("My Feed", "feed")}
+                </div>
               </nav>
 
               {view === "discover" && (
