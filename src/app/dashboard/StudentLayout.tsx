@@ -37,13 +37,13 @@ export default function StudentLayout({
     >
       {isMobile ? <MobileDrawerNav /> : <SidebarNav />}
       <main className="flex-1 overflow-y-auto bg-[#f9f9ff] p-4 md:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
-          <section>{children}</section>
-          <aside className="hidden lg:block">
-            <AnnouncementsSidebar />
-          </aside>
-        </div>
+        {children}
       </main>
+      {!isMobile && (
+        <aside className="hidden md:block w-80 h-screen overflow-y-auto bg-[#f9f9ff] p-4 md:p-8 border-l">
+          <AnnouncementsSidebar />
+        </aside>
+      )}
       {/* FAB expandable */}
       <div
         onMouseEnter={handleMouseEnter}
