@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   ChevronLeft,
@@ -128,11 +129,13 @@ export default function AdminSidebar() {
     >
       {/* Branding and collapse control */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-sidebar-border">
-        {!collapsed && (
-          <span className="text-xl font-semibold text-sidebar-foreground">
-            OverYonder
-          </span>
-        )}
+        <Image
+          src="/images/overyonder-logo.png"
+          alt="OverYonder logo"
+          width={collapsed ? 40 : 160}
+          height={40}
+          className="transition-all"
+        />
         <button
           onClick={() => setCollapsed((c) => !c)}
           className="p-1 rounded hover:bg-sidebar-accent focus:outline-none"
