@@ -2,6 +2,7 @@
 // after login
 // Calling Supabase from React components
 // Performing client-side queries
+"use client"
 import {
   createBrowserClient,
   type CookieOptions,
