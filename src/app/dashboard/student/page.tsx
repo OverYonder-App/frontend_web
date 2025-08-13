@@ -24,7 +24,7 @@ export default function StudentHomeYonderView() {
   ) => (
     <button
       onClick={onClick}
-      className={`flex-none px-4 py-2 text-sm font-medium border-b-2 ${
+      className={`flex-1 py-2 text-sm font-medium text-center border-b-2 ${
         active
           ? "border-primary text-primary"
           : "border-transparent text-muted-foreground"
@@ -59,14 +59,14 @@ export default function StudentHomeYonderView() {
         </header>
 
         <div className="space-y-6">
-          <nav className="flex gap-6 border-b">
+          <nav className="flex w-full border-b">
             {navButton("Events", section === "events", () => setSection("events"))}
             {navButton("Clubs", section === "clubs", () => setSection("clubs"))}
           </nav>
 
           {section === "events" && (
             <div className="space-y-8">
-              <nav className="flex gap-6 border-b">
+              <nav className="flex w-full border-b">
                 {navButton(
                   "Discover",
                   view === "discover",
