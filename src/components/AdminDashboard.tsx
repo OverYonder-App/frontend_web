@@ -202,7 +202,7 @@ export default function AdminDashboard() {
 
   // Fetch events for calendar card
   useEffect(() => {
-    fetch("/api/events")
+    fetch("/api/events", { credentials: "include" })
       .then((res) => res.json())
       .then((data) =>
         setEvents(Array.isArray(data) ? data : data.events || [])

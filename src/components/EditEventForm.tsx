@@ -225,6 +225,7 @@ export default function EditEventForm({
           address: data.address,
           image_url: imageUrl,
         }),
+        credentials: "include",
       });
       if (!res.ok) throw new Error(await res.text());
       const { event: updated } = await res.json();
@@ -244,6 +245,7 @@ export default function EditEventForm({
     try {
       const res = await fetch(`/api/events/${event.event_id}`, {
         method: "DELETE",
+        credentials: "include",
       });
       if (!res.ok) throw new Error(await res.text());
       onDeleted?.(event.event_id);

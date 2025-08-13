@@ -262,7 +262,10 @@ function CardView({ events }: { events: EventRecord[] }) {
             </Link>
             {/* <button
               onClick={() =>
-                fetch(`/api/events/${e.id}/report`, { method: "POST" })
+                fetch(`/api/events/${e.id}/report`, {
+                  method: "POST",
+                  credentials: "include",
+                })
               }
               className="text-red-600 hover:text-red-800 transition text-sm"
             >
@@ -330,7 +333,10 @@ function ListView({ events }: { events: EventRecord[] }) {
               {/* <td className="px-4 py-2">
                 <button
                   onClick={() =>
-                    fetch(`/api/events/${e.id}/report`, { method: "POST" })
+                    fetch(`/api/events/${e.id}/report`, {
+                      method: "POST",
+                      credentials: "include",
+                    })
                   }
                   className="text-red-600 hover:underline"
                 >
@@ -385,7 +391,10 @@ function CompactView({ events }: { events: EventRecord[] }) {
             </Link>
             <button
               onClick={() =>
-                fetch(`/api/events/${e.id}/report`, { method: "POST" })
+                fetch(`/api/events/${e.id}/report`, {
+                  method: "POST",
+                  credentials: "include",
+                })
               }
               className="text-red-600 hover:underline text-sm"
             >

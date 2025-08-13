@@ -29,6 +29,7 @@ export default function AddInstitutionForm() {
           abbreviated_name: form.abbreviatedName,
           address: form.address,
         }),
+        credentials: "include",
       });
       const institution = await res1.json();
 
@@ -40,6 +41,7 @@ export default function AddInstitutionForm() {
           institution_id: institution.institution_id,
           type_category: form.domainType,
         }),
+        credentials: "include",
       });
 
       setToast({ msg: "Institution created!", type: "success" });
