@@ -1,26 +1,21 @@
 "use client";
-import { useEffect, useState } from "react";
-import { fetchEvents, type EventRecord } from "../api";
+import { useQuery } from "@tanstack/react-query";
+import { fetchEvents, type EventRecord, type FetchEventsOptions } from "../api";
 
-export function useEvents() {
-  const [events, setEvents] = useState<EventRecord[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+export function useEvents(
+  opts?: FetchEventsOptions,
+  refetchInterval = 30000
+) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["events", opts],
+    queryFn: () => fetchEvents(opts),
+    refetchInterval,
+  });
 
-  useEffect(() => {
-    const loadEvents = async () => {
-      try {
-        const { events } = await fetchEvents();
-        setEvents(events);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadEvents();
-  }, []);
-
-  return { events, loading, error };
+  return {
+    events: (data?.events as EventRecord[]) ?? [],
+    count: data?.count ?? 0,
+    loading: isLoading,
+    error: error as Error | null,
+  };
 }

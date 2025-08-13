@@ -1,32 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   fetchClubs,
   type Organization,
   type FetchClubsOptions,
 } from "../api";
 
-export function useClubs(opts?: FetchClubsOptions) {
-  const [clubs, setClubs] = useState<Organization[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+export function useClubs(
+  opts?: FetchClubsOptions,
+  refetchInterval = 30000
+) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["clubs", opts],
+    queryFn: () => fetchClubs(opts),
+    refetchInterval,
+  });
 
-  useEffect(() => {
-    const loadClubs = async () => {
-      try {
-        const { clubs } = await fetchClubs(opts);
-        setClubs(clubs);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadClubs();
-  }, [opts]);
-
-  return { clubs, loading, error };
+  return {
+    clubs: (data?.clubs as Organization[]) ?? [],
+    count: data?.count ?? 0,
+    loading: isLoading,
+    error: error as Error | null,
+  };
 }
 

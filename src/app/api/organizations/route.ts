@@ -3,15 +3,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
 
+const PAGE_SIZE = 10;
+
 export async function GET(req: NextRequest) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
   const { searchParams } = new URL(req.url);
-  const orgType = searchParams.get("type") ?? "club";
+  const orgType =
+    searchParams.get("type") ?? searchParams.get("organization_type") ?? "club";
+  const page = Number(searchParams.get("page") ?? "1");
+  const search = searchParams.get("q");
+  const sort = searchParams.get("sort") ?? "created_at";
+  const order = searchParams.get("order") ?? "desc";
+  const from = (page - 1) * PAGE_SIZE;
+  const to = from + PAGE_SIZE - 1;
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("organizations")
-    .select("*")
+    .select("*", { count: "exact" })
     .eq("organization_type", orgType);
+
+  if (search) {
+    query = query.ilike("name", `%${search}%`);
+  }
+
+  const { data, error, count } = await query
+    .order(sort, { ascending: order !== "desc" })
+    .range(from, to);
 
   if (error) {
     return NextResponse.json(
@@ -20,7 +37,10 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  return NextResponse.json({ organizations: data }, { status: 200, headers });
+  return NextResponse.json({ organizations: data, count }, {
+    status: 200,
+    headers,
+  });
 }
 
 export async function POST(req: NextRequest) {

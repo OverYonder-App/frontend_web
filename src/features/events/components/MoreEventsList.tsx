@@ -4,15 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import EventCard from "./EventCard";
 import EventSkeleton from "./EventSkeleton";
 import type { Event } from "../types";
-
-interface ApiEvent {
-  event_id: string;
-  title: string;
-  start_date: string;
-  address?: string | null;
-  image_url?: string | null;
-  organization?: { name: string | null } | null;
-}
+import { fetchEvents, type EventRecord } from "../api";
 
 const formatDate = (iso: string) => {
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -56,12 +48,11 @@ export default function MoreEventsList() {
     setLoading(true);
     const currentLength = events.length;
     try {
-      const res = await fetch(
-        `/api/events?page=${p}&status=approved&sort=start_date&order=asc`,
-        { credentials: "include" }
-      );
-      const json = await res.json();
-      const newEvents = (json.events || []).map((e: ApiEvent) => ({
+      const { events: fetched, count } = await fetchEvents({
+        page: p,
+        status: "approved",
+      });
+      const newEvents = fetched.map((e: EventRecord) => ({
         id: e.event_id,
         title: e.title,
         date: formatDate(e.start_date),
@@ -71,8 +62,7 @@ export default function MoreEventsList() {
         attendees: [],
       }));
       setEvents((prev) => [...prev, ...newEvents]);
-      const total = json.count ?? 0;
-      setHasMore(currentLength + newEvents.length < total);
+      setHasMore(currentLength + newEvents.length < count);
     } finally {
       setLoading(false);
     }
