@@ -26,7 +26,11 @@ const formatDate = (iso: string) => {
   });
 };
 
-export default function HottestEventsCarousel() {
+export default function HottestEventsCarousel({
+  range = "week",
+}: {
+  range?: "week" | "month";
+}) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +38,7 @@ export default function HottestEventsCarousel() {
     async function load() {
       try {
         const res = await fetch(
-          "/api/events?status=approved&sort=start_date&order=desc",
+          `/api/events?status=approved&sort=start_date&order=desc&range=${range}`,
           { credentials: "include" }
         );
         const json = await res.json();
@@ -53,7 +57,7 @@ export default function HottestEventsCarousel() {
       }
     }
     load();
-  }, []);
+  }, [range]);
 
   if (loading) {
     return (

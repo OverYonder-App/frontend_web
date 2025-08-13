@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import StudentLayout from "../StudentLayout";
 import GlobalSearchBar from "@/components/GlobalSearchBar";
@@ -11,7 +12,9 @@ import ClubFeedCarousel from "@/features/events/components/ClubFeedCarousel";
 import GroupFeedCarousel from "@/features/events/components/GroupFeedCarousel";
 import NewClubsCarousel from "@/features/organizations/components/NewClubsCarousel";
 import AllClubsCarousel from "@/features/organizations/components/AllClubsCarousel";
+
 export default function StudentHomeYonderView() {
+  const [range, setRange] = useState<"week" | "month">("week");
 
   return (
     <StudentLayout>
@@ -23,19 +26,13 @@ export default function StudentHomeYonderView() {
           <GlobalSearchBar />
         </header>
 
-        <Tabs defaultValue="discover" className="space-y-4">
-          <TabsList className="bg-[#eee6f7] rounded-lg p-2 w-full max-w-lg flex gap-2">
+        <Tabs defaultValue="events" className="space-y-4">
+          <TabsList className="bg-[#eee6f7] rounded-lg p-2 w-full max-w-sm flex gap-2">
             <TabsTrigger
-              value="feed"
+              value="events"
               className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
             >
-              My Feed
-            </TabsTrigger>
-            <TabsTrigger
-              value="discover"
-              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
-            >
-              Discover
+              Events
             </TabsTrigger>
             <TabsTrigger
               value="clubs"
@@ -43,48 +40,80 @@ export default function StudentHomeYonderView() {
             >
               Clubs
             </TabsTrigger>
-            <TabsTrigger
-              value="groups"
-              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
-            >
-              Groups
-            </TabsTrigger>
-            <TabsTrigger
-              value="announcements"
-              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
-            >
-              Announcements
-            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="feed" className="space-y-8">
-            <section>
-              <h2 className="text-lg font-semibold mb-2">Clubs</h2>
-              <ClubFeedCarousel />
-            </section>
-            <section>
-              <h2 className="text-lg font-semibold mb-2">Groups</h2>
-              <GroupFeedCarousel />
-            </section>
-          </TabsContent>
+          <TabsContent value="events" className="space-y-8">
+            <Tabs defaultValue="discover" className="space-y-8">
+              <TabsList className="bg-[#eee6f7] rounded-lg p-2 w-full max-w-lg flex gap-2">
+                <TabsTrigger
+                  value="discover"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+                >
+                  Discover
+                </TabsTrigger>
+                <TabsTrigger
+                  value="feed"
+                  className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2 rounded-md text-sm font-medium"
+                >
+                  My Feed
+                </TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="discover" className="space-y-8">
-            <section>
-              <h2 className="text-lg font-semibold mb-2">Upcoming Events</h2>
-              <UpcomingEventsCarousel />
-            </section>
-            <section>
-              <h2 className="text-lg font-semibold mb-2">Hottest Events</h2>
-              <HottestEventsCarousel />
-            </section>
-            <section>
-              <h2 className="text-lg font-semibold mb-2">Live Now</h2>
-              <LiveEventsCarousel />
-            </section>
-            <section>
-              <h2 className="text-lg font-semibold mb-2">More Events</h2>
-              <MoreEventsList />
-            </section>
+              <TabsContent value="discover" className="space-y-8">
+                <Tabs
+                  value={range}
+                  onValueChange={(v) => setRange(v as "week" | "month")}
+                  className="flex justify-end"
+                >
+                  <TabsList className="bg-[#eee6f7] rounded-lg p-1">
+                    <TabsTrigger
+                      value="week"
+                      className="data-[state=active]:bg-primary data-[state=active]:text-white px-3 py-1 rounded-md text-xs"
+                    >
+                      This Week
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="month"
+                      className="data-[state=active]:bg-primary data-[state=active]:text-white px-3 py-1 rounded-md text-xs"
+                    >
+                      This Month
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                <section>
+                  <h2 className="text-lg font-semibold mb-2">Upcoming Events</h2>
+                  <UpcomingEventsCarousel range={range} />
+                </section>
+                <section>
+                  <h2 className="text-lg font-semibold mb-2">Hottest Events</h2>
+                  <HottestEventsCarousel range={range} />
+                </section>
+                <section>
+                  <h2 className="text-lg font-semibold mb-2">Live Events</h2>
+                  <LiveEventsCarousel range={range} />
+                </section>
+                <section>
+                  <h2 className="text-lg font-semibold mb-2">More Events</h2>
+                  <MoreEventsList range={range} />
+                </section>
+              </TabsContent>
+
+              <TabsContent value="feed" className="space-y-8">
+                <section>
+                  <h2 className="text-lg font-semibold mb-2">
+                    Events from clubs you have joined
+                  </h2>
+                  <ClubFeedCarousel />
+                </section>
+                <section>
+                  <h2 className="text-lg font-semibold mb-2">
+                    Events from groups you are apart of
+                  </h2>
+                  <GroupFeedCarousel />
+                </section>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="clubs" className="space-y-8">
@@ -93,21 +122,9 @@ export default function StudentHomeYonderView() {
               <NewClubsCarousel />
             </section>
             <section>
-              <h2 className="text-lg font-semibold mb-2">All Clubs</h2>
+              <h2 className="text-lg font-semibold mb-2">More Clubs</h2>
               <AllClubsCarousel />
             </section>
-          </TabsContent>
-
-          <TabsContent value="groups">
-            <div className="text-center text-sm text-gray-500 pt-10">
-              Groups view coming soon...
-            </div>
-          </TabsContent>
-
-          <TabsContent value="announcements">
-            <div className="text-center text-sm text-gray-500 pt-10">
-              No new announcements right now.
-            </div>
           </TabsContent>
         </Tabs>
       </main>

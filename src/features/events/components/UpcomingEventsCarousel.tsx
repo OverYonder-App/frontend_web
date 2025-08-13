@@ -26,7 +26,11 @@ const formatDate = (iso: string) => {
   });
 };
 
-export default function UpcomingEventsCarousel() {
+export default function UpcomingEventsCarousel({
+  range = "week",
+}: {
+  range?: "week" | "month";
+}) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +38,7 @@ export default function UpcomingEventsCarousel() {
     async function load() {
       try {
         const res = await fetch(
-          "/api/events?status=approved&upcoming=true&sort=start_date&order=asc",
+          `/api/events?status=approved&upcoming=true&sort=start_date&order=asc&range=${range}`,
           { credentials: "include" }
         );
         const json = await res.json();
@@ -53,7 +57,7 @@ export default function UpcomingEventsCarousel() {
       }
     }
     load();
-  }, []);
+  }, [range]);
 
   if (loading) {
     return (

@@ -18,7 +18,11 @@ const formatDate = (iso: string) => {
   });
 };
 
-export default function MoreEventsList() {
+export default function MoreEventsList({
+  range = "week",
+}: {
+  range?: "week" | "month";
+}) {
   const [events, setEvents] = useState<Event[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -26,9 +30,40 @@ export default function MoreEventsList() {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    loadEvents(page);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+    async function load() {
+      setLoading(true);
+      try {
+        const { events: fetched, count } = await fetchEvents({
+          page,
+          status: "approved",
+          range,
+        });
+        setEvents((prev) => {
+          const newEvents = fetched.map((e: EventRecord) => ({
+            id: e.event_id,
+            title: e.title,
+            date: formatDate(e.start_date),
+            location: e.address ?? "",
+            image: e.image_url ?? "https://picsum.photos/seed/picsum/800/500",
+            host: e.organization?.name || "",
+            attendees: [],
+          }));
+          const updated = [...prev, ...newEvents];
+          setHasMore(updated.length < count);
+          return updated;
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [page, range]);
+
+  useEffect(() => {
+    setEvents([]);
+    setPage(1);
+    setHasMore(true);
+  }, [range]);
 
   useEffect(() => {
     if (!hasMore) return;
@@ -43,30 +78,6 @@ export default function MoreEventsList() {
       if (current) observer.unobserve(current);
     };
   }, [hasMore, loading]);
-
-  async function loadEvents(p: number) {
-    setLoading(true);
-    const currentLength = events.length;
-    try {
-      const { events: fetched, count } = await fetchEvents({
-        page: p,
-        status: "approved",
-      });
-      const newEvents = fetched.map((e: EventRecord) => ({
-        id: e.event_id,
-        title: e.title,
-        date: formatDate(e.start_date),
-        location: e.address ?? "",
-        image: e.image_url ?? "https://picsum.photos/seed/picsum/800/500",
-        host: e.organization?.name || "",
-        attendees: [],
-      }));
-      setEvents((prev) => [...prev, ...newEvents]);
-      setHasMore(currentLength + newEvents.length < count);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   if (loading && events.length === 0) {
     return (
