@@ -26,7 +26,11 @@ const formatDate = (iso: string) => {
   });
 };
 
-export default function LiveEventsCarousel() {
+export default function LiveEventsCarousel({
+  range = "week",
+}: {
+  range?: "week" | "month";
+}) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +38,7 @@ export default function LiveEventsCarousel() {
     async function load() {
       try {
         const res = await fetch(
-          "/api/events?status=approved&live=true&sort=start_date&order=asc",
+          `/api/events?status=approved&live=true&sort=start_date&order=asc&range=${range}`,
           { credentials: "include" }
         );
         const json = await res.json();
@@ -53,7 +57,7 @@ export default function LiveEventsCarousel() {
       }
     }
     load();
-  }, []);
+  }, [range]);
 
   if (loading) {
     return (

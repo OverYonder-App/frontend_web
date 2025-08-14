@@ -25,6 +25,7 @@ export interface FetchEventsOptions {
   page?: number;
   creatorId?: string;
   participantId?: string;
+  range?: string;
 }
 
 export async function fetchEvents(
@@ -36,6 +37,7 @@ export async function fetchEvents(
   if (options.page) params.append("page", String(options.page));
   if (options.creatorId) params.append("creator", options.creatorId);
   if (options.participantId) params.append("participant", options.participantId);
+  if (options.range) params.append("range", options.range);
 
   const opts: RequestInit = { credentials: "include" };
   if (typeof window === "undefined") {
