@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
+import { updateCalendarEvent, deleteCalendarEvent } from "@/lib/googleClient";
 
 export async function GET(
   req: NextRequest,
@@ -40,6 +41,9 @@ export async function PATCH(
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
   const { id } = await params;
   const updates = await req.json();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { data, error } = await supabase
     .from("events")
@@ -61,6 +65,13 @@ export async function PATCH(
       { status: 404, headers }
     );
   }
+  if (user) {
+    try {
+      await updateCalendarEvent(user.id, data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   return NextResponse.json({ event: data }, { status: 200, headers });
 }
@@ -71,6 +82,9 @@ export async function DELETE(
 ) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
   const { id } = await params;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { error } = await supabase
     .from("events")
@@ -82,6 +96,13 @@ export async function DELETE(
       { error: error.message },
       { status: 500, headers }
     );
+  }
+  if (user) {
+    try {
+      await deleteCalendarEvent(user.id, id);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return NextResponse.json({ success: true }, { status: 200, headers });
