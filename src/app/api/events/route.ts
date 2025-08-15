@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
 import type { Database } from "@/lib/database.types";
 import { createCalendarEvent } from "@/lib/googleClient";
+import { revalidateTag } from "next/cache";
 
 const PAGE_SIZE = 10;
 
@@ -87,6 +88,7 @@ export async function POST(req: NextRequest) {
       console.error(e);
     }
   }
+  revalidateTag("events");
 
   return NextResponse.json({ event: data }, { status: 201, headers });
 }

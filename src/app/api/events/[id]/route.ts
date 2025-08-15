@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
 import { updateCalendarEvent, deleteCalendarEvent } from "@/lib/googleClient";
+import { revalidateTag } from "next/cache";
 
 export async function GET(
   req: NextRequest,
@@ -72,6 +73,7 @@ export async function PATCH(
       console.error(e);
     }
   }
+  revalidateTag("events");
 
   return NextResponse.json({ event: data }, { status: 200, headers });
 }
@@ -104,6 +106,7 @@ export async function DELETE(
       console.error(e);
     }
   }
+  revalidateTag("events");
 
   return NextResponse.json({ success: true }, { status: 200, headers });
 }
