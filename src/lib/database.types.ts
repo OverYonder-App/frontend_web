@@ -1110,6 +1110,47 @@ export type Database = {
           },
         ]
       }
+      user_google_tokens: {
+        Row: {
+          user_id: string
+          access_token: string | null
+          refresh_token: string | null
+          scope: string | null
+          token_type: string | null
+          expiry_date: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          user_id: string
+          access_token?: string | null
+          refresh_token?: string | null
+          scope?: string | null
+          token_type?: string | null
+          expiry_date?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          user_id?: string
+          access_token?: string | null
+          refresh_token?: string | null
+          scope?: string | null
+          token_type?: string | null
+          expiry_date?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_google_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null
