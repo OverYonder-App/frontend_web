@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
 import type { Database } from "@/lib/database.types";
+import { createCalendarEvent } from "@/lib/googleClient";
 
 const PAGE_SIZE = 10;
 
@@ -78,6 +79,13 @@ export async function POST(req: NextRequest) {
       { error: error.message },
       { status: 500, headers }
     );
+  }
+  if (user) {
+    try {
+      await createCalendarEvent(user.id, data);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return NextResponse.json({ event: data }, { status: 201, headers });
