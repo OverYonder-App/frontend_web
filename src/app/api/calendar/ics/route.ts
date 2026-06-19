@@ -1,5 +1,3 @@
-"use server";
-
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
 
@@ -50,7 +48,6 @@ export async function GET(req: NextRequest) {
   const res = new NextResponse(ics, {
     status: 200,
     headers,
-    next: { tags: ["events"] },
   });
   res.headers.set("Content-Type", "text/calendar; charset=utf-8");
   res.headers.set("Cache-Control", "no-cache");

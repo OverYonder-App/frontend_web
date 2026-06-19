@@ -1,7 +1,8 @@
 "use client";
-import { CalendarClock, MapPin, Users, Calendar } from "lucide-react";
+import { CalendarClock, MapPin, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import RsvpButton from "./RsvpButton";
+import { useEventCount } from "@/lib/eventCounts";
 import type { Event } from "../types";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,6 +13,7 @@ export interface EventCardProps {
 
 export default function EventCard({ event }: EventCardProps) {
   const placeholder = "https://picsum.photos/seed/picsum/800/500";
+  const goingCount = useEventCount(event.id);
   return (
     <Link href={`/event/${event.id}`} className="block">
       <Card className="overflow-hidden rounded-xl border border-gray-200 shadow hover:shadow-md transition">
@@ -32,11 +34,9 @@ export default function EventCard({ event }: EventCardProps) {
           </p>
           <p className="text-xs text-gray-400">Hosted by {event.host}</p>
           <div className="flex justify-between items-center pt-2">
-            <Button size="sm" className="text-sm bg-primary hover:bg-[#845296]">
-              <Calendar /> RSVP
-            </Button>
+            <RsvpButton eventId={event.id} size="sm" />
             <div className="flex items-center gap-1 text-xs text-gray-500">
-              <Users size={14} /> {event.attendees.length} going
+              <Users size={14} /> {goingCount < 0 ? 0 : goingCount} going
             </div>
           </div>
         </div>

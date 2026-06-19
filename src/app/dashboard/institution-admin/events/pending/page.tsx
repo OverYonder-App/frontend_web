@@ -23,6 +23,8 @@ export default async function PendingEventsPage() {
     id: ev.event_id,
     title: ev.title,
     date: ev.start_date,
+    status: "pending" as const,
+    description: ev.description,
     organizer: ev.organizations?.name || "",
   }));
 

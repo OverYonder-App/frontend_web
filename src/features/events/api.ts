@@ -2,7 +2,10 @@ import type { Database } from "@/lib/database.types";
 import { getBaseUrl } from "@/lib/utils";
 
 
-export type EventRecord = Database["public"]["Tables"]["events"]["Row"];
+// The events API embeds the organization name (select "*, organization:organizations(name)").
+export type EventRecord = Database["public"]["Tables"]["events"]["Row"] & {
+  organization?: { name: string | null } | null;
+};
 export type EventInsert = Database["public"]["Tables"]["events"]["Insert"];
 export type EventUpdate = Database["public"]["Tables"]["events"]["Update"];
 export type EventAttendee = Database["public"]["Tables"]["event_attendance"]["Row"] & {

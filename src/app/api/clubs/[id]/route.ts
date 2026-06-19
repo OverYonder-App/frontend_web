@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
+import { getAuthContext } from "@/lib/serverAuth";
 
 export async function GET(
   req: NextRequest,
@@ -10,23 +11,19 @@ export async function GET(
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
   const { id } = await params;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // if (!user || user.app_metadata?.role_type !== "Institution Admin") {
-  //   return NextResponse.json({ error: "Unauthorized" }, {
-  //     status: 401,
-  //     headers,
-  //   });
-
-  // }
+  const auth = await getAuthContext(supabase);
+  if (!auth || auth.roleType !== "Institution Admin") {
+    return NextResponse.json({ error: "Unauthorized" }, {
+      status: 401,
+      headers,
+    });
+  }
 
   const { data, error } = await supabase
     .from("organizations")
     .select("*")
     .eq("organization_id", id)
-    .eq("institution_id", user?.user_metadata?.institution_id ?? "")
+    .eq("institution_id", auth.institutionId ?? "")
     .single();
 
   if (error || !data) {
@@ -36,12 +33,10 @@ export async function GET(
     });
   }
 
-
   return NextResponse.json(
     { club: data },
     { status: 200, headers }
   );
-
 }
 
 export async function PATCH(
@@ -50,16 +45,13 @@ export async function PATCH(
 ) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
   const { id } = await params;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
-  if (!user || user.user_metadata?.role_type !== "Institution Admin") {
+  const auth = await getAuthContext(supabase);
+  if (!auth || auth.roleType !== "Institution Admin") {
     return NextResponse.json({ error: "Unauthorized" }, {
       status: 401,
       headers,
     });
-
   }
 
   type Payload = {
@@ -77,7 +69,7 @@ export async function PATCH(
     updates.status = payload.status;
     updates.updated_at = new Date().toISOString();
     updates.approved_by =
-      payload.status === "approved" ? user.id : null;
+      payload.status === "approved" ? auth.userId : null;
   }
 
   if (payload.name) {
@@ -85,7 +77,7 @@ export async function PATCH(
       .from("organizations")
       .select("organization_id")
       .eq("name", payload.name)
-      .eq("institution_id", user.user_metadata?.institution_id)
+      .eq("institution_id", auth.institutionId ?? "")
       .eq("organization_type", "club")
       .neq("organization_id", id)
       .maybeSingle();
@@ -101,7 +93,7 @@ export async function PATCH(
     .from("organizations")
     .update(updates)
     .eq("organization_id", id)
-    .eq("institution_id", user.user_metadata?.institution_id)
+    .eq("institution_id", auth.institutionId ?? "")
     .select("*")
     .single();
 
@@ -110,13 +102,9 @@ export async function PATCH(
       { error: error.message },
       { status: 500, headers }
     );
-
   }
 
-
-
   return NextResponse.json({ club: data }, { status: 200, headers });
-
 }
 
 export async function DELETE(
@@ -126,23 +114,19 @@ export async function DELETE(
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
   const { id } = await params;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user || user.app_metadata?.role_type !== "Institution Admin") {
+  const auth = await getAuthContext(supabase);
+  if (!auth || auth.roleType !== "Institution Admin") {
     return NextResponse.json({ error: "Unauthorized" }, {
       status: 401,
       headers,
     });
-
   }
 
   const { error } = await supabase
     .from("organizations")
     .delete()
     .eq("organization_id", id)
-    .eq("institution_id", user.user_metadata?.institution_id);
+    .eq("institution_id", auth.institutionId ?? "");
 
   if (error) {
     return NextResponse.json(

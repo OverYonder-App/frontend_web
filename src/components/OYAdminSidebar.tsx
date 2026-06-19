@@ -94,7 +94,7 @@ export default function OYAdminSidebar() {
       </nav>
       <div className="border-t border-gray-200 p-4 flex items-center gap-3">
         <Avatar>
-          <AvatarImage src="https://source.unsplash.com/random/40x40?profile" />
+          <AvatarImage src="/images/overyonder-logo.png" />
           <AvatarFallback>UN</AvatarFallback>
         </Avatar>
         {!collapsed && (

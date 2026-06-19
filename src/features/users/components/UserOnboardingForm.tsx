@@ -7,6 +7,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@/components/Toast";
+import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 
 export default function UserOnboardingForm() {
@@ -86,6 +87,9 @@ export default function UserOnboardingForm() {
 
       if (!res.ok) throw new Error("Onboarding failed");
 
+      // Refresh the token so the onboarding=true claim is present before the
+      // middleware re-evaluates access on /dashboard.
+      await supabase.auth.refreshSession();
       setToast({ type: "success", msg: "Welcome to OverYonder!" });
       router.push("/dashboard");
     } catch (err) {

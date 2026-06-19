@@ -43,15 +43,29 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
+  // Decode onboarding/role claims once for any authenticated, protected route.
+  interface DecodedToken {
+    app_metadata?: { role_type?: string; onboarding?: boolean };
+  }
+  const decoded = session
+    ? (jwt.decode(session.access_token) as DecodedToken | null)
+    : null;
+  const onboarded = decoded?.app_metadata?.onboarding === true;
+
+  // Force un-onboarded users through onboarding before any dashboard access,
+  // and keep onboarded users out of the onboarding flow.
+  if (session) {
+    if (!onboarded && pathname.startsWith("/dashboard")) {
+      return NextResponse.redirect(new URL("/onboarding", req.url));
+    }
+    if (onboarded && pathname.startsWith("/onboarding")) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+  }
+
   // If user is logged in, check role and route
   if (session && pathname.startsWith("/dashboard")) {
-    const token = session.access_token;
-    interface DecodedToken {
-      app_metadata?: { role_type?: string };
-    }
-    const decoded = jwt.decode(token) as DecodedToken | null;
-
-    const role = decoded?.app_metadata?.role_type;
+    const role = decoded?.app_metadata?.role_type ?? "";
 
     // Define role → route mapping
     const roleRoutes: Record<string, string[]> = {

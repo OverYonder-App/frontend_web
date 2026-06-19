@@ -1253,6 +1253,23 @@ export type Database = {
         Args: { payload: Json }
         Returns: Json
       }
+      complete_user_onboarding: {
+        Args: {
+          p_first: string
+          p_last: string
+          p_about: string
+          p_avatar: string
+          p_role: string
+        }
+        Returns: undefined
+      }
+      event_attendance_counts: {
+        Args: { ids: string[] }
+        Returns: {
+          event_id: string
+          count: number
+        }[]
+      }
       get_user_institution: {
         Args: Record<PropertyKey, never>
         Returns: string

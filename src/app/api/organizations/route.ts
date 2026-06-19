@@ -8,8 +8,9 @@ const PAGE_SIZE = 10;
 export async function GET(req: NextRequest) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
   const { searchParams } = new URL(req.url);
-  const orgType =
+  const typeParam =
     searchParams.get("type") ?? searchParams.get("organization_type") ?? "club";
+  const orgType: "club" | "group" = typeParam === "group" ? "group" : "club";
   const page = Number(searchParams.get("page") ?? "1");
   const search = searchParams.get("q");
   const sort = searchParams.get("sort") ?? "created_at";
@@ -55,15 +56,27 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401, headers }
+    );
+  }
+
   const { data, error } = await supabase
     .from("organizations")
     .insert([
       {
         name,
-        description,
+        description: description ?? "",
         institution_id,
         logo_url,
-        organization_type: "club",
+        organization_type: "club" as const,
+        created_by: user.id,
+        approved_by: user.id,
       },
     ])
     .select("*")

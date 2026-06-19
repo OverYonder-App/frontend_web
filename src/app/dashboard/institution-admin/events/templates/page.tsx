@@ -1,29 +1,16 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { getSupabaseServerClient } from "@/lib/auth";
 import type { EventRecord } from "@/lib/types";
-import type { Database } from "@/lib/database.types";
 
 export const metadata: Metadata = {
   title: "Event Templates – Institution Admin",
 };
 
-type EventRow = Database["public"]["Tables"]["events"]["Row"] & {
-  organizations: { name: string } | null;
-};
-
 export default async function EventTemplatesPage() {
-  const supabase = await getSupabaseServerClient();
-  const { data } = await supabase
-    .from("events")
-    .select("*, organizations(name)")
-    .eq("status", "template");
-
-  const templates: EventRecord[] = ((data as EventRow[]) || []).map((ev) => ({
-    id: ev.event_id,
-    title: ev.title,
-    organizer: ev.organizations?.name || "",
-  }));
+  // The events.status enum has no "template" value, so there is nothing to
+  // query yet; the previous status=template filter always errored and
+  // rendered an empty list.
+  const templates: EventRecord[] = [];
 
   return (
     <section className="space-y-4">

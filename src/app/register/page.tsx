@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { UIErrorMessage } from "@/components/UIErrorComponent";
 import {
@@ -23,6 +24,9 @@ export default function RegistrationPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  // True when Supabase requires the user to confirm their email before they
+  // can sign in (i.e. no session was returned from signUp).
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -37,8 +41,16 @@ export default function RegistrationPage() {
       if (form.password !== form.confirm)
         throw new Error("Passwords do not match");
 
-      console.log("Registering:", form);
-      await new Promise((res) => setTimeout(res, 1000));
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/onboarding`,
+        },
+      });
+      if (signUpError) throw signUpError;
+
+      setNeedsConfirmation(!data.session);
       setDialogOpen(true);
     } catch (err) {
       setError((err as Error).message);
@@ -223,19 +235,39 @@ export default function RegistrationPage() {
         <DialogContent className="text-center">
           <DialogHeader>
             <DialogTitle className="text-primary text-xl">
-              🎉 Registration Successful!
+              {needsConfirmation
+                ? "📩 Confirm your email"
+                : "🎉 Registration Successful!"}
             </DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-700 mt-2">
-            Your account has been created. You’ll now be redirected to
-            onboarding.
-          </p>
-          <Button
-            className="mt-6 w-full bg-primary text-white hover:bg-[#624080]"
-            onClick={() => router.push("/onboarding")}
-          >
-            Go to Onboarding
-          </Button>
+          {needsConfirmation ? (
+            <>
+              <p className="text-sm text-gray-700 mt-2">
+                We’ve sent a confirmation link to{" "}
+                <span className="font-medium">{form.email}</span>. Click it to
+                activate your account, then sign in.
+              </p>
+              <Button
+                className="mt-6 w-full bg-primary text-white hover:bg-[#624080]"
+                onClick={() => router.push("/login")}
+              >
+                Go to Login
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-gray-700 mt-2">
+                Your account has been created. You’ll now be redirected to
+                onboarding.
+              </p>
+              <Button
+                className="mt-6 w-full bg-primary text-white hover:bg-[#624080]"
+                onClick={() => router.push("/onboarding")}
+              >
+                Go to Onboarding
+              </Button>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </>

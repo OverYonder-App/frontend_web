@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import MobileDrawerNav from "@/components/MobileNav";
 import SidebarNav from "@/components/SideNav";
 import { Plus, Users, Flag, CalendarPlus } from "lucide-react";
-import AnnouncementsSidebar from "@/components/AnnouncementsSidebar";
 
 export default function StudentLayout({
   children,
@@ -39,11 +38,6 @@ export default function StudentLayout({
       <main className="flex-1 overflow-y-auto bg-[#f9f9ff] p-4 md:p-8">
         {children}
       </main>
-      {!isMobile && (
-        <aside className="hidden md:block w-80 h-screen overflow-y-auto bg-[#f9f9ff] p-4 md:p-8 border-l">
-          <AnnouncementsSidebar />
-        </aside>
-      )}
       {/* FAB expandable */}
       <div
         onMouseEnter={handleMouseEnter}

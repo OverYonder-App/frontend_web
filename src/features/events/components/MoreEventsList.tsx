@@ -48,7 +48,15 @@ export default function MoreEventsList({
             host: e.organization?.name || "",
             attendees: [],
           }));
-          const updated = [...prev, ...newEvents];
+          // Page 1 replaces instead of appending so the effect re-running
+          // (StrictMode, range reset) can't duplicate entries; later pages
+          // skip ids already in the list.
+          const base = page === 1 ? [] : prev;
+          const seen = new Set(base.map((e) => e.id));
+          const updated = [
+            ...base,
+            ...newEvents.filter((e: Event) => !seen.has(e.id)),
+          ];
           setHasMore(updated.length < count);
           return updated;
         });

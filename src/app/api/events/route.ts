@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
+import { getAuthContext } from "@/lib/serverAuth";
 import type { Database } from "@/lib/database.types";
 import { createCalendarEvent } from "@/lib/googleClient";
 import { revalidateTag } from "next/cache";
@@ -59,14 +60,18 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
   const body = await req.json();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const auth = await getAuthContext(supabase);
+  if (!auth) {
+    return NextResponse.json({ error: "Unauthorized" }, {
+      status: 401,
+      headers,
+    });
+  }
 
   const payload = {
     ...body,
-    created_by: body.created_by ?? user?.id,
-    institution_id: body.institution_id ?? user?.user_metadata?.institution_id,
+    created_by: body.created_by ?? auth.userId,
+    institution_id: body.institution_id ?? auth.institutionId,
   };
 
   const { data, error } = await supabase
@@ -81,12 +86,10 @@ export async function POST(req: NextRequest) {
       { status: 500, headers }
     );
   }
-  if (user) {
-    try {
-      await createCalendarEvent(user.id, data);
-    } catch (e) {
-      console.error(e);
-    }
+  try {
+    await createCalendarEvent(auth.userId, data);
+  } catch (e) {
+    console.error(e);
   }
   revalidateTag("events");
 

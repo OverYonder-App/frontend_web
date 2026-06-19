@@ -20,7 +20,7 @@ export default async function CalendarPage() {
     hasGoogle = !!data;
   }
 
-  const headersList = headers();
+  const headersList = await headers();
   const protocol = headersList.get("x-forwarded-proto") ?? "http";
   const host = headersList.get("host") ?? "";
   const icsUrl = `${protocol}://${host}/api/calendar/ics`;

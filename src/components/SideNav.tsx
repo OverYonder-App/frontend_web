@@ -4,19 +4,18 @@ import {
   Calendar,
   Users,
   MessageSquare,
-  Bell,
   Settings,
   LogOut,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUser } from "@/context/UserContext";
+import NotificationsBell from "@/components/NotificationsBell";
 
 const navItems = [
   { label: "Home", icon: <Home size={18} />, href: "/dashboard/student" },
-  { label: "Your Events", icon: <Calendar size={18} />, href: "/events" },
-  { label: "Your Groups", icon: <Users size={18} />, href: "/groups" },
-  { label: "Messages", icon: <MessageSquare size={18} />, href: "/messages" },
-  { label: "Notifications", icon: <Bell size={18} />, href: "/notifications" },
+  { label: "Your Events", icon: <Calendar size={18} />, href: "/dashboard/student/events" },
+  { label: "Your Groups", icon: <Users size={18} />, href: "/dashboard/student/groups" },
+  { label: "Messages", icon: <MessageSquare size={18} />, href: "/dashboard/student/messages" },
 ];
 
 export default function SidebarNav() {
@@ -28,7 +27,10 @@ export default function SidebarNav() {
   return (
     <aside className="hidden md:flex flex-col justify-between w-56 bg-primary text-white h-screen p-4">
       <div>
-        <h1 className="text-xl font-bold mb-6">OverYonder</h1>
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-xl font-bold">OverYonder</h1>
+          <NotificationsBell />
+        </div>
         <nav className="space-y-4 text-sm">
           {navItems.map((item) => (
             <Link
@@ -42,7 +44,7 @@ export default function SidebarNav() {
           ))}
           <hr className="my-4 border-white/30" />
           <Link
-            href="/settings"
+            href="/dashboard/student/settings"
             className="flex items-center gap-3 hover:text-white/80"
           >
             <Settings size={18} />
@@ -59,7 +61,7 @@ export default function SidebarNav() {
       </div>
       <div className="border-t border-white/30 pt-4 flex items-center gap-3">
         <Avatar>
-          <AvatarImage src="https://source.unsplash.com/random/40x40?profile" />
+          <AvatarImage src="/images/overyonder-logo.png" />
           <AvatarFallback>GA</AvatarFallback>
         </Avatar>
         <div className="text-sm">

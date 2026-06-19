@@ -11,7 +11,7 @@ import UserOnboardingForm from "@/features/users/components/UserOnboardingForm";
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, loading } = useCurrentUser();
-  const [userEmail, setUserEmail] = useState<string>("gerald.akorli@gmail.com"); // Replace with actual user email from auth
+  const [userEmail, setUserEmail] = useState<string>("");
   const [institutionStatus, setInstitutionStatus] = useState<
     "checking" | "found" | "not_found"
   >("not_found");

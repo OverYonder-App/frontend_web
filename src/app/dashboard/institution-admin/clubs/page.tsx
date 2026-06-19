@@ -9,12 +9,12 @@ export const metadata: Metadata = {
 };
 
 interface ClubsPageProps {
-  searchParams: { status?: string };
+  searchParams: Promise<{ status?: string }>;
 }
 
 export default async function ClubsPage({ searchParams }: ClubsPageProps) {
   const supabase = await getSupabaseServerClient();
-  const status = searchParams.status;
+  const { status } = await searchParams;
 
   let query = supabase
     .from("organizations")

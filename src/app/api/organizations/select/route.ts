@@ -15,7 +15,7 @@ export async function GET(
     .from("organizations")
     .select("*")
     .eq("institution_id", id)
-    .eq("organization_type", org_type)
+    .eq("organization_type", org_type === "group" ? "group" : "club")
     .maybeSingle();
 
   if (error) {

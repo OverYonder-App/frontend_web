@@ -1,18 +1,34 @@
 import { useState } from "react";
+import Link from "next/link";
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
 import {
   Home,
   Calendar,
   Users,
   MessageSquare,
-  Bell,
   Settings,
   LogOut,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useUser } from "@/context/UserContext";
+import NotificationsBell from "@/components/NotificationsBell";
+
+const navItems = [
+  { label: "Home", icon: <Home size={18} />, href: "/dashboard/student" },
+  { label: "Your Events", icon: <Calendar size={18} />, href: "/dashboard/student/events" },
+  { label: "Your Groups", icon: <Users size={18} />, href: "/dashboard/student/groups" },
+  { label: "Messages", icon: <MessageSquare size={18} />, href: "/dashboard/student/messages" },
+];
 
 export default function MobileDrawerNav() {
   const [open, setOpen] = useState(false);
+  const { signOut } = useUser();
+
+  const handleLogout = async () => {
+    setOpen(false);
+    await signOut();
+    window.location.href = "/login";
+  };
 
   return (
     <div className="flex items-center ">
@@ -33,20 +49,35 @@ export default function MobileDrawerNav() {
               OverYonder
             </h1>
             <nav className="space-y-4 text-sm">
-              <NavItem icon={<Home size={18} />} label="Home" />
-              <NavItem icon={<Calendar size={18} />} label="Your Events" />
-              <NavItem icon={<Users size={18} />} label="Your Groups" />
-              <NavItem icon={<MessageSquare size={18} />} label="Messages" />
-              <NavItem icon={<Bell size={18} />} label="Notifications" />
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.label}
+                  icon={item.icon}
+                  label={item.label}
+                  href={item.href}
+                  onNavigate={() => setOpen(false)}
+                />
+              ))}
               <hr className="my-4" />
-              <NavItem icon={<Settings size={18} />} label="Settings" />
-              <NavItem icon={<LogOut size={18} />} label="Log out" />
+              <NavLink
+                icon={<Settings size={18} />}
+                label="Settings"
+                href="/dashboard/student/settings"
+                onNavigate={() => setOpen(false)}
+              />
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-3 w-full text-left text-gray-800 hover:text-primary"
+              >
+                <LogOut size={18} />
+                Log out
+              </button>
             </nav>
           </div>
           <div className="border-t pt-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Avatar>
-                <AvatarImage src="https://source.unsplash.com/random/40x40?profile" />
+                <AvatarImage src="/images/overyonder-logo.png" />
                 <AvatarFallback>GA</AvatarFallback>
               </Avatar>
               <div className="text-sm">
@@ -58,15 +89,32 @@ export default function MobileDrawerNav() {
         </SheetContent>
       </Sheet>
       <h1 className="text-primary font-bold text-xl p-2">OverYonder</h1>
+      <span className="text-primary">
+        <NotificationsBell />
+      </span>
     </div>
   );
 }
 
-function NavItem({ icon, label }: { icon: React.ReactNode; label: string }) {
+function NavLink({
+  icon,
+  label,
+  href,
+  onNavigate,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+  onNavigate: () => void;
+}) {
   return (
-    <button className="flex items-center gap-3 w-full text-left text-gray-800 hover:text-primary">
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className="flex items-center gap-3 w-full text-left text-gray-800 hover:text-primary"
+    >
       {icon}
       {label}
-    </button>
+    </Link>
   );
 }

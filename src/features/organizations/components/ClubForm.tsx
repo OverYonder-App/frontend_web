@@ -62,7 +62,7 @@ export default function ClubForm({ club, onSaved, onCancel }: Props) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+          className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-[#624080] disabled:opacity-50"
         >
           {club ? "Update" : "Create"}
         </button>

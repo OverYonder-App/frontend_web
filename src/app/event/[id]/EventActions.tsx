@@ -1,8 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { useUser } from "@/context/UserContext";
 import { UserRole } from "@/constants/roles";
+import RsvpButton from "@/features/events/components/RsvpButton";
 import Link from "next/link";
 import { PenIcon } from "lucide-react";
 
@@ -29,9 +29,7 @@ export default function EventActions({ creatorId, eventId }: EventActionsProps) 
 
   return (
     <div className="flex gap-2 mb-8">
-      {canRSVP && (
-        <Button className="bg-primary hover:bg-[#845296]">RSVP</Button>
-      )}
+      {canRSVP && <RsvpButton eventId={eventId} refreshOnToggle />}
       {canEdit && (
         <Link
           href={

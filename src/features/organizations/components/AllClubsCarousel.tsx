@@ -21,7 +21,6 @@ export default function AllClubsCarousel() {
 
   useEffect(() => {
     load(page);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   useEffect(() => {
@@ -40,7 +39,6 @@ export default function AllClubsCarousel() {
 
   async function load(p: number) {
     setLoading(true);
-    const currentLength = clubs.length;
     try {
       const params = new URLSearchParams({
         type: "club",
@@ -53,9 +51,20 @@ export default function AllClubsCarousel() {
       });
       const json = await res.json();
       const data: Club[] = json.organizations || [];
-      setClubs((prev) => [...prev, ...data]);
       const total = json.count ?? 0;
-      setHasMore(currentLength + data.length < total);
+      setClubs((prev) => {
+        // Page 1 replaces instead of appending so the effect re-running
+        // (StrictMode) can't duplicate entries; later pages skip ids
+        // already in the list.
+        const base = p === 1 ? [] : prev;
+        const seen = new Set(base.map((c) => c.organization_id));
+        const updated = [
+          ...base,
+          ...data.filter((c) => !seen.has(c.organization_id)),
+        ];
+        setHasMore(updated.length < total);
+        return updated;
+      });
     } finally {
       setLoading(false);
     }

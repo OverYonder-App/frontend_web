@@ -4,6 +4,7 @@ import { MapPin } from "lucide-react";
 import { fetchEvent, fetchEventAttendees } from "@/features/events/api.server";
 import CommentsSection from "@/features/events/components/CommentsSection";
 import AttendeeList from "@/features/events/components/AttendeeList";
+import EventLocationMap from "@/components/map/EventLocationMap";
 import EventActions from "./EventActions";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -43,21 +44,28 @@ export default async function EventPage({
       </div>
       <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
       <p className="text-gray-600 mb-4">{event.description}</p>
-      <div className="mb-4 space-y-1">
+      <div className="mb-4 space-y-2">
         <p className="text-sm">Status: {event.status}</p>
         <div className="flex items-center gap-1 text-sm">
           <MapPin size={16} />
           {event.address}
           {event.latitude && event.longitude && (
             <Link
-              href={`https://maps.google.com/?q=${event.latitude},${event.longitude}`}
-              className="text-blue-500 underline ml-2"
+              href={`https://www.openstreetmap.org/?mlat=${event.latitude}&mlon=${event.longitude}#map=17/${event.latitude}/${event.longitude}`}
+              className="text-primary underline ml-2"
               target="_blank"
             >
-              View Map
+              Open in OpenStreetMap
             </Link>
           )}
         </div>
+        {event.latitude && event.longitude && (
+          <EventLocationMap
+            lat={event.latitude}
+            lng={event.longitude}
+            label={event.address || event.title}
+          />
+        )}
       </div>
       <AttendeeList attendees={attendees} />
       <EventActions creatorId={event.created_by} eventId={event.event_id} />

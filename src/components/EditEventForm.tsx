@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useForm, Controller, useWatch } from "react-hook-form";
-import { Autocomplete, GoogleMap, useLoadScript } from "@react-google-maps/api";
-import type { Library } from "@googlemaps/js-api-loader";
 import { Combobox } from "@headlessui/react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from "next/image";
@@ -14,6 +12,7 @@ import { fetchClubs, type Organization } from "@/features/organizations/api";
 import { type EventRecord } from "@/features/events/api";
 import { type EventFormValues } from "@/constants/defaults";
 import { Toast } from "@/components/Toast";
+import LocationPicker from "@/components/map/LocationPicker";
 
 interface EditEventFormProps {
   /** The event being edited */
@@ -25,8 +24,6 @@ interface EditEventFormProps {
   /** Called after the event is deleted */
   onDeleted?: (id: string) => void;
 }
-
-const libraries: Library[] = ["places", "marker"];
 
 function formatEventDateRange(start: string, end: string) {
   const startDate = new Date(start);
@@ -44,10 +41,6 @@ export default function EditEventForm({
   onDeleted,
 }: EditEventFormProps) {
   const router = useRouter();
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY!,
-    libraries,
-  });
   const {
     register,
     handleSubmit,
@@ -74,22 +67,8 @@ export default function EditEventForm({
         : "",
     },
   });
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
-  const markerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(
-    null,
-  );
-  const geocodeCache = useRef<Map<string, string>>(new Map());
-  const skipGeocodeRef = useRef<boolean>(!!event.address);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>(
-    {
-      lat: event.latitude ?? 0,
-      lng: event.longitude ?? 0,
-    },
-  );
   const [clubs, setClubs] = useState<Organization[]>([]);
   const [clubQuery, setClubQuery] = useState("");
   const [toast, setToast] = useState<{
@@ -100,51 +79,13 @@ export default function EditEventForm({
 
   const updateLocation = useCallback(
     (loc: { lat: number; lng: number }) => {
-      setMapCenter(loc);
-      setValue("location", loc);
+      setValue("location", loc, { shouldValidate: true });
     },
     [setValue],
   );
 
   const location = useWatch({ control, name: "location" });
   const address = useWatch({ control, name: "address" });
-
-  useEffect(() => {
-    if (isLoaded) geocoderRef.current = new google.maps.Geocoder();
-  }, [isLoaded]);
-
-  useEffect(() => {
-    if (
-      !isLoaded ||
-      !location ||
-      (location.lat === 0 && location.lng === 0) ||
-      !geocoderRef.current
-    )
-      return;
-
-    if (skipGeocodeRef.current) {
-      skipGeocodeRef.current = false;
-      return;
-    }
-
-    const key = `${location.lat},${location.lng}`;
-    const cached = geocodeCache.current.get(key);
-    if (cached) {
-      setValue("address", cached);
-      return;
-    }
-
-    geocoderRef.current
-      .geocode({ location })
-      .then(({ results }) => {
-        const addr = results[0]?.formatted_address || "";
-        geocodeCache.current.set(key, addr);
-        setValue("address", addr);
-      })
-      .catch(() => {
-        setValue("address", "");
-      });
-  }, [isLoaded, location, setValue]);
 
   useEffect(() => {
     fetchClubs({ search: clubQuery }).then(({ clubs }) => setClubs(clubs));
@@ -154,40 +95,6 @@ export default function EditEventForm({
     register("location", { required: true });
     register("address");
   }, [register]);
-
-  useEffect(() => {
-    if (!location || !map || !isLoaded) return;
-    const pin = new google.maps.marker.PinElement({
-      background: "var(--over-yonder)",
-      borderColor: "var(--over-yonder)",
-      glyphColor: "#A38BC3",
-    });
-    if (!markerRef.current) {
-      markerRef.current = new google.maps.marker.AdvancedMarkerElement({
-        position: location,
-        map,
-        gmpDraggable: true,
-        content: pin.element,
-      });
-      markerRef.current.addListener("dragend", () => {
-        const pos = markerRef.current!.position as
-          | google.maps.LatLng
-          | google.maps.LatLngLiteral;
-        const lat = pos instanceof google.maps.LatLng ? pos.lat() : pos.lat;
-        const lng = pos instanceof google.maps.LatLng ? pos.lng() : pos.lng;
-        updateLocation({ lat, lng });
-      });
-    } else {
-      markerRef.current.position = location;
-      markerRef.current.map = map;
-    }
-  }, [location, map, isLoaded, updateLocation]);
-
-  useEffect(() => {
-    if (map && location) {
-      map.setCenter(location);
-    }
-  }, [map, location]);
 
   const watched = useWatch({ control });
 
@@ -260,9 +167,6 @@ export default function EditEventForm({
 
   const stepTitles = ["Details", "Location", "Schedule", "Review"];
 
-  if (loadError) return <div>Error loading maps</div>;
-  if (!isLoaded) return <div>Loading map...</div>;
-
   return (
     <form
       onSubmit={(e) => e.preventDefault()}
@@ -279,7 +183,9 @@ export default function EditEventForm({
             type="button"
             onClick={() => setStep(i + 1)}
             className={`px-3 py-1 rounded-full text-xs ${
-              step === i + 1 ? "bg-blue-600 text-white" : "bg-gray-300"
+              step === i + 1
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground"
             }`}
             aria-label={`Go to ${title}`}
           >
@@ -340,7 +246,7 @@ export default function EditEventForm({
                       />
                       <label
                         htmlFor="file-input"
-                        className="cursor-pointer text-blue-600"
+                        className="cursor-pointer text-primary"
                       >
                         Click or drag to upload
                       </label>
@@ -415,41 +321,19 @@ export default function EditEventForm({
       {step === 2 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Location</h2>
-          <Autocomplete
-            onLoad={(ref) => (autocompleteRef.current = ref)}
-            onPlaceChanged={() => {
-              const place = autocompleteRef.current!.getPlace();
-              const loc = place.geometry?.location;
-              if (loc) {
-                skipGeocodeRef.current = true;
-                updateLocation({ lat: loc.lat(), lng: loc.lng() });
-              }
-              const addr = place.formatted_address || "";
+          <LocationPicker
+            location={
+              location && !(location.lat === 0 && location.lng === 0)
+                ? location
+                : null
+            }
+            address={address ?? ""}
+            onChange={(loc, addr) => {
+              updateLocation(loc);
               setValue("address", addr);
             }}
-          >
-            <input
-              value={address ?? ""}
-              onChange={(e) => setValue("address", e.target.value)}
-              type="text"
-              className="w-full border rounded p-2 mb-2"
-              placeholder="Search address"
-            />
-          </Autocomplete>
-          <GoogleMap
-            options={{ mapId: process.env.NEXT_PUBLIC_GOOGLE_MAP_ID }}
-            mapContainerStyle={{ width: "100%", height: "240px" }}
-            center={mapCenter}
-            zoom={17}
-            onLoad={(m) => setMap(m)}
-            onUnmount={() => setMap(null)}
-            onClick={(e: google.maps.MapMouseEvent) =>
-              updateLocation({
-                lat: e.latLng!.lat(),
-                lng: e.latLng!.lng(),
-              })
-            }
-          ></GoogleMap>
+            onAddressChange={(addr) => setValue("address", addr)}
+          />
         </div>
       )}
 
@@ -553,7 +437,7 @@ export default function EditEventForm({
               : handleSubmit(onSubmit)
           }
           disabled={(step < 4 && !isValid) || submitting}
-          className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-[#624080] disabled:opacity-50"
         >
           {step < 4 ? (
             <>

@@ -14,7 +14,7 @@ type EventRow = Database["public"]["Tables"]["events"]["Row"] & {
 };
 
 interface EventsPageProps {
-  searchParams: { status?: string };
+  searchParams: Promise<{ status?: string }>;
 }
 
 export default async function EventsPage({ searchParams }: EventsPageProps) {
@@ -23,7 +23,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   //   .from("events")
   //   .select("*, organizations(name)");
 
-     const status = searchParams.status;
+     const { status } = await searchParams;
 
      let query = supabase.from("events").select("*, organizations(name)");
      const allowedStatuses = ["approved", "pending", "rejected"] as const;

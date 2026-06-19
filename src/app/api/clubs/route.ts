@@ -2,23 +2,19 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
+import { getAuthContext } from "@/lib/serverAuth";
 
 const PAGE_SIZE = 10;
 
 export async function GET(req: NextRequest) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user || user.app_metadata?.role_type !== "Institution Admin") {
-
+  const auth = await getAuthContext(supabase);
+  if (!auth || auth.roleType !== "Institution Admin") {
     return NextResponse.json({ error: "Unauthorized" }, {
       status: 401,
       headers,
     });
-
   }
 
   const { searchParams } = new URL(req.url);
@@ -32,7 +28,7 @@ export async function GET(req: NextRequest) {
     .from("organizations")
     .select("*", { count: "exact" })
     .eq("organization_type", "club")
-    .eq("institution_id", user?.user_metadata?.institution_id ?? "");
+    .eq("institution_id", auth.institutionId ?? "");
 
   if (status) query = query.eq("status", status as "draft" | "rejected" | "pending" | "approved");
   if (search) query = query.ilike("name", `%${search}%`);
@@ -42,7 +38,6 @@ export async function GET(req: NextRequest) {
     .range(from, to);
 
   if (error) {
-
     return NextResponse.json(
       { error: error.message },
       { status: 500, headers }
@@ -55,34 +50,28 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // if (!user || user.app_metadata?.role_type !== "Institution Admin") {
-  //   return NextResponse.json({ error: "Unauthorized" }, {
-  //     status: 401,
-  //     headers,
-  //   });
-
-  // }
+  const auth = await getAuthContext(supabase);
+  if (!auth || auth.roleType !== "Institution Admin") {
+    return NextResponse.json({ error: "Unauthorized" }, {
+      status: 401,
+      headers,
+    });
+  }
 
   const body = await req.json();
   const { name, description, logo_url } = body;
   if (!name || !description) {
     return NextResponse.json(
       { error: "Missing required fields" },
-
       { status: 400, headers }
     );
-
   }
 
   const { data: existing } = await supabase
     .from("organizations")
     .select("organization_id")
     .eq("name", name)
-    .eq("institution_id", user?.user_metadata?.institution_id ?? "")
+    .eq("institution_id", auth.institutionId ?? "")
     .eq("organization_type", "club")
     .maybeSingle();
 
@@ -90,7 +79,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: "Club name already exists" },
       { status: 400, headers }
-
     );
   }
 
@@ -100,26 +88,21 @@ export async function POST(req: NextRequest) {
       name,
       description,
       logo_url,
-      institution_id: user?.user_metadata?.institution_id ?? "",
-      created_by: user?.id ?? "",
+      institution_id: auth.institutionId ?? "",
+      created_by: auth.userId,
       organization_type: "club",
       status: "approved",
-      approved_by: user?.id ?? "",
+      approved_by: auth.userId,
     })
     .select("*")
     .single();
 
   if (error) {
-
     return NextResponse.json(
       { error: error.message },
       { status: 500, headers }
     );
-
   }
 
-
-
   return NextResponse.json({ club: data }, { status: 201, headers });
-
 }
