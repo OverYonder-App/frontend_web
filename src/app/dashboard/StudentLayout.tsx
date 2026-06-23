@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import MobileDrawerNav from "@/components/MobileNav";
 import SidebarNav from "@/components/SideNav";
 import { Plus, Users, Flag, CalendarPlus } from "lucide-react";
@@ -9,9 +10,15 @@ export default function StudentLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const go = (href: string) => {
+    setFabOpen(false);
+    router.push(href);
+  };
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -46,13 +53,30 @@ export default function StudentLayout({
       >
         {fabOpen && (
           <div className="flex flex-col items-end gap-2 mb-2">
-            <FabOption icon={<Users size={18} />} label="Create Club" />
-            <FabOption icon={<Flag size={18} />} label="Create Group" />
-            <FabOption icon={<CalendarPlus size={18} />} label="Create Event" />
+            <FabOption
+              icon={<Users size={18} />}
+              label="Create Club"
+              onClick={() =>
+                go("/dashboard/student/organizations/create?type=club")
+              }
+            />
+            <FabOption
+              icon={<Flag size={18} />}
+              label="Create Group"
+              onClick={() =>
+                go("/dashboard/student/organizations/create?type=group")
+              }
+            />
+            <FabOption
+              icon={<CalendarPlus size={18} />}
+              label="Create Event"
+              onClick={() => go("/dashboard/student/events/create")}
+            />
           </div>
         )}
         <button
-        //   onMouseEnter={() => setFabOpen((prev) => !prev)}
+          onClick={() => setFabOpen((prev) => !prev)}
+          aria-label="Create"
           className="bg-primary text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg hover:bg-[#684287] transition"
         >
           <Plus size={28} />
@@ -61,9 +85,20 @@ export default function StudentLayout({
     </div>
   );
 }
-function FabOption({ icon, label }: { icon: React.ReactNode; label: string }) {
+function FabOption({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+}) {
   return (
-    <button className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow text-sm hover:bg-gray-100">
+    <button
+      onClick={onClick}
+      className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow text-sm hover:bg-gray-100"
+    >
       {icon}
       {label}
     </button>

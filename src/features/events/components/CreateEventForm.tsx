@@ -22,7 +22,11 @@ function formatEventDateRange(start: string, end: string) {
   )} to ${format(endDate, "h:mm a")}`;
 }
 
-export default function CreateEventForm() {
+export default function CreateEventForm({
+  onCreated,
+}: {
+  onCreated?: () => void;
+} = {}) {
   const {
     register,
     handleSubmit,
@@ -106,12 +110,20 @@ export default function CreateEventForm() {
         latitude: data.location.lat,
         longitude: data.location.lng,
         address: data.address || null,
-        status: "approved",
+        // Admins publish directly; everyone else submits for approval.
+        status: user.role_type === "Institution Admin" ? "approved" : "pending",
         visibility_level: "public",
         image_url: signedUrlData.signedUrl,
       });
       if (error) throw error;
-      setToast({ msg: "Event created", type: "success" });
+      setToast({
+        msg:
+          user.role_type === "Institution Admin"
+            ? "Event created"
+            : "Event submitted for approval",
+        type: "success",
+      });
+      onCreated?.();
     } catch (e) {
       setToast({ msg: String(e), type: "error" });
     } finally {

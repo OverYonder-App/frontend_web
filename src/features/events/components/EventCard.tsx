@@ -2,6 +2,7 @@
 import { CalendarClock, MapPin, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import RsvpButton from "./RsvpButton";
+import FavoriteButton from "./FavoriteButton";
 import { useEventCount } from "@/lib/eventCounts";
 import type { Event } from "../types";
 import Image from "next/image";
@@ -17,13 +18,19 @@ export default function EventCard({ event }: EventCardProps) {
   return (
     <Link href={`/event/${event.id}`} className="block">
       <Card className="overflow-hidden rounded-xl border border-gray-200 shadow hover:shadow-md transition">
-        <Image
-          width={"800"}
-          height={"500"}
-          src={event.image || placeholder}
-          alt={event.title}
-          className="w-full h-40 object-cover"
-        />
+        <div className="relative">
+          <Image
+            width={"800"}
+            height={"500"}
+            src={event.image || placeholder}
+            alt={event.title}
+            className="w-full h-40 object-cover"
+          />
+          <FavoriteButton
+            eventId={event.id}
+            className="absolute top-2 right-2 z-10"
+          />
+        </div>
         <div className="p-4 space-y-2">
           <h3 className="text-lg font-semibold text-primary">{event.title}</h3>
           <p className="text-sm text-gray-600 flex items-center gap-1">

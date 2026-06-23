@@ -2,6 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseRouteHandlerClient } from "@/lib/supabaseRouteClient";
+import { getAuthContext } from "@/lib/serverAuth";
 
 const PAGE_SIZE = 10;
 
@@ -47,24 +48,33 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
   const body = await req.json();
-  const { name, description, institution_id, logo_url } = body;
+  const { name, description, logo_url } = body;
+  const orgType: "club" | "group" =
+    body.organization_type === "group" ? "group" : "club";
 
-  if (!name || !institution_id) {
+  const auth = await getAuthContext(supabase);
+  if (!auth) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers });
+  }
+  if (!name) {
     return NextResponse.json(
       { error: "Missing required fields" },
       { status: 400, headers }
     );
   }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  if (!auth.institutionId) {
     return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401, headers }
+      { error: "No institution assigned" },
+      { status: 400, headers }
     );
   }
+
+  // Groups are self-serve (active immediately); clubs created by students need
+  // approval (pending); admins create approved orgs directly.
+  const isAdmin =
+    auth.roleType === "Institution Admin" || auth.roleType === "OY Admin";
+  const status: "approved" | "pending" =
+    isAdmin || orgType === "group" ? "approved" : "pending";
 
   const { data, error } = await supabase
     .from("organizations")
@@ -72,11 +82,12 @@ export async function POST(req: NextRequest) {
       {
         name,
         description: description ?? "",
-        institution_id,
-        logo_url,
-        organization_type: "club" as const,
-        created_by: user.id,
-        approved_by: user.id,
+        institution_id: auth.institutionId,
+        logo_url: logo_url ?? null,
+        organization_type: orgType,
+        created_by: auth.userId,
+        approved_by: auth.userId,
+        status,
       },
     ])
     .select("*")
@@ -88,6 +99,15 @@ export async function POST(req: NextRequest) {
       { status: 500, headers }
     );
   }
+
+  // Make the creator the executive member so it shows up in their groups and
+  // grants management rights. Best-effort: the org already exists if this fails.
+  await supabase.from("org_members").insert({
+    org_id: data.organization_id,
+    user_id: auth.userId,
+    role: "President",
+    is_executive: true,
+  });
 
   return NextResponse.json({ organization: data }, { status: 201, headers });
 }
