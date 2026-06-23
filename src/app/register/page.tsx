@@ -45,7 +45,10 @@ export default function RegistrationPage() {
         email: form.email,
         password: form.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/onboarding`,
+          // Route through /auth/callback (not middleware-gated) so the
+          // confirmation code is exchanged for a session before landing on the
+          // gated /onboarding route.
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
         },
       });
       if (signUpError) throw signUpError;

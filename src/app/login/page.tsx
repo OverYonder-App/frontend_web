@@ -9,6 +9,7 @@ import { TiVendorMicrosoft } from "react-icons/ti";
 import Link from "next/link";
 import { loginWithPassword } from "./actions";
 import { useUser } from "@/context/UserContext";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,14 +38,22 @@ export default function LoginPage() {
     }
   };
 
+  const [notice, setNotice] = useState("");
+
   const handleMagicLink = async () => {
     setLoading(true);
     setError("");
+    setNotice("");
     try {
       if (!email.includes("@")) throw new Error("Invalid email");
-      console.log("Sending magic link to:", email);
-      await new Promise((res) => setTimeout(res, 1000));
-      alert("Magic link sent to your email");
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+      setNotice("Magic link sent — check your email.");
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -52,9 +61,20 @@ export default function LoginPage() {
     }
   };
 
-  const handleOAuth = (provider: string) => {
-    console.log("Signing in with:", provider);
-    // Replace with your Supabase/NextAuth logic
+  const handleOAuth = async (provider: "google" | "azure") => {
+    setError("");
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
+      // On success the browser is redirected to the provider.
+    } catch (err) {
+      setError((err as Error).message);
+    }
   };
 
   return (
@@ -90,6 +110,7 @@ export default function LoginPage() {
         />
 
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {notice && <p className="text-green-600 text-sm mb-4">{notice}</p>}
 
         <div className="flex flex-col gap-3">
           <Button
@@ -107,6 +128,12 @@ export default function LoginPage() {
           >
             {loading ? "Sending..." : "Send Magic Link"}
           </Button>
+          <Link
+            href="/forgot-password"
+            className="text-sm text-primary underline"
+          >
+            Forgot password?
+          </Link>
           <p className="text-sm text-gray-600">
             Don&apos;t have an account? Register{" "}
             <Link className="text-primary underline" href={"/register"}>
@@ -123,7 +150,7 @@ export default function LoginPage() {
           </Button>
           <Button
             className="w-full bg-[#2F2F8C] text-white hover:bg-[#1d1d6e]"
-            onClick={() => handleOAuth("microsoft")}
+            onClick={() => handleOAuth("azure")}
           >
             <TiVendorMicrosoft className="text-xl text-white mr-2" />
             Continue with Microsoft
