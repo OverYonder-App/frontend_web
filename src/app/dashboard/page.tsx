@@ -35,6 +35,8 @@ export default function DashboardRouter() {
       router.replace("/dashboard/institution-admin");
     } else if (role === UserRole.OY_ADMIN) {
       router.replace("/dashboard/oy");
+    } else if (role === UserRole.PENDING || !role) {
+      router.replace("/pending");
     } else {
       router.replace("/unauthorized");
     }

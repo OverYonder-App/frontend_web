@@ -33,7 +33,7 @@ export async function middleware(req: NextRequest) {
 
   const pathname = req.nextUrl.pathname;
 
-  const protectedPrefixes = ["/dashboard", "/onboarding"];
+  const protectedPrefixes = ["/dashboard", "/onboarding", "/pending"];
   const isProtected = protectedPrefixes.some((path) =>
     pathname.startsWith(path)
   );
@@ -45,12 +45,26 @@ export async function middleware(req: NextRequest) {
 
   // Decode onboarding/role claims once for any authenticated, protected route.
   interface DecodedToken {
-    app_metadata?: { role_type?: string; onboarding?: boolean };
+    app_metadata?: {
+      role_type?: string;
+      onboarding?: boolean;
+      institution_status?: string;
+    };
   }
   const decoded = session
     ? (jwt.decode(session.access_token) as DecodedToken | null)
     : null;
   const onboarded = decoded?.app_metadata?.onboarding === true;
+  const role = decoded?.app_metadata?.role_type ?? "";
+  const instStatus = decoded?.app_metadata?.institution_status ?? "";
+
+  // A user is in a "holding" state when they have no real role yet, or their
+  // institution hasn't been approved — except its own admin (and OY Admin),
+  // who need access to set it up / review it.
+  const isAdmin = role === "Institution Admin" || role === "OY Admin";
+  const inHolding =
+    role === "Pending" ||
+    ((instStatus === "pending" || instStatus === "rejected") && !isAdmin);
 
   // Force un-onboarded users through onboarding before any dashboard access,
   // and keep onboarded users out of the onboarding flow.
@@ -61,11 +75,19 @@ export async function middleware(req: NextRequest) {
     if (onboarded && pathname.startsWith("/onboarding")) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
+
+    // Onboarded but in a holding state → the pending page (not a dead end).
+    if (onboarded && inHolding && pathname.startsWith("/dashboard")) {
+      return NextResponse.redirect(new URL("/pending", req.url));
+    }
+    // Onboarded and cleared → keep them off the pending page.
+    if (onboarded && !inHolding && pathname.startsWith("/pending")) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
   }
 
   // If user is logged in, check role and route
   if (session && pathname.startsWith("/dashboard")) {
-    const role = decoded?.app_metadata?.role_type ?? "";
 
     // Define role → route mapping
     const roleRoutes: Record<string, string[]> = {

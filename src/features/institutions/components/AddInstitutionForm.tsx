@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button"; // adjust if different path
 import { Toast } from "@/components/Toast";
+import { supabase } from "@/lib/supabase";
 
 export default function AddInstitutionForm() {
+  const router = useRouter();
+  const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     institutionName: "",
@@ -20,33 +24,38 @@ export default function AddInstitutionForm() {
   } | null>(null);
 
   const handleSubmit = async () => {
+    setSubmitting(true);
     try {
-      // 1. Create institution
-      const res1 = await fetch("/api/institutions/create", {
+      // One call provisions the institution, its roles, the domain, and makes
+      // this user its Institution Admin.
+      const res = await fetch("/api/institutions/create", {
         method: "POST",
         body: JSON.stringify({
           institution_name: form.institutionName,
           abbreviated_name: form.abbreviatedName,
           address: form.address,
-        }),
-        credentials: "include",
-      });
-      const institution = await res1.json();
-
-      // 2. Add institution domain
-      await fetch("/api/institution_domains/create", {
-        method: "POST",
-        body: JSON.stringify({
           domain: form.schoolDomain,
-          institution_id: institution.institution_id,
           type_category: form.domainType,
         }),
         credentials: "include",
       });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to create institution");
 
-      setToast({ msg: "Institution created!", type: "success" });
+      // Best-effort: pull a fresh token so the new Institution Admin role +
+      // onboarding=true claim are present before the middleware re-evaluates.
+      // A transient refresh failure must not abort the successful creation.
+      try {
+        await supabase.auth.refreshSession();
+      } catch {
+        /* ignore — middleware re-syncs from cookies on next navigation */
+      }
+      setToast({ msg: "Institution created! Pending review.", type: "success" });
+      router.push("/dashboard");
     } catch (e) {
       setToast({ msg: (e as Error).message, type: "error" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -119,8 +128,9 @@ export default function AddInstitutionForm() {
             <Button
               className="w-1/2 bg-primary text-white"
               onClick={handleSubmit}
+              disabled={submitting}
             >
-              Submit & Become Admin
+              {submitting ? "Creating..." : "Submit & Become Admin"}
             </Button>
           </div>
         </>

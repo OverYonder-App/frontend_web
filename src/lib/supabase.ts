@@ -1,47 +1,16 @@
 // supabase.ts
-// after login
-// Calling Supabase from React components
-// Performing client-side queries
-"use client"
-import {
-  createBrowserClient,
-  type CookieOptions,
-} from "@supabase/ssr";
+// Browser Supabase client for client components / client-side queries.
+"use client";
+import { createBrowserClient } from "@supabase/ssr";
 import type { Database } from "@/lib/database.types";
 
+// No custom cookie adapter: @supabase/ssr's built-in document.cookie handling
+// correctly encodes/decodes and chunks the (large) auth-token cookie, and
+// interoperates with the server clients (auth.ts / supabaseRouteClient /
+// middleware). A previous hand-rolled adapter wrote cookie values raw but read
+// them back through decodeURIComponent, corrupting the chunked refresh token
+// and causing "Invalid Refresh Token: Refresh Token Not Found".
 export const supabase = createBrowserClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  {
-    cookies: {
-      getAll() {
-        if (typeof document === "undefined") return [];
-        return document.cookie
-          .split("; ")
-          .filter(Boolean)
-          .map((cookie) => {
-            const [name, ...value] = cookie.split("=");
-            return { name, value: decodeURIComponent(value.join("=")) };
-          });
-      },
-      setAll(cookies: { name: string; value: string; options: CookieOptions }[]) {
-        cookies.forEach(({ name, value, options }) => {
-          let cookieString = `${name}=${value}; path=${options?.path ?? "/"}`;
-          if (options?.domain) cookieString += `; domain=${options.domain}`;
-          if (options?.maxAge)
-            cookieString += `; max-age=${options.maxAge}`;
-          if (options?.expires)
-            cookieString += `; expires=${
-              options.expires instanceof Date
-                ? options.expires.toUTCString()
-                : new Date(options.expires).toUTCString()
-            }`;
-          if (options?.sameSite)
-            cookieString += `; samesite=${options.sameSite}`;
-          if (options?.secure) cookieString += "; secure";
-          document.cookie = cookieString;
-        });
-      },
-    },
-  }
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );

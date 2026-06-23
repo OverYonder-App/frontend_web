@@ -583,6 +583,50 @@ export type Database = {
           },
         ]
       }
+      institution_requests: {
+        Row: {
+          created_at: string | null
+          director_email: string | null
+          email_domain: string | null
+          note: string | null
+          request_id: string
+          requested_by: string
+          status: string
+          updated_at: string | null
+          user_email: string
+        }
+        Insert: {
+          created_at?: string | null
+          director_email?: string | null
+          email_domain?: string | null
+          note?: string | null
+          request_id?: string
+          requested_by: string
+          status?: string
+          updated_at?: string | null
+          user_email: string
+        }
+        Update: {
+          created_at?: string | null
+          director_email?: string | null
+          email_domain?: string | null
+          note?: string | null
+          request_id?: string
+          requested_by?: string
+          status?: string
+          updated_at?: string | null
+          user_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institution_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       institutions: {
         Row: {
           abbreviated_name: string
@@ -1262,6 +1306,16 @@ export type Database = {
           p_role: string
         }
         Returns: undefined
+      }
+      create_institution_and_admin: {
+        Args: {
+          p_name: string
+          p_abbr: string
+          p_address: string
+          p_domain: string
+          p_domain_type: string
+        }
+        Returns: string
       }
       event_attendance_counts: {
         Args: { ids: string[] }

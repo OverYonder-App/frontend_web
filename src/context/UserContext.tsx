@@ -8,6 +8,7 @@ export type User = {
   email: string
   role_type: string
   institution_id?: string
+  institution_status?: string
   [key: string]: unknown
 }
 
@@ -38,16 +39,22 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     } else {
       const token = session.access_token
       const payload = JSON.parse(atob(token.split('.')[1])) as {
-        app_metadata?: { role_type?: string; institution_id?: string }
+        app_metadata?: {
+          role_type?: string
+          institution_id?: string
+          institution_status?: string
+        }
       }
       const role_type =
         payload.app_metadata?.role_type || 'Pending'
       const institution_id = payload.app_metadata?.institution_id
+      const institution_status = payload.app_metadata?.institution_status
       setUser({
         id: session.user.id,
         email: session.user.email!,
         role_type,
         institution_id,
+        institution_status,
         ...session.user.user_metadata,
       })
       setAccessToken(token)

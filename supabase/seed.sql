@@ -18,6 +18,8 @@ VALUES
    '#5e2d91', '#ffc72c', '/images/college-of-idaho-logo.png', 'approved');
 
 -- ── Roles (one set per institution) ──────────────────────────────────────────
+-- The institutions_after_insert trigger already seeds these for each institution
+-- inserted above; this is kept as a belt-and-suspenders no-op (ON CONFLICT).
 INSERT INTO public.roles (role_name, description, institution_id)
 SELECT r.role_name, r.description, i.institution_id
 FROM public.institutions i
@@ -28,7 +30,8 @@ CROSS JOIN (VALUES
   ('Student Leader',    'Club/group executives'),
   ('Student',           'Default role for authenticated users'),
   ('Pending',           'No access to system yet')
-) AS r(role_name, description);
+) AS r(role_name, description)
+ON CONFLICT (role_name, institution_id) DO NOTHING;
 
 -- ── Institution domains (drives signup institution matching) ────────────────
 INSERT INTO public.institution_domains (institution_id, domain, type_category)

@@ -87,9 +87,14 @@ export default function UserOnboardingForm() {
 
       if (!res.ok) throw new Error("Onboarding failed");
 
-      // Refresh the token so the onboarding=true claim is present before the
-      // middleware re-evaluates access on /dashboard.
-      await supabase.auth.refreshSession();
+      // Best-effort: refresh so the onboarding=true claim is in the token
+      // before the middleware re-checks. A transient refresh failure must not
+      // abort the already-successful onboarding.
+      try {
+        await supabase.auth.refreshSession();
+      } catch {
+        /* ignore — middleware re-syncs from cookies on next navigation */
+      }
       setToast({ type: "success", msg: "Welcome to OverYonder!" });
       router.push("/dashboard");
     } catch (err) {
