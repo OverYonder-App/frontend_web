@@ -36,7 +36,6 @@ export default function DayView({
   );
 
   const [now, setNow] = useState<Date>(() => getZonedNow(timeZone));
-  console.log((now.getHours() + now.getMinutes() / 60) * CELL_HEIGHT);
 
   useEffect(() => {
     setNow(getZonedNow(timeZone));

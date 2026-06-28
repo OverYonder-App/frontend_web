@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { fetchUser, type UserWithInstitution } from '@/features/users/api'
 import { fetchEvents, type EventRecord } from '@/features/events/api.server'
+import FriendActions from '@/features/friends/components/FriendActions'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -70,6 +71,7 @@ export default async function UserPage({
           ) : (
             <p className="text-sm text-gray-500">No institution yet...</p>
           )}
+          <FriendActions userId={id} className="mt-2" />
         </div>
       </div>
 

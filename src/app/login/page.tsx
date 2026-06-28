@@ -24,12 +24,9 @@ export default function LoginPage() {
     setError("");
     try {
       if (!email.includes("@")) throw new Error("Invalid email");
-      console.log("Logging in with password:", email);
-      const { user } = await loginWithPassword(email, password);
-      await refreshUser();    
+      await loginWithPassword(email, password);
+      await refreshUser();
       if (error) throw error;
-      console.log(error)
-      console.log(user);
       router.push("/dashboard");
     } catch (err) {
       setError((err as Error).message);

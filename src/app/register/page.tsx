@@ -223,6 +223,18 @@ export default function RegistrationPage() {
               {loading ? "Registering..." : "Sign Up"}
             </Button>
 
+            <p className="mt-3 text-center text-xs text-gray-500">
+              By signing up, you agree to our{" "}
+              <a href="/terms" className="text-primary underline">
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a href="/privacy" className="text-primary underline">
+                Privacy Policy
+              </a>
+              .
+            </p>
+
             <p className="text-sm text-gray-600 mt-6">
               Already have an account?{" "}
               <a href="/login" className="text-primary font-medium">

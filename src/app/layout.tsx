@@ -3,6 +3,7 @@ import "./globals.css";
 import { UserProvider } from "@/context/UserContext";
 import { InstitutionProvider } from "@/context/InstitutionContext";
 import QueryProvider from "@/context/QueryProvider";
+import CookieConsent from "@/components/CookieConsent";
 
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function RootLayout({
             <InstitutionProvider>{children}</InstitutionProvider>
           </UserProvider>
         </QueryProvider>
+        <CookieConsent />
       </body>
     </html>
   );

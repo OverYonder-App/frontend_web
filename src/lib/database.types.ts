@@ -363,6 +363,42 @@ export type Database = {
           },
         ]
       }
+      event_reminders_sent: {
+        Row: {
+          event_id: string
+          offset_min: number
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          event_id: string
+          offset_min: number
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          event_id?: string
+          offset_min?: number
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_reminders_sent_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "event_reminders_sent_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       event_subcategories: {
         Row: {
           event_id: string
@@ -639,6 +675,7 @@ export type Database = {
           longitude: number | null
           primary_color: string | null
           secondary_color: string | null
+          status: Database["public"]["Enums"]["institution_verification"]
           updated_at: string | null
         }
         Insert: {
@@ -652,6 +689,7 @@ export type Database = {
           longitude?: number | null
           primary_color?: string | null
           secondary_color?: string | null
+          status?: Database["public"]["Enums"]["institution_verification"]
           updated_at?: string | null
         }
         Update: {
@@ -665,6 +703,7 @@ export type Database = {
           longitude?: number | null
           primary_color?: string | null
           secondary_color?: string | null
+          status?: Database["public"]["Enums"]["institution_verification"]
           updated_at?: string | null
         }
         Relationships: []
@@ -707,6 +746,58 @@ export type Database = {
           },
           {
             foreignKeyName: "media_assets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          event_id: string | null
+          notification_id: string
+          read: boolean
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          event_id?: string | null
+          notification_id?: string
+          read?: boolean
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          event_id?: string | null
+          notification_id?: string
+          read?: boolean
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -957,6 +1048,41 @@ export type Database = {
           },
         ]
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          p256dh: string
+          push_subscription_id: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          p256dh: string
+          push_subscription_id?: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          p256dh?: string
+          push_subscription_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       reports: {
         Row: {
           created_at: string | null
@@ -964,6 +1090,7 @@ export type Database = {
           reason: string
           report_id: string
           reported_by: string | null
+          status: Database["public"]["Enums"]["status_report"]
           updated_at: string | null
         }
         Insert: {
@@ -972,6 +1099,7 @@ export type Database = {
           reason: string
           report_id?: string
           reported_by?: string | null
+          status?: Database["public"]["Enums"]["status_report"]
           updated_at?: string | null
         }
         Update: {
@@ -980,6 +1108,7 @@ export type Database = {
           reason?: string
           report_id?: string
           reported_by?: string | null
+          status?: Database["public"]["Enums"]["status_report"]
           updated_at?: string | null
         }
         Relationships: [
@@ -1324,6 +1453,14 @@ export type Database = {
           count: number
         }[]
       }
+      event_friends_going: {
+        Args: { ids: string[] }
+        Returns: {
+          event_id: string
+          count: number
+          names: string[]
+        }[]
+      }
       get_user_institution: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -1347,8 +1484,10 @@ export type Database = {
       domain_type: "Student" | "faculty"
       event_status: "draft" | "pending" | "approved" | "rejected"
       friend_status: "sent" | "accepted" | "blocked"
+      institution_verification: "pending" | "approved" | "rejected"
       org_type: "club" | "group"
       status: "draft" | "rejected" | "accepted" | "pending"
+      status_report: "resolved" | "pending"
       visibility_level: "public" | "friend" | "group"
     }
     CompositeTypes: {
@@ -1480,8 +1619,10 @@ export const Constants = {
       domain_type: ["Student", "faculty"],
       event_status: ["draft", "pending", "approved", "rejected"],
       friend_status: ["sent", "accepted", "blocked"],
+      institution_verification: ["pending", "approved", "rejected"],
       org_type: ["club", "group"],
       status: ["draft", "rejected", "accepted", "pending"],
+      status_report: ["resolved", "pending"],
       visibility_level: ["public", "friend", "group"],
     },
   },

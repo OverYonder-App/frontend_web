@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { fetchUsers, type UserWithInstitution } from "@/features/users/api";
+import FriendActions from "@/features/friends/components/FriendActions";
 import Link from "next/link";
 
 export default async function UsersPage() {
@@ -13,13 +14,15 @@ export default async function UsersPage() {
         <p className="text-center text-sm text-gray-500">No users yet...</p>
       ) : (
         users.map((user: UserWithInstitution) => (
-          <Link
+          <Card
             key={user.user_id}
-            href={`/users/${user.user_id}`}
-            className="block"
+            className="flex flex-row items-center gap-3 p-4 hover:bg-gray-50"
           >
-            <Card className="p-4 hover:bg-gray-50">
-              <h3 className="font-semibold">{user.email}</h3>
+            <Link
+              href={`/users/${user.user_id}`}
+              className="block min-w-0 flex-1"
+            >
+              <h3 className="truncate font-semibold">{user.email}</h3>
               {user.institutions?.institution_name ? (
                 <p className="text-sm text-gray-500">
                   Member of {user.institutions.institution_name}
@@ -27,8 +30,9 @@ export default async function UsersPage() {
               ) : (
                 <p className="text-sm text-gray-500">No institution yet...</p>
               )}
-            </Card>
-          </Link>
+            </Link>
+            <FriendActions userId={user.user_id} showIncoming={false} />
+          </Card>
         ))
       )}
     </main>

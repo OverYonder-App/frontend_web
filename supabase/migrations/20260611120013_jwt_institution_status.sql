@@ -1,6 +1,14 @@
 -- Add the user's institution approval status to the JWT so middleware can route
 -- members of an unapproved (pending/rejected) institution to a holding page,
 -- while letting the institution's own admin through to set things up.
+--
+-- NOTE: renumbered from 20260611120007 → 20260611120013 to remove a duplicate
+-- migration version (it collided with 20260611120007_institution_requests). Two
+-- files sharing a version make `supabase db push` skip one — which here would
+-- drop the final `create or replace` of auth_customize_jwt and silently strip
+-- the `institution_status` claim in prod. This file has no dependency on the
+-- other 120007 migration, so it is safe to apply last; it remains the final
+-- definition of the hook, which is what must win.
 
 create or replace function public.auth_customize_jwt(event jsonb)
 returns jsonb

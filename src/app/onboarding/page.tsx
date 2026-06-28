@@ -23,8 +23,6 @@ export default function OnboardingPage() {
     setUserEmail(user?.email || "")
     const checkInstitution = async () => {
       const domain = user?.email.split("@")[1];
-
-      console.log(domain);
       try {
         if (!loading) {
           const res = await fetch(
@@ -39,7 +37,7 @@ export default function OnboardingPage() {
         }
       } catch (e) {
         setError("Failed to verify your institution");
-        console.log(e)
+        console.error(e)
       }
     };
     checkInstitution();
@@ -59,7 +57,7 @@ export default function OnboardingPage() {
       router.push("/thank-you");
     } catch (err) {
       setError("Error submitting request");
-      console.log(err)
+      console.error(err)
     }
   };
 

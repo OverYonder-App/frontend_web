@@ -3,6 +3,7 @@ import {
   Home,
   Calendar,
   Users,
+  UserPlus,
   MessageSquare,
   Settings,
   LogOut,
@@ -15,6 +16,7 @@ const navItems = [
   { label: "Home", icon: <Home size={18} />, href: "/dashboard/student" },
   { label: "Your Events", icon: <Calendar size={18} />, href: "/dashboard/student/events" },
   { label: "Your Groups", icon: <Users size={18} />, href: "/dashboard/student/groups" },
+  { label: "Friends", icon: <UserPlus size={18} />, href: "/dashboard/student/friends" },
   { label: "Messages", icon: <MessageSquare size={18} />, href: "/dashboard/student/messages" },
 ];
 

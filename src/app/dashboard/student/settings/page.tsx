@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Toast } from "@/components/Toast";
 import { supabase } from "@/lib/supabase";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import PushReminderToggle from "@/features/notifications/components/PushReminderToggle";
 
 interface ProfileForm {
   first_name: string;
@@ -145,6 +146,12 @@ export default function StudentSettingsPage() {
               {saving ? "Saving..." : "Save changes"}
             </Button>
           </div>
+        </div>
+      )}
+
+      {!loading && (
+        <div className="mt-6">
+          <PushReminderToggle />
         </div>
       )}
 

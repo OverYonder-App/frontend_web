@@ -45,12 +45,12 @@ export default function UserOnboardingForm() {
         );
         const data = await res.json();
         setTypeCategory(data.type_category);
-        if (data.type_category === "faculty") {
+        if (data.type_category === "Faculty") {
           setForm((f) => ({ ...f, selectedRole: "Faculty" }));
         }
       } catch (err) {
         setToast({ type: "error", msg: "Institution domain check failed" });
-        console.log(err)
+        console.error(err)
       }
     };
 
