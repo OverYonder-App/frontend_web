@@ -6,6 +6,7 @@ import { Calendar, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAttending, toggleRsvp } from "@/lib/rsvpStore";
 import { adjustEventCount } from "@/lib/eventCounts";
+import { track } from "@/lib/analytics";
 
 interface RsvpButtonProps {
   eventId: string;
@@ -39,6 +40,7 @@ export default function RsvpButton({
     adjustEventCount(eventId, next ? 1 : -1);
     try {
       await toggleRsvp(eventId, next);
+      if (next) track("event_rsvp", { event_id: eventId });
       if (refreshOnToggle) router.refresh();
     } catch {
       // RSVP failed: store reverted itself; undo the optimistic count too.

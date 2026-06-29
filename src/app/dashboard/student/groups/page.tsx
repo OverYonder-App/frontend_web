@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Users, Star } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import StudentLayout from "@/app/dashboard/StudentLayout";
 import { supabase } from "@/lib/supabase";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -71,9 +72,10 @@ export default function StudentGroupsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {memberships.map((m) =>
             m.organizations ? (
-              <div
+              <Link
                 key={m.organizations.organization_id}
-                className="bg-white rounded-xl shadow p-4 flex flex-col gap-2"
+                href={`/dashboard/student/groups/${m.organizations.organization_id}`}
+                className="bg-white rounded-xl shadow p-4 flex flex-col gap-2 transition-shadow hover:shadow-md"
               >
                 <div className="flex items-center gap-3">
                   {m.organizations.logo_url ? (
@@ -113,7 +115,7 @@ export default function StudentGroupsPage() {
                     </span>
                   )}
                 </div>
-              </div>
+              </Link>
             ) : null
           )}
         </div>

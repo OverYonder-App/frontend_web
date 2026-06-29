@@ -4,6 +4,7 @@ import { UserProvider } from "@/context/UserContext";
 import { InstitutionProvider } from "@/context/InstitutionContext";
 import QueryProvider from "@/context/QueryProvider";
 import CookieConsent from "@/components/CookieConsent";
+import PostHogProvider from "@/components/PostHogProvider";
 
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function RootLayout({
             <InstitutionProvider>{children}</InstitutionProvider>
           </UserProvider>
         </QueryProvider>
+        <PostHogProvider />
         <CookieConsent />
       </body>
     </html>

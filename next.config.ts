@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 // Allowlist the Supabase storage host for next/image. Derive it from the
 // configured Supabase URL so it auto-matches whatever project is deployed
@@ -23,4 +24,12 @@ const nextConfig: NextConfig = {
   images: { remotePatterns },
 };
 
-export default nextConfig;
+// Wrap with Sentry. Source maps upload only when SENTRY_AUTH_TOKEN/org/project
+// are set (i.e. in CI/prod); locally and without them it's a safe no-op build.
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG || "gerald-ux",
+  project: process.env.SENTRY_PROJECT || "javascript-nextjs",
+  // Source maps upload only when this is set (CI/prod); generate it in Sentry.
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+});

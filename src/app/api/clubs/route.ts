@@ -9,8 +9,12 @@ const PAGE_SIZE = 10;
 export async function GET(req: NextRequest) {
   const { supabase, headers } = getSupabaseRouteHandlerClient(req);
 
+  // Any authenticated user may LIST clubs (e.g. to pick one when creating an
+  // event). Results are still scoped to the caller's institution below, and the
+  // organizations SELECT RLS enforces that too. Creating a club (POST) remains
+  // Institution-Admin-only.
   const auth = await getAuthContext(supabase);
-  if (!auth || auth.roleType !== "Institution Admin") {
+  if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, {
       status: 401,
       headers,

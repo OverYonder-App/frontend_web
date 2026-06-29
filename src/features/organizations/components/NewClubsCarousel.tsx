@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import ClubsSkeleton from "@/components/ClubsSkeleton";
 
 interface Club {
@@ -52,9 +53,10 @@ export default function NewClubsCarousel() {
   return (
     <div className="flex gap-4 overflow-x-auto pb-4">
       {clubs.map((club) => (
-        <div
+        <Link
           key={club.organization_id}
-          className="min-w-[200px] bg-white rounded-lg shadow p-4"
+          href={`/dashboard/student/groups/${club.organization_id}`}
+          className="block min-w-[200px] bg-white rounded-lg shadow p-4 transition-shadow hover:shadow-md"
         >
           {club.logo_url && (
             <div className="relative h-32 w-full">
@@ -72,7 +74,7 @@ export default function NewClubsCarousel() {
               {club.description}
             </p>
           )}
-        </div>
+        </Link>
       ))}
     </div>
   );

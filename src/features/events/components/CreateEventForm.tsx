@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+import { track } from "@/lib/analytics";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { fetchClubs, type Organization } from "@/features/organizations/api";
 import { EMPTY_EVENT_FORM, type EventFormValues } from "@/constants/defaults";
@@ -72,7 +73,9 @@ export default function CreateEventForm({
     }, [user, updateLocation]);
 
   useEffect(() => {
-    fetchClubs({ search: clubQuery }).then(({ clubs }) => setClubs(clubs));
+    fetchClubs({ search: clubQuery, status: "approved" }).then(({ clubs }) =>
+      setClubs(clubs)
+    );
   }, [clubQuery]);
 
   const watched = useWatch({ control });
@@ -116,6 +119,10 @@ export default function CreateEventForm({
         image_url: signedUrlData.signedUrl,
       });
       if (error) throw error;
+      track("event_created", {
+        organization_id: data.organization_id,
+        status: user.role_type === "Institution Admin" ? "approved" : "pending",
+      });
       setToast({
         msg:
           user.role_type === "Institution Admin"

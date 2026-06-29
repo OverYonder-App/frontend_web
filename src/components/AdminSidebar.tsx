@@ -86,7 +86,7 @@ const NAV: NavItem[] = [
   //   ],
   // },
   // { label: "Analytics", href: "/institution-admin/analytics" },
-  { label: "Settings", href: "/institution-admin/settings" },
+  { label: "Settings", href: "/dashboard/institution-admin/settings" },
 ];
 
 // Map labels to lucide icons for consistent visual language.

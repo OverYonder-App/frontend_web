@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Toast } from "@/components/Toast";
 import { supabase } from "@/lib/supabase";
+import { track } from "@/lib/analytics";
 import Image from "next/image";
 
 export default function UserOnboardingForm() {
@@ -86,6 +87,8 @@ export default function UserOnboardingForm() {
       });
 
       if (!res.ok) throw new Error("Onboarding failed");
+
+      track("onboarding_completed", { role: form.selectedRole });
 
       // Best-effort: refresh so the onboarding=true claim is in the token
       // before the middleware re-checks. A transient refresh failure must not

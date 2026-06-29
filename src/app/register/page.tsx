@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
+import { track } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { UIErrorMessage } from "@/components/UIErrorComponent";
 import {
@@ -53,6 +54,7 @@ export default function RegistrationPage() {
       });
       if (signUpError) throw signUpError;
 
+      track("signed_up", { needs_confirmation: !data.session });
       setNeedsConfirmation(!data.session);
       setDialogOpen(true);
     } catch (err) {

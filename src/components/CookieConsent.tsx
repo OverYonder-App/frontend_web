@@ -8,6 +8,7 @@ import {
   setCookieConsent,
   type ConsentValue,
 } from "@/lib/cookieConsent";
+import { initAnalytics } from "@/lib/analytics";
 
 // Bottom cookie-consent banner. Renders nothing on the server and on the first
 // client render (so there's no hydration mismatch), then appears after mount if
@@ -25,8 +26,9 @@ export default function CookieConsent() {
   const choose = (value: ConsentValue) => {
     setCookieConsent(value);
     setVisible(false);
-    // When you add analytics/marketing scripts, load them here when
-    // value === "accepted" (or read hasAnalyticsConsent() where you mount them).
+    // Start analytics immediately on accept (no reload needed). initAnalytics
+    // is a no-op without consent, so reject simply leaves PostHog uninitialized.
+    if (value === "accepted") initAnalytics();
   };
 
   return (

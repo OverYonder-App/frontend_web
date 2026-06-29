@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { identifyUser, resetAnalytics } from '@/lib/analytics'
 
 export type User = {
   id: string
@@ -58,6 +59,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         ...session.user.user_metadata,
       })
       setAccessToken(token)
+      identifyUser(session.user.id, { role_type, institution_id })
     }
     setLoading(false)
   }
@@ -75,6 +77,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     await supabase.auth.signOut()
     setUser(null)
     setAccessToken(null)
+    resetAnalytics()
   }
 
   const value: UserContextValue = {
