@@ -8,13 +8,16 @@ account access / dashboard actions; the rest are in this repo.
 
 ## 0. Pre-flight (local)
 
+- [ ] `npm run lint` + `npx tsc --noEmit` + `npm run build` are green. (These
+      three also run in CI on every push/PR — see `.github/workflows/ci.yml`.)
 - [ ] Confirm migrations apply cleanly from scratch: `supabase db reset` (this
-      wipes the local DB and re-runs every migration in order + seed). Do this
-      once — it is the same path `supabase db push` takes against a fresh remote.
-- [ ] `npm run build` is green.
+      wipes the local DB and re-runs every migration in order + seed). It is the
+      same path `supabase db push` takes against a fresh remote. (Migrations now
+      through `20260611120016`; the chain through 120015 was verified clean
+      2026-06-27.)
 - [ ] Migration versions are unique (no two files share a numeric prefix).
       The old `20260611120007_jwt_institution_status.sql` was renumbered to
-      `…120013` precisely to fix a duplicate-version collision — don't reintroduce it.
+      `…120013` to fix a duplicate-version collision — don't reintroduce it.
 
 ## 1. Hosted Supabase project **[you]**
 
@@ -73,15 +76,30 @@ account access / dashboard actions; the rest are in this repo.
 
 ## 3. App (Vercel) **[you]**
 
-- [ ] Import the repo. Set all env vars from `.env.example` (Production scope).
-      `next.config.ts` now derives the next/image storage host from
-      `NEXT_PUBLIC_SUPABASE_URL`, so no image-host edit is needed per environment.
-- [ ] Set `NEXT_PUBLIC_APP_URL` to the canonical domain.
-- [ ] Generate prod Web Push keys: `npx web-push generate-vapid-keys` →
-      `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY`; set `VAPID_SUBJECT`
-      to `mailto:admin@your-domain.com`.
-- [ ] Generate `CRON_SECRET`: `openssl rand -hex 32`.
+Import the repo and set all env vars from `.env.example` (Production scope).
+`next.config.ts` derives the next/image storage host from `NEXT_PUBLIC_SUPABASE_URL`,
+so no per-environment image-host edit is needed. By group:
+
+- [ ] **Supabase**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+      `SUPABASE_SERVICE_ROLE_KEY`.
+- [ ] **App**: `NEXT_PUBLIC_APP_URL` = the canonical domain.
+- [ ] **Google OAuth** (optional): `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` /
+      `GOOGLE_REDIRECT_URI` (skip = the "Continue with Google" button errors;
+      password + magic link still work).
+- [ ] **Web Push**: `npx web-push generate-vapid-keys` →
+      `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY`; `VAPID_SUBJECT` =
+      `mailto:admin@your-domain.com`; `CRON_SECRET` = `openssl rand -hex 32`.
+- [ ] **Analytics (PostHog)**: `NEXT_PUBLIC_POSTHOG_KEY`,
+      `NEXT_PUBLIC_POSTHOG_HOST`. Consent-gated — only loads after the user
+      accepts cookies. Leave blank to disable.
+- [ ] **Error monitoring (Sentry)**: `NEXT_PUBLIC_SENTRY_DSN` (runtime capture).
+      For readable stack traces, also set `SENTRY_AUTH_TOKEN` as a **build-time**
+      var so source maps upload (org/project default to `gerald-ux` /
+      `javascript-nextjs` in `next.config.ts`; override with `SENTRY_ORG` /
+      `SENTRY_PROJECT`). Leave the DSN blank to disable.
 - [ ] Deploy.
+- [ ] (CI) Add `SENTRY_AUTH_TOKEN` as a GitHub Actions repo secret if you want
+      PR/build source-map uploads from CI too.
 
 ## 4. Push-reminder cron **[you]**
 
@@ -114,7 +132,16 @@ pg_cron job — drop/disable the migration's schedule to avoid double-dispatch
       (Dispatch pipeline + pg_cron path were verified locally 2026-06-27:
       a real Web Push delivered and the dedup ledger blocked the double-send.)
 
-## 5. Smoke test (prod)
+## 5. Legal **[you]**
+
+- [ ] In `/privacy` and `/terms`, replace the placeholders: real contact email
+      (currently `support@overyonder.app`), your domain, and the governing-law
+      jurisdiction. Have counsel review before relying on them.
+- [ ] The privacy policy already discloses PostHog analytics + Sentry error
+      monitoring + the cookie-consent banner — keep it in sync if you add or
+      remove third-party services.
+
+## 6. Smoke test (prod)
 
 - [ ] Sign up a new user → receive confirmation email → confirm → land on
       `/onboarding`.
@@ -123,14 +150,31 @@ pg_cron job — drop/disable the migration's schedule to avoid double-dispatch
       `/dashboard/oy/institutions`; confirm a member of that institution is
       released from `/pending` after re-login (JWT refresh carries the new
       `institution_status`).
+- [ ] Create an event linked to an approved club; RSVP to it; join a club from
+      `/dashboard/student/groups/<id>`.
 - [ ] Upload an avatar and confirm the image renders (validates next/image host).
+- [ ] Accept the cookie banner, then confirm PostHog receives the activation
+      funnel events (`signed_up` → `onboarding_completed` → `club_joined` →
+      `event_rsvp`) and that Sentry receives a test error.
 
 ---
 
 ### Known follow-ups (not blockers)
-- OY Admin `/dashboard/oy/{users,reports,media}` pages 404 (not built yet).
-- `features/{institutions,tags,categories}/api.ts` are TODO stubs.
-- Missing `public/images/student-preview.png` (landing-page next/image 400).
-- Remove stray `console.log`s; Nominatim geocoder (`src/lib/geocode.ts`) is
-  capped ~1 req/s — self-host or pay for scale.
-- Add privacy policy / terms.
+- Nominatim geocoder (`src/lib/geocode.ts`) is capped ~1 req/s — self-host or pay
+  before scale.
+- Per-institution **theming**: brand colors are editable in OY/admin settings and
+  stored, but the UI still uses the static `--primary` token — wire them up if you
+  sell branded institution spaces.
+- The event create picker lists **clubs** only (`organization_type = 'club'`), not
+  groups. The club link is now **optional** (migration `…120016`), so a new
+  institution with no clubs can still create campus-wide events; add groups to the
+  picker if you want events linkable to them too.
+- Push reminders only fire once the pg_cron Vault secrets (or Vercel Cron) are set
+  (§4) — optional for MVP.
+
+### Done this cycle (for reference)
+OY Admin surface (dashboard + institutions/users/reports/media), legal pages
+(`/privacy`, `/terms`) + cookie consent, PostHog analytics + activation funnel,
+Sentry error monitoring (Sentry-only), GitHub Actions CI, admin + student settings,
+club/group view with join/leave, event→club linking fix, landing preview images,
+console.log cleanup.

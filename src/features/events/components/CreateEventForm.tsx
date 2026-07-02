@@ -107,7 +107,7 @@ export default function CreateEventForm({
         description: data.description,
         start_date: new Date(data.start_date).toISOString(),
         end_date: new Date(data.end_date).toISOString(),
-        organization_id: data.organization_id,
+        organization_id: data.organization_id || null,
         institution_id: user.institution_id,
         created_by: user.id,
         latitude: data.location.lat,
@@ -120,7 +120,7 @@ export default function CreateEventForm({
       });
       if (error) throw error;
       track("event_created", {
-        organization_id: data.organization_id,
+        organization_id: data.organization_id || null,
         status: user.role_type === "Institution Admin" ? "approved" : "pending",
       });
       setToast({
@@ -265,11 +265,10 @@ export default function CreateEventForm({
           </div>
 
           <div>
-            <label className="block text-sm">Club</label>
+            <label className="block text-sm">Club (optional)</label>
             <Controller
               name="organization_id"
               control={control}
-              rules={{ required: true }}
               render={({ field }) => (
                 <Combobox
                   value={
@@ -284,7 +283,7 @@ export default function CreateEventForm({
                     className="w-full border rounded p-2"
                     displayValue={(c: Organization) => c?.name || ""}
                     onChange={(e) => setClubQuery(e.target.value)}
-                    placeholder="Search clubs..."
+                    placeholder="Search clubs… (leave blank for a campus-wide event)"
                   />
                   <Combobox.Options className="mt-2 max-h-40 overflow-auto rounded border bg-white">
                     {clubs.map((c) => (
@@ -300,9 +299,6 @@ export default function CreateEventForm({
                 </Combobox>
               )}
             />
-            {errors.organization_id && (
-              <p className="text-red-500 text-xs">Required</p>
-            )}
           </div>
         </div>
       )}
@@ -377,7 +373,7 @@ export default function CreateEventForm({
             <p>
               <strong>Club:</strong>{" "}
               {clubs.find((c) => c.organization_id === watched.organization_id)
-                ?.name || watched.organization_id}
+                ?.name || "Campus-wide (no club)"}
             </p>
             <p>
               <strong>When:</strong>{" "}

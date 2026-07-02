@@ -44,9 +44,15 @@ export default function PrivacyPolicyPage() {
           your name and email) from that provider.
         </li>
         <li>
-          <strong>Usage and device information</strong> — log data such as your
-          browser type, pages viewed, and general activity, used to operate and
-          improve the service.
+          <strong>Usage and analytics information</strong> — with your consent, we
+          use analytics (via PostHog) to collect data such as your browser type,
+          pages viewed, and general activity, to understand and improve the
+          service. You control this through the cookie banner.
+        </li>
+        <li>
+          <strong>Diagnostic information</strong> — to keep the service reliable we
+          use error monitoring (via Sentry) that records technical details when
+          something goes wrong (such as the error and the page it occurred on).
         </li>
       </ul>
 
@@ -77,7 +83,8 @@ export default function PrivacyPolicyPage() {
         <li>
           <strong>Service providers</strong> — vendors who help us operate the
           platform, such as our hosting and database provider, email delivery
-          provider, and push-notification services. They may process your
+          provider, push-notification services, product-analytics provider
+          (PostHog), and error-monitoring provider (Sentry). They may process your
           information only on our behalf.
         </li>
         <li>
@@ -88,9 +95,17 @@ export default function PrivacyPolicyPage() {
 
       <h2>Cookies and Similar Technologies</h2>
       <p>
-        We use cookies and similar technologies that are necessary to keep you
-        signed in and to operate core features of the service. Disabling these may
-        prevent you from logging in or using parts of the platform.
+        We use <strong>strictly necessary cookies</strong> to keep you signed in
+        and operate core features of the service; these cannot be turned off, and
+        disabling them may prevent you from logging in. With your consent, we also
+        use <strong>analytics cookies</strong> (via PostHog) to understand how the
+        service is used so we can improve it.
+      </p>
+      <p>
+        You choose whether to allow analytics cookies through the consent banner
+        shown on your first visit. Declining will not affect your ability to use
+        the platform. Error monitoring (via Sentry) is used to keep the service
+        reliable and does not set advertising or tracking cookies.
       </p>
 
       <h2>Data Retention</h2>

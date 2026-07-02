@@ -483,7 +483,7 @@ export type Database = {
           institution_id: string
           latitude: number
           longitude: number
-          organization_id: string
+          organization_id: string | null
           start_date: string
           status: Database["public"]["Enums"]["event_status"]
           title: string
@@ -500,7 +500,7 @@ export type Database = {
           institution_id: string
           latitude: number
           longitude: number
-          organization_id: string
+          organization_id?: string | null
           start_date: string
           status: Database["public"]["Enums"]["event_status"]
           title: string
@@ -517,7 +517,7 @@ export type Database = {
           institution_id?: string
           latitude?: number
           longitude?: number
-          organization_id?: string
+          organization_id?: string | null
           start_date?: string
           status?: Database["public"]["Enums"]["event_status"]
           title?: string

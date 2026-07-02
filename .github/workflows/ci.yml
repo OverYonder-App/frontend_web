@@ -32,5 +32,14 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit
 
+      - name: Unit tests
+        run: npm run test
+
+      # SENTRY_AUTH_TOKEN (add it as a repo secret: Settings → Secrets and
+      # variables → Actions) lets the build upload source maps so Sentry shows
+      # readable stack traces. Safe no-op if the secret is unset. org/project
+      # default to gerald-ux / javascript-nextjs in next.config.ts.
       - name: Build
         run: npm run build
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
