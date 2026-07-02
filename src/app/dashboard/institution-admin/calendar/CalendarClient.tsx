@@ -1,0 +1,223 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  addDays,
+  addMonths,
+  isSameDay,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
+import CalendarView from "@/components/calendar/CalendarView";
+// import MiniMonthView from "@/components/calendar/MiniMonthView";
+// import CategoryList from "@/components/calendar/CategoryList";
+import { Plus as PlusIcon } from "lucide-react";
+import type { Database } from "@/lib/database.types";
+import Link from "next/link";
+
+type EventRow = Database["public"]["Tables"]["events"]["Row"];
+
+export default function CalendarClient({ events }: { events: EventRow[] }) {
+  const router = useRouter();
+  const [view, setView] = useState<"day" | "week" | "month">("week");
+  const [current, setCurrent] = useState<Date>(new Date());
+  // const [miniMonth, setMiniMonth] = useState<Date>(new Date());
+  const [timeZone, setTimeZone] = useState<string>(
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
+
+  const VIEWS: ("day" | "week" | "month")[] = ["day", "week", "month"];
+
+  const changeRange = (dir: number) => {
+    if (view === "day") setCurrent((prev) => addDays(prev, dir));
+    else if (view === "week") setCurrent((prev) => addDays(prev, dir * 7));
+    else setCurrent((prev) => addMonths(prev, dir));
+  };
+
+  const zones = Intl.supportedValuesOf
+    ? Intl.supportedValuesOf("timeZone")
+    : [
+        "UTC",
+        "America/New_York",
+        "America/Chicago",
+        "America/Denver",
+        "America/Los_Angeles",
+      ];
+
+  // Format the header label based on the current view.
+  const label =
+    view === "day"
+      ? new Intl.DateTimeFormat(undefined, {
+          dateStyle: "full",
+          timeZone,
+        }).format(current)
+      : view === "week"
+      ? `${new Intl.DateTimeFormat(undefined, {
+          month: "short",
+          day: "numeric",
+          timeZone,
+        }).format(
+          startOfWeek(current, { weekStartsOn: 1 })
+        )} - ${new Intl.DateTimeFormat(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          timeZone,
+        }).format(endOfWeek(current, { weekStartsOn: 1 }))}`
+      : new Intl.DateTimeFormat(undefined, {
+          month: "long",
+          year: "numeric",
+          timeZone,
+        }).format(current);
+
+  // Filter events based on the current view.
+  let filtered = events;
+  if (view === "day") {
+    filtered = events.filter((e) =>
+      isSameDay(new Date(e.start_date as string), current)
+    );
+  } else if (view === "week") {
+    const start = startOfWeek(current, { weekStartsOn: 1 });
+    const end = endOfWeek(current, { weekStartsOn: 1 });
+    filtered = events.filter((e) => {
+      const d = new Date(e.start_date as string);
+      return d >= start && d <= end;
+    });
+  } else if (view === "month") {
+    const start = startOfMonth(current);
+    const end = endOfMonth(current);
+    filtered = events.filter((e) => {
+      const d = new Date(e.start_date as string);
+      return d >= start && d <= end;
+    });
+  }
+
+  return (
+    <div className="flex flex-col h-full bg-background p-4">
+      {/* Header section: search, view toggles, navigation and actions */}
+      <div className="mb-4 rounded-lg border border-border bg-card shadow-sm p-4 flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:space-x-4">
+        {/* Search input */}
+        <input
+          type="search"
+          placeholder="Search for anything"
+          className="flex-1 rounded border border-border px-3 py-2 text-sm placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        />
+        {/* View toggles */}
+        <div className="inline-flex overflow-hidden rounded border border-border bg-card">
+          {VIEWS.map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`px-4 py-2 text-sm font-medium capitalize transition ${
+                view === v
+                  ? "bg-primary text-primary-foreground"
+                  : "text-foreground hover:bg-primary/10 hover:text-primary"
+              }`}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+        {/* Today and range navigation */}
+        <button
+          type="button"
+          onClick={() => setCurrent(new Date())}
+          className="rounded border border-border px-4 py-2 text-sm hover:bg-muted"
+        >
+          Today
+        </button>
+        <div className="flex border rounded overflow-hidden">
+          <button
+            type="button"
+            onClick={() => changeRange(-1)}
+            className="px-3 py-2 text-sm hover:bg-muted"
+            aria-label="Previous"
+          >
+            &lt;
+          </button>
+          <button
+            type="button"
+            onClick={() => changeRange(1)}
+            className="px-3 py-2 text-sm border-l hover:bg-muted"
+            aria-label="Next"
+          >
+            &gt;
+          </button>
+        </div>
+        {/* Label showing the current range */}
+        <span className="text-sm font-medium whitespace-nowrap">{label}</span>
+        {/* Time zone selector */}
+        <select
+          value={timeZone}
+          onChange={(e) => setTimeZone(e.target.value)}
+          className="rounded border border-border px-2 py-2 text-sm focus:outline-none hidden focus:ring-1 focus:ring-primary"
+        >
+          {zones.map((z) => (
+            <option key={z} value={z}>
+              {z}
+            </option>
+          ))}
+        </select>
+        {/* Add event button */}
+        <Link
+          href="/dashboard/institution-admin/events/create"
+          className="flex items-center gap-2 rounded bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          <PlusIcon className="w-4 h-4" />
+          Add Event
+        </Link>
+      </div>
+      {/* Main layout: sidebar and calendar view */}
+      <div className="flex flex-1 overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+        {/* Sidebar with mini calendar and categories */}
+        {/* <div className="w-72 hidden md:block border-r p-4 overflow-y-auto"> */}
+          {/* <MiniMonthView
+            date={miniMonth}
+            selected={current}
+            onMonthChange={(d) => setMiniMonth(d)}
+            onSelect={(d) => setCurrent(d)}
+          /> */}
+
+          {/* <div className="mt-6">
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-gray-700">
+                My Calendars
+              </h3>
+              {/* Placeholder for add calendar button 
+              <button
+                type="button"
+                className="p-1 rounded hover:bg-gray-100"
+                aria-label="Add calendar"
+              >
+                +
+              </button>
+            </div>
+            <CategoryList
+              items={[
+                { label: "Social", color: "#38bdf8" },
+                { label: "Academic", color: "#818cf8" },
+                { label: "Sports", color: "#34d399" },
+                { label: "Cultural", color: "#fbbf24" },
+              ]}
+              showCheckbox
+            />
+          </div> */}
+        {/* </div> */}
+        {/* Main calendar view */}
+        <div className="flex-1 overflow-auto p-2">
+          <CalendarView
+            view={view}
+            events={filtered}
+            date={current}
+            timeZone={timeZone}
+            onSelectEvent={(id) => router.push(`/event/${id}`)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+

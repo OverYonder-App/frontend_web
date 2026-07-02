@@ -1,0 +1,199 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Combobox } from "@headlessui/react";
+import { updateClub, type Organization, type OrganizationUpdate } from "../api";
+import { supabase } from "@/lib/supabase";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { Toast } from "@/components/Toast";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+
+interface SimpleUser {
+  user_id: string;
+  first_name: string | null;
+  last_name: string | null;
+  username: string;
+}
+
+interface Props {
+  club: Organization;
+  onUpdated?: (club: Organization) => void;
+}
+
+export default function EditClubForm({ club, onUpdated }: Props) {
+  const { user } = useCurrentUser();
+  const [name, setName] = useState(club.name);
+  const [description, setDescription] = useState(club.description);
+  const [type, setType] = useState<"club" | "group">(
+    club.organization_type as "club" | "group"
+  );
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [createdBy, setCreatedBy] = useState<SimpleUser | null>(null);
+  const [userQuery, setUserQuery] = useState("");
+  const [users, setUsers] = useState<SimpleUser[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      if (!club.created_by) return;
+      const { data } = await supabase
+        .from("users")
+        .select("user_id, first_name, last_name, username")
+        .eq("user_id", club.created_by)
+        .single();
+      if (data) setCreatedBy(data as SimpleUser);
+    };
+    loadUser();
+  }, [club.created_by]);
+
+  useEffect(() => {
+    if (!userQuery) {
+      setUsers([]);
+      return;
+    }
+    const fetchUsers = async () => {
+      if (!user?.institution_id) return;
+      const { data } = await supabase
+        .from("users")
+        .select("user_id, first_name, last_name, username")
+        .eq("institution_id", user.institution_id)
+        .or(
+          `username.ilike.%${userQuery}%,first_name.ilike.%${userQuery}%,last_name.ilike.%${userQuery}%`
+        )
+        .limit(10);
+      if (data) setUsers(data as SimpleUser[]);
+    };
+    fetchUsers();
+  }, [userQuery, user?.institution_id]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    if (!name || !description || !createdBy) {
+      setToast({ msg: "Please fill all required fields", type: "error" });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      let logo_url = club.logo_url || null;
+      if (logoFile) {
+        const ext = logoFile.name.split(".").pop();
+        const filePath = `${user.institution_id}/clubs/${club.organization_id}/logo.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("oy-media")
+          .upload(filePath, logoFile, { upsert: true });
+        if (uploadError) throw uploadError;
+        const { data: urlData, error: signedUrlError } = await supabase.storage
+          .from("oy-media")
+          .createSignedUrl(filePath, 60 * 60 * 24 * 365 * 100);
+        if (signedUrlError) throw signedUrlError;
+        logo_url = urlData.signedUrl;
+      }
+      const payload: OrganizationUpdate = {
+        name,
+        description,
+        organization_type: type,
+        created_by: createdBy.user_id,
+        logo_url,
+        updated_by: user.id,
+      } as OrganizationUpdate;
+      const updated = await updateClub(club.organization_id, payload);
+      setToast({ msg: "Club updated", type: "success" });
+      if (onUpdated) onUpdated(updated);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setToast({ msg: message, type: "error" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="p-4 bg-gray-100 rounded-xl shadow space-y-4"
+    >
+      <h1 className="text-xl font-semibold">Edit Club</h1>
+      <div>
+        <label className="block text-sm font-medium">Name</label>
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="mt-1"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Description</label>
+        <Textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="mt-1"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Type</label>
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value as "club" | "group")}
+          className="mt-1 h-9 w-full rounded-md border px-3"
+        >
+          <option value="club">Club</option>
+          <option value="group">Group</option>
+        </select>
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Created By</label>
+        <Combobox value={createdBy} onChange={setCreatedBy}>
+          <Combobox.Input
+            as={Input}
+            className="mt-1"
+            displayValue={(u: SimpleUser) =>
+              u
+                ? u.first_name
+                  ? `${u.first_name} ${u.last_name} (@${u.username})`
+                  : u.username
+                : ""
+            }
+            onChange={(e) => setUserQuery(e.target.value)}
+            placeholder="Search users..."
+          />
+          {users.length > 0 && (
+            <Combobox.Options className="mt-1 max-h-40 overflow-auto rounded-md border bg-background shadow">
+              {users.map((u) => (
+                <Combobox.Option
+                  key={u.user_id}
+                  value={u}
+                  className="cursor-pointer p-2 hover:bg-muted"
+                >
+                  {u.first_name
+                    ? `${u.first_name} ${u.last_name} (@${u.username})`
+                    : u.username}
+                </Combobox.Option>
+              ))}
+            </Combobox.Options>
+          )}
+        </Combobox>
+      </div>
+      <div>
+        <label className="block text-sm font-medium">Logo</label>
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
+          className="mt-1"
+        />
+      </div>
+      <div className="pt-2">
+        <Button type="submit" disabled={submitting} className="w-full">
+          Update
+        </Button>
+      </div>
+      {toast && (
+        <Toast message={toast.msg} type={toast.type} onClose={() => setToast(null)} />
+      )}
+    </form>
+  );
+}

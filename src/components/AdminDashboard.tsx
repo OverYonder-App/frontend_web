@@ -1,0 +1,498 @@
+// File: src/components/AdminDashboard.tsx
+"use client";
+
+import React, { useState, useEffect } from "react";
+
+
+import { useRouter } from "next/navigation";
+import { DndContext, closestCenter, DragEndEvent } from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import CompactCalendar from "@/components/calendar/CompactCalendar";
+import type { EventRecord } from "@/lib/types";
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react";
+
+import {
+  Calendar as CalendarIcon,
+  // CreditCard as CreditCardIcon,
+  List as EventsIcon,
+  Users as ClubsIcon,
+  // Box as ReservationsIcon,
+  // DollarSign as BudgetIcon,
+  User as UsersIcon,
+  // Mail as MessagingIcon,
+  // ShieldOff as ModerationIcon,
+  // Image as ImagesIcon,
+  // BarChart2 as AnalyticsIcon,
+  Settings as SettingsIcon,
+  Star as StarOnIcon,
+  StarOff as StarOffIcon,
+  // PlusCircle as AddIcon,
+  // Bell as BellIcon,
+  // Edit2 as EditIcon,
+} from "lucide-react";
+
+// Configuration for dashboard cards
+type CardConfig = {
+  id: string;
+  title: string;
+  summary: string;
+  href: string;
+  sparkData?: { value: number }[];
+  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+};
+
+const DEFAULT_CARDS: CardConfig[] = [
+  {
+    id: "calendar",
+    title: "Calendar",
+    summary: "Month & year overview",
+    href: "/dashboard/institution-admin/calendar",
+    Icon: CalendarIcon,
+    sparkData: Array.from({ length: 7 }, (_,i) => ({
+      value: 5 + i,
+    })),
+  },
+  // {
+  //   id: "billing",
+  //   title: "Accounts & Billing",
+  //   summary: "Balance & payments",
+  //   href: "/admin/billing",
+  //   Icon: CreditCardIcon,
+  //   sparkData: Array.from({ length: 7 }, () => ({
+  //     value: Math.random() * 5000,
+  //   })),
+  // },
+  {
+    id: "events",
+    title: "Manage Events",
+    summary: "Create, edit & approve",
+    href: "/dashboard/institution-admin/events",
+    Icon: EventsIcon,
+    sparkData: Array.from({ length: 7 }, (_, i) => ({
+      value: 10+i,
+    })),
+  },
+  {
+    id: "clubs",
+    title: "Manage Clubs",
+    summary: "Approve & edit clubs",
+    href: "/dashboard/institution-admin/clubs",
+    Icon: ClubsIcon,
+  },
+  // {
+  //   id: "reservations",
+  //   title: "Reservations",
+  //   summary: "Rooms & equipment",
+  //   href: "/dashboard/institution-admin/reservations",
+  //   Icon: ReservationsIcon,
+  // },
+  // {
+  //   id: "budget",
+  //   title: "Budget & Funding",
+  //   summary: "Requests & allocations",
+  //   href: "/dashboard/institution-admin/budget",
+  //   Icon: BudgetIcon,
+  // },
+  {
+    id: "users",
+    title: "Users",
+    summary: "Directory & roles",
+    href: "/users",
+    Icon: UsersIcon,
+  },
+  // {
+  //   id: "messaging",
+  //   title: "Messaging",
+  //   summary: "Email & push",
+  //   href: "/dashboard/institution-admin/messaging",
+  //   Icon: MessagingIcon,
+  // },
+  // {
+  //   id: "moderation",
+  //   title: "Moderation",
+  //   summary: "Reported content",
+  //   href: "/dashboard/institution-admin/moderation",
+  //   Icon: ModerationIcon,
+  // },
+  // {
+  //   id: "images",
+  //   title: "Image Moderation",
+  //   summary: "Review flagged images",
+  //   href: "/dashboard/institution-admin/moderation/images",
+  //   Icon: ImagesIcon,
+  // },
+  // {
+  //   id: "analytics",
+  //   title: "Analytics",
+  //   summary: "Usage & performance",
+  //   href: "/dashboard/institution-admin/analytics",
+  //   Icon: AnalyticsIcon,
+  // },
+  {
+    id: "settings",
+    title: "Settings",
+    summary: "Platform configuration",
+    href: "/dashboard/institution-admin/settings",
+    Icon: SettingsIcon,
+  },
+];
+
+// Sortable card item using dnd-kit
+function SortableCard(props: {
+  card: CardConfig;
+  isPinned: boolean;
+  onTogglePin: () => void;
+  events: EventRecord[];
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: props.card.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <DashboardCard {...props} events={props.events} />
+    </div>
+  );
+}
+
+export default function AdminDashboard() {
+  const [cards, setCards] = useState<CardConfig[]>([]);
+  const [pinned, setPinned] = useState<string[]>([]);
+  const [visible, setVisible] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  // const [notifCount] = useState(3);
+  const [query, setQuery] = useState("");
+  const [showCmd, setShowCmd] = useState(false);
+  const [events, setEvents] = useState<EventRecord[]>([]);
+  const [selectedCard, setSelectedCard] = useState<CardConfig | null>(null);
+
+  // Initialize state from localStorage
+  useEffect(() => {
+    const storedOrder = JSON.parse(
+      localStorage.getItem("dashboardOrder") || "null"
+    );
+    const storedPins = JSON.parse(
+      localStorage.getItem("dashboardPinned") || "[]"
+    );
+    const storedVis = JSON.parse(
+      localStorage.getItem("dashboardVisible") || "null"
+    );
+    setPinned(storedPins);
+    setVisible(storedVis || DEFAULT_CARDS.map((c) => c.id));
+    const base = DEFAULT_CARDS;
+    setCards(
+      storedOrder
+        ? storedOrder
+            .map((id: string) => base.find((c) => c.id === id)!)
+            .filter(Boolean)
+        : base
+    );
+    // Simulate fetch delay for skeleton
+    setTimeout(() => setLoading(false), 300);
+  }, []);
+
+  // Fetch events for calendar card
+  useEffect(() => {
+    fetch("/api/events", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) =>
+        setEvents(Array.isArray(data) ? data : data.events || [])
+      );
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-6 animate-pulse grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="h-40 bg-muted rounded-2xl" />
+        ))}
+      </div>
+    );
+  }
+
+  const filtered = cards
+    .filter((c) => visible.includes(c.id))
+    .filter((c) => c.title.toLowerCase().includes(query.toLowerCase()));
+  const pinnedCards = filtered.filter((c) => pinned.includes(c.id));
+  const otherCards = filtered.filter((c) => !pinned.includes(c.id));
+
+  const onDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setCards((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        const newItems = arrayMove(items, oldIndex, newIndex);
+        localStorage.setItem(
+          "dashboardOrder",
+          JSON.stringify(newItems.map((i) => i.id))
+        );
+        return newItems;
+      });
+    }
+  };
+
+  const togglePin = (id: string) => {
+    setPinned((p) => {
+      const next = p.includes(id) ? p.filter((x) => x !== id) : [...p, id];
+      localStorage.setItem("dashboardPinned", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const toggleVisible = (id: string) => {
+    setVisible((v) => {
+      const next = v.includes(id) ? v.filter((x) => x !== id) : [...v, id];
+      localStorage.setItem("dashboardVisible", JSON.stringify(next));
+      return next;
+    });
+  };
+
+  return (
+    <section className="p-6 bg-background min-h-full flex-1">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between mb-6 gap-4">
+        <h1 className="text-3xl font-extrabold text-foreground flex-1">
+          Dashboard
+        </h1>
+        <button
+          onClick={() => setShowCmd(true)}
+          className="px-6 py-2 bg-card rounded-lg shadow"
+        >
+          Search
+        </button>
+        {/* <Tippy content="Notifications">
+          <button className="relative p-2 bg-white dark:bg-gray-800 rounded-full shadow">
+            <BellIcon />
+            {notifCount > 0 && (
+              <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                {notifCount}
+              </span>
+            )}
+          </button>
+        </Tippy> */}
+      </div>
+
+      {/* Command Palette */}
+      {showCmd && (
+        <Combobox<CardConfig | null>
+          onChange={(item: CardConfig | null) => {
+            setShowCmd(false);
+            if (item) {
+              setSelectedCard(item);
+              window.location.href = item.href;
+            }
+          }}
+          value={selectedCard}
+        >
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+            onClick={() => {
+              setShowCmd(false);
+              setQuery("");
+            }}
+          />
+          <div className="fixed z-50 top-24 left-1/2 w-full max-w-md -translate-x-1/2 rounded-xl bg-card p-4 shadow-xl">
+            <div className="flex items-center gap-2">
+              <ComboboxInput
+                placeholder="Search cards..."
+                className="w-full rounded-md border border-border bg-muted px-3 py-2 text-foreground focus:border-primary focus:ring-2 focus:ring-primary"
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery("")}
+                  className="text-muted-foreground hover:text-foreground"
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            <ComboboxOptions className="mt-3 max-h-60 overflow-auto rounded-md border border-border bg-card">
+              {filtered.length > 0 ? (
+                filtered.map((item) => (
+                  <ComboboxOption
+                    key={item.id}
+                    value={item}
+                    className="cursor-pointer p-3 hover:bg-muted"
+                  >
+                    {item.title}
+                  </ComboboxOption>
+                ))
+              ) : (
+                <div className="p-3 text-center text-sm text-muted-foreground">
+                  No results
+                </div>
+              )}
+            </ComboboxOptions>
+          </div>
+        </Combobox>
+      )}
+
+      {/* Widget Toggles */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        {DEFAULT_CARDS.map((c) => (
+          <button
+            key={c.id}
+            onClick={() => toggleVisible(c.id)}
+            className={`px-3 py-1 rounded-full text-sm ${
+              visible.includes(c.id)
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {" "}
+            {c.title}{" "}
+          </button>
+        ))}
+      </div>
+
+      {/* Drag-and-Drop Cards */}
+      <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext
+          items={otherCards.map((f) => f.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {pinnedCards.length > 0 && (
+            <>
+              <h2 className="w-full mb-2 text-lg font-semibold text-foreground">
+                Favorites
+              </h2>
+              <div className="flex flex-wrap gap-4 mb-4">
+                {pinnedCards.map((card) => (
+                  <DashboardCard
+                    key={card.id}
+                    card={card}
+                    isPinned={true}
+                    onTogglePin={() => togglePin(card.id)}
+                    events={events}
+                  />
+                ))}
+              </div>
+              <h2 className="w-full mb-2 text-lg font-semibold text-foreground">
+                All
+              </h2>
+            </>
+          )}
+          <div className="flex flex-wrap gap-4">
+            {otherCards.map((card) => (
+              <SortableCard
+                key={card.id}
+                card={card}
+                isPinned={false}
+                onTogglePin={() => togglePin(card.id)}
+                events={events}
+              />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </section>
+  );
+}
+
+// Basic DashboardCard that supports inline edit and sparklines
+function DashboardCard({
+  card,
+  isPinned,
+  onTogglePin,
+  events,
+}: {
+  card: CardConfig;
+  isPinned: boolean;
+  onTogglePin: () => void;
+  events: EventRecord[];
+}) {
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(card.summary);
+  const router = useRouter();
+  return (
+    <div
+      onDoubleClick={() => router.push(card.href)}
+      className="relative w-60 bg-card rounded-2xl p-4 shadow hover:shadow-lg transition cursor-pointer"
+    >
+      <button
+        onPointerDown={(e) => e.stopPropagation()}
+        onDoubleClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onTogglePin();
+        }}
+        className="absolute top-2 right-2 text-muted-foreground hover:text-yellow-500 z-20"
+        aria-label={isPinned ? "Unpin card" : "Pin card"}
+      >
+        {isPinned ? <StarOnIcon /> : <StarOffIcon />}
+      </button>
+      {(() => {
+        const Icon = card.Icon;
+        return <Icon className="w-6 h-6 text-primary mb-2" />;
+      })()}
+      <h3 className="font-semibold mb-1 text-foreground">
+        {card.title}
+      </h3>
+      {editing ? (
+        <textarea
+          onClick={(e) => e.stopPropagation()}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={() => setEditing(false)}
+          className="w-full p-1 border border-border rounded bg-muted"
+        />
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          {text}{" "}
+          {/* <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditing(true);
+            }}
+            className="inline-flex items-center"
+          >
+            <EditIcon className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+        </button> */}
+        </p>
+      )}
+      {/* {card.sparkData && (
+        <div className="mt-2 h-16">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={card.sparkData}>
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="#3b82f6"
+                dot={false}
+                strokeWidth={2}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )} */}
+      {card.id === "calendar" && events && <CompactCalendar events={events} />}
+      {/* <Tippy content="Quick create">
+        <Link
+          href={card.href}
+          onClick={(e) => e.stopPropagation()}
+          className="absolute bottom-2 right-2 text-primary hover:text-primary/80 z-20"
+        >
+          <AddIcon />
+        </Link>
+      </Tippy> */}
+    </div>
+  );
+}
+
+/*
+Dependencies to install:
+ npm install recharts @dnd-kit/core @dnd-kit/sortable @headlessui/react @tippyjs/react tippy.js lucide-react
+*/
