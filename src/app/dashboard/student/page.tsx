@@ -20,7 +20,7 @@ export default function StudentHomeYonderView() {
   const navButton = (
     label: string,
     active: boolean,
-    onClick: () => void
+    onClick: () => void,
   ) => (
     <button
       onClick={onClick}
@@ -36,7 +36,7 @@ export default function StudentHomeYonderView() {
 
   const rangeButton = (
     label: string,
-    value: "week" | "month"
+    value: "week" | "month",
   ) => (
     <button
       onClick={() => setRange(value)}
@@ -50,7 +50,7 @@ export default function StudentHomeYonderView() {
 
   const viewButton = (
     label: string,
-    value: "discover" | "feed"
+    value: "discover" | "feed",
   ) => (
     <button
       onClick={() => setView(value)}
@@ -64,20 +64,21 @@ export default function StudentHomeYonderView() {
 
   return (
     <StudentLayout>
-      <main className="min-h-screen bg-[#f9f9ff] p-4 md:p-8">
-        <header className="mb-4 md:mb-6 space-y-4">
-          <h1 className="text-2xl font-bold text-primary">
-            What’s happening at your campus
-          </h1>
-          <GlobalSearchBar />
-        </header>
-
-        <div className="space-y-6">
+      <div className="min-h-screen bg-[#f9f9ff]">
+        <div className="sticky top-0 z-10 bg-[#f9f9ff] p-4 md:p-8">
+          <header className="mb-4 md:mb-6 space-y-4">
+            <h1 className="text-2xl font-bold text-primary">
+              What’s happening at your campus
+            </h1>
+            <GlobalSearchBar />
+          </header>
           <nav className="flex w-full border-b">
             {navButton("Events", section === "events", () => setSection("events"))}
             {navButton("Clubs", section === "clubs", () => setSection("clubs"))}
           </nav>
+        </div>
 
+        <div className="space-y-6 p-4 md:p-8 mt-6">
           {section === "events" && (
             <div className="space-y-8">
               <nav className="flex w-full">
@@ -147,7 +148,8 @@ export default function StudentHomeYonderView() {
             </div>
           )}
         </div>
-      </main>
+      </div>
     </StudentLayout>
   );
 }
+
